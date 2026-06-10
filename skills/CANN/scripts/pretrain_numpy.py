@@ -376,9 +376,9 @@ def run_daily_training_numpy(data_dir: str, verbose: bool = True) -> Optional[Nu
     csv_path = os.path.join(data_dir, 'historical_samples.csv')
     features, months, vids, ys, _ = load_csv_samples(csv_path, filter_invalid=True)
 
-    if len(features) < 30:
+    if len(features) < 25:
         if verbose:
-            print(f'  ⚠️ 有效样本不足({len(features)}<30)，跳过训练')
+            print(f'  ⚠️ 有效样本不足({len(features)}<25)，跳过训练')
         return None
 
     # 时序划分

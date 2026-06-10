@@ -69,8 +69,8 @@ Input(48) → Linear(48,48)+BN+ReLU+Drop(0.25)+Residual
 **35个** Binance TradFi USDT-M 永续品种（美股个股32+ETF5+商品3+Pre-IPO2，可能随Binance上架变化）。
 
 ## 冷启动
-- <30有效样本 → 不训练，CANN=0.5（中性）
-- 30-100样本 → 高Dropout(0.35)防过拟合
+- <25有效样本 → 不训练，CANN=0.5（中性）
+- 25-100样本 → 高Dropout(0.35)防过拟合
 - >100样本 → 标准训练
 
 ## 交易日规则
