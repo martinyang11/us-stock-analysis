@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-CANN 纯NumPy神经网络 — 加密版 v4.0
+CANN 纯NumPy神经网络 — TradFi版 v4.0
 
 核心适配：
-- 币种数 53→50, Embedding(50,8)
-- y值 sigmoid 系数 10→20 (加密波动率更高)
-- 数据源 Binance API
-- 24/7无交易日概念
+- 品种数 53→35, Embedding(35,8)
+- y值 sigmoid 系数 20 (适配股票波动率)
+- 数据源 Binance API (TradFi永续)
+- 美股+ETF+商品永续
 
 架构：
 Input(48) → Linear(48,48) + BN + ReLU + Drop(0.25) + Residual
@@ -27,7 +27,7 @@ from typing import Dict, List, Optional, Tuple
 logger = logging.getLogger('CANN.numpy')
 
 # ---- 币种映射 (50个) ----
-NUM_VARIETIES = 50
+NUM_VARIETIES = 35
 EMBEDDING_DIM = 8
 INPUT_SCORES = 38  # 14基本面 + 24技术面
 HIDDEN_DIMS = [48, 32, 16, 8]  # 4层

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-CANN每日管线脚本 — 加密版 v4.1
-每日 UTC 00:15 执行：回填昨日y值 → 微调 → CA技术面采集 → 追加今日样本 → 推理
+CANN每日管线脚本 — TradFi版 v4.1
+每日 UTC 00:15 执行：回填昨日y值 → 微调 → SA技术面采集 → 追加今日样本 → 推理
 
 核心原则：
-- CA统一输出14维基本面评分，技术面24维由Binance K线计算
+- SA统一输出14维基本面评分，技术面24维由Binance K线计算
 - y值来自Binance API次日真实涨跌（UTC 00:00为日切）
-- 只有同时具备真实CA+真实y的样本才是有效训练数据
-- 今日新采集的CA数据(y=0.5占位)不参与当日微调
+- 只有同时具备真实SA+真实y的样本才是有效训练数据
+- 今日新采集的SA数据(y=0.5占位)不参与当日微调
 
 调度：每日 UTC 00:15 执行
 """
@@ -49,20 +49,22 @@ import pandas as pd
 
 # 路径设置
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# skills/CANN/scripts → skills/CryptoAnalysis/scripts
-CRYPTO_SCRIPTS_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'CryptoAnalysis', 'scripts'))
+# skills/CANN/scripts → skills/StockAnalysis/scripts
+SA_SCRIPTS_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'StockAnalysis', 'scripts'))
 # skills/CANN/scripts → skills/common
 COMMON_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'common'))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', '..'))
-for p in [PROJECT_ROOT, COMMON_DIR, CRYPTO_SCRIPTS_DIR, SCRIPT_DIR]:
+for p in [PROJECT_ROOT, COMMON_DIR, SA_SCRIPTS_DIR, SCRIPT_DIR]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-# 导入币安数据接口
-from binance_data import (
-    BinanceDataProvider, VARIETY_CODES, VARIETY_NAMES,
-    SYMBOLS, SYMBOL_TO_ID, NUM_VARIETIES
+# 导入品种列表（统一权威源）
+from skills.common.variety_list import (
+    VARIETY_CODES, VARIETY_NAMES, SYMBOLS, SYMBOL_TO_ID, NUM_VARIETIES
 )
+
+# 导入币安数据接口
+from binance_data import BinanceDataProvider
 
 logger = logging.getLogger('CANN.pipeline')
 

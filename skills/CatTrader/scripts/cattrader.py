@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-CatTrader — 基于CANN评分的加密趋势跟踪交易系统 v3.3
+CatTrader — 基于CANN评分的TradFi趋势跟踪交易系统 v3.4
 
 核心逻辑：
   每4小时执行一次决策循环：
-  1. 读取最新CA评分（14基本面+24技术面，由CANN管线统一计算）
-  2. 加载CANN模型推理，生成50币种综合评分s
-  3. 查表得到每个币种的目标杠杆（方向+倍数）
-  4. 选取目标杠杆最强的1多1空作为操作币种
+  1. 读取最新SA评分（14基本面+24技术面，由CANN管线统一计算）
+  2. 加载CANN模型推理，生成35品种综合评分s
+  3. 查表得到每个品种的目标杠杆（方向+倍数）
+  4. 选取目标杠杆最强的1多1空作为操作品种
   5. 与当前持仓对比，派生开仓/调仓/平仓/持有动作
 
 仓位映射表（s → 目标杠杆）：
@@ -17,7 +17,7 @@ CatTrader — 基于CANN评分的加密趋势跟踪交易系统 v3.3
   0.55 ≤ s < 0.65 → 做多 0.3×（σ∈[0.05,0.15)）
   s ≥ 0.65       → 做多 0.5×（σ≥0.15）
 
-加密版新增保护：
+TradFi版保护：
   - 资金费率 > 0.1% → 做多仓位减半
   - 资金费率 < -0.1% → 做空仓位减半
   - OI达到30日极值 → 标记警告
@@ -46,16 +46,17 @@ for pkg in ['numpy']:
 # 路径
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', '..'))
-CRYPTO_SCRIPTS = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'CryptoAnalysis', 'scripts'))
+SA_SCRIPTS = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'StockAnalysis', 'scripts'))
 CANN_SCRIPTS = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'CANN', 'scripts'))
-for p in [PROJECT_ROOT, CRYPTO_SCRIPTS, CANN_SCRIPTS, SCRIPT_DIR]:
+COMMON_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'common'))
+for p in [PROJECT_ROOT, SA_SCRIPTS, CANN_SCRIPTS, COMMON_DIR, SCRIPT_DIR]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from binance_data import (
-    BinanceDataProvider, VARIETY_NAMES, VARIETY_CODES,
-    SYMBOLS, NUM_VARIETIES
+from skills.common.variety_list import (
+    VARIETY_NAMES, VARIETY_CODES, SYMBOLS, NUM_VARIETIES
 )
+from binance_data import BinanceDataProvider
 
 logger = logging.getLogger('CatTrader')
 
