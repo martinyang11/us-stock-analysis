@@ -20,7 +20,7 @@ import time
 import logging
 import numpy as np
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 logger = logging.getLogger('BinanceData')
 
@@ -116,8 +116,14 @@ class BinanceDataProvider:
 
     def _get_client(self):
         if self._client is None:
+            import os
             Client = _get_client_class()
-            self._client = Client(self.api_key, self.api_secret) if self.api_key else Client()
+            # 支持代理：设置环境变量 BINANCE_PROXY=http://127.0.0.1:7890
+            proxy = os.environ.get('BINANCE_PROXY', os.environ.get('HTTPS_PROXY', os.environ.get('https_proxy', '')))
+            client_kwargs = {}
+            if proxy:
+                client_kwargs['requests_params'] = {'proxies': {'https': proxy}}
+            self._client = Client(self.api_key, self.api_secret, **client_kwargs) if self.api_key else Client(**client_kwargs)
         return self._client
 
     def __enter__(self): return self

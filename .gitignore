@@ -49,3 +49,4 @@ skills/CatTrader/data/reports/
 
 # But keep template structure
 !**/reports/.gitkeep
+.venv/
