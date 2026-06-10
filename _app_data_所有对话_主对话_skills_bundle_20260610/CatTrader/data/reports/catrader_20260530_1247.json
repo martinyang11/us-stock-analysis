@@ -1,0 +1,82 @@
+{
+  "run_time": "2026-05-30T12:47:59.358289",
+  "date": "20260530",
+  "run_count": 1,
+  "score_stats": {
+    "mean": 0.5,
+    "std": 0.0,
+    "min": 0.5,
+    "max": 0.5,
+    "bullish_count": 0,
+    "bearish_count": 0,
+    "neutral_count": 53
+  },
+  "decisions": {
+    "opens": 0,
+    "closes": 0,
+    "holds": 0,
+    "adjusts": 0,
+    "skips": 2,
+    "details": [
+      {
+        "action": "空缺",
+        "variety_id": -1,
+        "variety_name": "无",
+        "direction": "多头",
+        "position_pct": 0.0,
+        "score": 0.5,
+        "sigma": 0.0,
+        "reason": "无多头候选（无品种s越过中性区）"
+      },
+      {
+        "action": "空缺",
+        "variety_id": -1,
+        "variety_name": "无",
+        "direction": "空头",
+        "position_pct": 0.0,
+        "score": 0.5,
+        "sigma": 0.0,
+        "reason": "无空头候选（无品种s越过中性区）"
+      }
+    ]
+  },
+  "positions": {
+    "total": 0,
+    "long": 0,
+    "short": 0,
+    "total_exposure": 0,
+    "details": []
+  },
+  "top5_sigma": [
+    {
+      "name": "螺纹钢",
+      "variety_id": 0,
+      "score": 0.5,
+      "sigma": 0.0
+    },
+    {
+      "name": "热卷",
+      "variety_id": 1,
+      "score": 0.5,
+      "sigma": 0.0
+    },
+    {
+      "name": "铁矿石",
+      "variety_id": 2,
+      "score": 0.5,
+      "sigma": 0.0
+    },
+    {
+      "name": "焦煤",
+      "variety_id": 3,
+      "score": 0.5,
+      "sigma": 0.0
+    },
+    {
+      "name": "焦炭",
+      "variety_id": 4,
+      "score": 0.5,
+      "sigma": 0.0
+    }
+  ]
+}

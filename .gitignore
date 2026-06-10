@@ -22,3 +22,30 @@ node_modules/
 *.key
 *.pem
 credentials.json
+binance_api.json
+
+# Model weights (too large, regenerate)
+*.npz
+
+# Training logs
+*.csv
+!**/币种列表.md
+
+# Daily scores (generated)
+skills/CANN/data/daily_scores/
+
+# Cache
+*.cache
+__pycache__/
+*.pyc
+
+# Binance cache
+.binance_cache/
+
+# Reports (generated daily)
+skills/CryptoAnalysis/reports/
+skills/CANN/reports/
+skills/CatTrader/data/reports/
+
+# But keep template structure
+!**/reports/.gitkeep

@@ -1,0 +1,113 @@
+{
+  "run_time": "2026-06-05T21:20:14.341117",
+  "date": "20260605",
+  "ca_date": "20260605",
+  "run_count": 28,
+  "score_stats": {
+    "mean": 0.5095727272727273,
+    "std": 0.02179148669921314,
+    "min": 0.4485,
+    "max": 0.5796
+  },
+  "zone_distribution": {
+    "空0.5×": 0,
+    "空0.3×": 1,
+    "平仓": 52,
+    "多0.3×": 2,
+    "多0.5×": 0
+  },
+  "decisions": {
+    "opens": 0,
+    "closes": 0,
+    "adjusts": 0,
+    "holds": 2,
+    "skips": 0,
+    "details": [
+      {
+        "action": "持有",
+        "variety_id": 4,
+        "variety_name": "焦炭",
+        "direction": "多头",
+        "leverage": 0.3,
+        "score": 0.5796,
+        "sigma": 0.0796,
+        "zone": "多0.3×",
+        "reason": "信号维持多0.3×区，σ=0.0796",
+        "contract_code": ""
+      },
+      {
+        "action": "持有",
+        "variety_id": 24,
+        "variety_name": "纯碱",
+        "direction": "空头",
+        "leverage": 0.3,
+        "score": 0.4485,
+        "sigma": 0.05149999999999999,
+        "zone": "空0.3×",
+        "reason": "信号维持空0.3×区，σ=0.0515",
+        "contract_code": ""
+      }
+    ]
+  },
+  "positions": {
+    "total": 2,
+    "long": 1,
+    "short": 1,
+    "details": [
+      {
+        "variety_id": 4,
+        "variety_name": "焦炭",
+        "direction": "多头",
+        "entry_score": 0.6259,
+        "entry_sigma": 0.1259,
+        "leverage": 0.3,
+        "entry_time": "2026-06-05T13:57:09.656323",
+        "entry_date": "20260605",
+        "contract_code": "DCE.j2609"
+      },
+      {
+        "variety_id": 24,
+        "variety_name": "纯碱",
+        "direction": "空头",
+        "entry_score": 0.4485,
+        "entry_sigma": 0.05149999999999999,
+        "leverage": 0.3,
+        "entry_time": "2026-06-05T21:19:59.216716",
+        "entry_date": "20260605",
+        "contract_code": ""
+      }
+    ]
+  },
+  "top5_sigma": [
+    {
+      "name": "焦炭",
+      "variety_id": 4,
+      "score": 0.5796,
+      "sigma": 0.0796
+    },
+    {
+      "name": "纯碱",
+      "variety_id": 24,
+      "score": 0.4485,
+      "sigma": 0.0515
+    },
+    {
+      "name": "焦煤",
+      "variety_id": 3,
+      "score": 0.5514,
+      "sigma": 0.0514
+    },
+    {
+      "name": "热卷",
+      "variety_id": 1,
+      "score": 0.5471,
+      "sigma": 0.0471
+    },
+    {
+      "name": "短纤",
+      "variety_id": 30,
+      "score": 0.4562,
+      "sigma": 0.0438
+    }
+  ]
+}

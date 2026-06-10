@@ -1,0 +1,438 @@
+{
+  "date": "2026-06-02",
+  "total": 53,
+  "bullish": 24,
+  "neutral": 15,
+  "bearish": 14,
+  "cann_range": [
+    0.3055,
+    0.8077
+  ],
+  "cann_std": 0.1475096087402489,
+  "scores": [
+    {
+      "variety_id": 0,
+      "variety_name": "螺纹钢",
+      "ca_mean": 0.4869,
+      "tech_mean": 0.2998,
+      "cann_score": 0.4605,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 1,
+      "variety_name": "热卷",
+      "ca_mean": 0.47,
+      "tech_mean": 0.2964,
+      "cann_score": 0.4324,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 2,
+      "variety_name": "铁矿石",
+      "ca_mean": 0.4622,
+      "tech_mean": 0.3337,
+      "cann_score": 0.4609,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 3,
+      "variety_name": "焦煤",
+      "ca_mean": 0.6056,
+      "tech_mean": 0.3385,
+      "cann_score": 0.7774,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 4,
+      "variety_name": "焦炭",
+      "ca_mean": 0.638,
+      "tech_mean": 0.3504,
+      "cann_score": 0.8073,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 5,
+      "variety_name": "硅铁",
+      "ca_mean": 0.502,
+      "tech_mean": 0.3591,
+      "cann_score": 0.5012,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 6,
+      "variety_name": "锰硅",
+      "ca_mean": 0.5086,
+      "tech_mean": 0.3934,
+      "cann_score": 0.5911,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 7,
+      "variety_name": "沪铜",
+      "ca_mean": 0.5725,
+      "tech_mean": 0.3357,
+      "cann_score": 0.7211,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 8,
+      "variety_name": "沪铝",
+      "ca_mean": 0.5831,
+      "tech_mean": 0.3201,
+      "cann_score": 0.7712,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 9,
+      "variety_name": "沪锌",
+      "ca_mean": 0.5665,
+      "tech_mean": 0.3705,
+      "cann_score": 0.7393,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 10,
+      "variety_name": "沪镍",
+      "ca_mean": 0.5366,
+      "tech_mean": 0.3201,
+      "cann_score": 0.6124,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 11,
+      "variety_name": "沪锡",
+      "ca_mean": 0.621,
+      "tech_mean": 0.4032,
+      "cann_score": 0.8077,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 12,
+      "variety_name": "氧化铝",
+      "ca_mean": 0.5363,
+      "tech_mean": 0.3368,
+      "cann_score": 0.6306,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 13,
+      "variety_name": "工业硅",
+      "ca_mean": 0.4682,
+      "tech_mean": 0.3669,
+      "cann_score": 0.4857,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 14,
+      "variety_name": "黄金",
+      "ca_mean": 0.5427,
+      "tech_mean": 0.2932,
+      "cann_score": 0.645,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 15,
+      "variety_name": "白银",
+      "ca_mean": 0.5428,
+      "tech_mean": 0.2897,
+      "cann_score": 0.5945,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 16,
+      "variety_name": "原油",
+      "ca_mean": 0.4374,
+      "tech_mean": 0.2785,
+      "cann_score": 0.3453,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 17,
+      "variety_name": "燃油",
+      "ca_mean": 0.4314,
+      "tech_mean": 0.2788,
+      "cann_score": 0.3234,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 18,
+      "variety_name": "低硫燃油",
+      "ca_mean": 0.4503,
+      "tech_mean": 0.2912,
+      "cann_score": 0.3215,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 19,
+      "variety_name": "沥青",
+      "ca_mean": 0.5678,
+      "tech_mean": 0.3179,
+      "cann_score": 0.6886,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 20,
+      "variety_name": "橡胶",
+      "ca_mean": 0.5982,
+      "tech_mean": 0.3428,
+      "cann_score": 0.7383,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 21,
+      "variety_name": "20号胶",
+      "ca_mean": 0.5965,
+      "tech_mean": 0.3996,
+      "cann_score": 0.7799,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 22,
+      "variety_name": "PTA",
+      "ca_mean": 0.4858,
+      "tech_mean": 0.3299,
+      "cann_score": 0.5256,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 23,
+      "variety_name": "甲醇",
+      "ca_mean": 0.5058,
+      "tech_mean": 0.3949,
+      "cann_score": 0.6147,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 24,
+      "variety_name": "纯碱",
+      "ca_mean": 0.4919,
+      "tech_mean": 0.3425,
+      "cann_score": 0.4773,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 25,
+      "variety_name": "玻璃",
+      "ca_mean": 0.4876,
+      "tech_mean": 0.3222,
+      "cann_score": 0.41,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 26,
+      "variety_name": "PP",
+      "ca_mean": 0.4657,
+      "tech_mean": 0.3279,
+      "cann_score": 0.5225,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 27,
+      "variety_name": "塑料",
+      "ca_mean": 0.4855,
+      "tech_mean": 0.3452,
+      "cann_score": 0.4851,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 28,
+      "variety_name": "PVC",
+      "ca_mean": 0.5112,
+      "tech_mean": 0.2993,
+      "cann_score": 0.5045,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 29,
+      "variety_name": "乙二醇",
+      "ca_mean": 0.4737,
+      "tech_mean": 0.2961,
+      "cann_score": 0.4395,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 30,
+      "variety_name": "短纤",
+      "ca_mean": 0.4228,
+      "tech_mean": 0.3552,
+      "cann_score": 0.3561,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 31,
+      "variety_name": "苯乙烯",
+      "ca_mean": 0.469,
+      "tech_mean": 0.2644,
+      "cann_score": 0.3649,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 32,
+      "variety_name": "纸浆",
+      "ca_mean": 0.4978,
+      "tech_mean": 0.2693,
+      "cann_score": 0.442,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 33,
+      "variety_name": "尿素",
+      "ca_mean": 0.4725,
+      "tech_mean": 0.3377,
+      "cann_score": 0.3954,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 34,
+      "variety_name": "豆一",
+      "ca_mean": 0.4722,
+      "tech_mean": 0.2657,
+      "cann_score": 0.3632,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 35,
+      "variety_name": "豆二",
+      "ca_mean": 0.4764,
+      "tech_mean": 0.2921,
+      "cann_score": 0.3394,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 36,
+      "variety_name": "豆粕",
+      "ca_mean": 0.4874,
+      "tech_mean": 0.2922,
+      "cann_score": 0.3555,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 37,
+      "variety_name": "豆油",
+      "ca_mean": 0.5122,
+      "tech_mean": 0.3365,
+      "cann_score": 0.5707,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 38,
+      "variety_name": "棕榈油",
+      "ca_mean": 0.578,
+      "tech_mean": 0.28,
+      "cann_score": 0.6673,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 39,
+      "variety_name": "菜油",
+      "ca_mean": 0.5817,
+      "tech_mean": 0.3616,
+      "cann_score": 0.8029,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 40,
+      "variety_name": "菜粕",
+      "ca_mean": 0.5131,
+      "tech_mean": 0.34,
+      "cann_score": 0.5201,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 41,
+      "variety_name": "玉米",
+      "ca_mean": 0.4788,
+      "tech_mean": 0.3355,
+      "cann_score": 0.4522,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 42,
+      "variety_name": "淀粉",
+      "ca_mean": 0.5143,
+      "tech_mean": 0.3235,
+      "cann_score": 0.5639,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 43,
+      "variety_name": "生猪",
+      "ca_mean": 0.6251,
+      "tech_mean": 0.2862,
+      "cann_score": 0.7341,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 44,
+      "variety_name": "鸡蛋",
+      "ca_mean": 0.5983,
+      "tech_mean": 0.4653,
+      "cann_score": 0.7731,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 45,
+      "variety_name": "棉花",
+      "ca_mean": 0.5481,
+      "tech_mean": 0.3622,
+      "cann_score": 0.6631,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 46,
+      "variety_name": "白糖",
+      "ca_mean": 0.5481,
+      "tech_mean": 0.3558,
+      "cann_score": 0.6359,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 47,
+      "variety_name": "苹果",
+      "ca_mean": -1.0,
+      "tech_mean": 0.3989,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 48,
+      "variety_name": "红枣",
+      "ca_mean": -1.0,
+      "tech_mean": 0.4311,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 49,
+      "variety_name": "花生",
+      "ca_mean": -1.0,
+      "tech_mean": 0.4171,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 50,
+      "variety_name": "棉纱",
+      "ca_mean": 0.4891,
+      "tech_mean": 0.4834,
+      "cann_score": 0.6317,
+      "direction": "偏多"
+    },
+    {
+      "variety_id": 51,
+      "variety_name": "碳酸锂",
+      "ca_mean": 0.4441,
+      "tech_mean": 0.3235,
+      "cann_score": 0.3055,
+      "direction": "偏空"
+    },
+    {
+      "variety_id": 52,
+      "variety_name": "集运指数(欧线)",
+      "ca_mean": -1.0,
+      "tech_mean": 0.4677,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    }
+  ]
+}

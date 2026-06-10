@@ -1,0 +1,162 @@
+{
+  "run_time": "2026-06-05T11:13:45.467310",
+  "date": "20260605",
+  "ca_date": "20260605",
+  "run_count": 24,
+  "score_stats": {
+    "mean": 0.5797745454545454,
+    "std": 0.05618611028029749,
+    "min": 0.4547,
+    "max": 0.701
+  },
+  "zone_distribution": {
+    "空0.5×": 0,
+    "空0.3×": 0,
+    "平仓": 17,
+    "多0.3×": 31,
+    "多0.5×": 7
+  },
+  "decisions": {
+    "opens": 0,
+    "closes": 0,
+    "adjusts": 0,
+    "holds": 4,
+    "skips": 1,
+    "details": [
+      {
+        "action": "持有",
+        "variety_id": 39,
+        "variety_name": "菜油",
+        "direction": "多头",
+        "leverage": 0.3,
+        "score": 0.5756,
+        "sigma": 0.0756,
+        "zone": "多0.3×",
+        "reason": "信号维持多0.3×区，σ=0.0756"
+      },
+      {
+        "action": "持有",
+        "variety_id": 13,
+        "variety_name": "工业硅",
+        "direction": "多头",
+        "leverage": 0.3,
+        "score": 0.598,
+        "sigma": 0.09799999999999998,
+        "zone": "多0.3×",
+        "reason": "信号维持多0.3×区，σ=0.0980"
+      },
+      {
+        "action": "持有",
+        "variety_id": 18,
+        "variety_name": "低硫燃油",
+        "direction": "多头",
+        "leverage": 0.5,
+        "score": 0.701,
+        "sigma": 0.20099999999999996,
+        "zone": "多0.5×",
+        "reason": "信号维持多0.5×区，σ=0.2010"
+      },
+      {
+        "action": "持有",
+        "variety_id": 15,
+        "variety_name": "白银",
+        "direction": "多头",
+        "leverage": 0.3,
+        "score": 0.5546,
+        "sigma": 0.05459999999999998,
+        "zone": "多0.3×",
+        "reason": "信号维持多0.3×区，σ=0.0546"
+      },
+      {
+        "action": "空缺",
+        "variety_id": -1,
+        "variety_name": "无",
+        "direction": "空头",
+        "leverage": 0.0,
+        "score": 0.5,
+        "sigma": 0.0,
+        "zone": "无",
+        "reason": "无空头候选（无品种s越过中性区）"
+      }
+    ]
+  },
+  "positions": {
+    "total": 4,
+    "long": 4,
+    "short": 0,
+    "details": [
+      {
+        "variety_id": 39,
+        "variety_name": "菜油",
+        "direction": "多头",
+        "entry_score": 0.5838,
+        "entry_sigma": 0.08379999999999999,
+        "leverage": 0.3,
+        "entry_time": "2026-06-04T11:13:58.916752",
+        "entry_date": "20260604"
+      },
+      {
+        "variety_id": 13,
+        "variety_name": "工业硅",
+        "direction": "多头",
+        "entry_score": 0.7005,
+        "entry_sigma": 0.2005,
+        "leverage": 0.3,
+        "entry_time": "2026-06-04T11:13:58.916752",
+        "entry_date": "20260604"
+      },
+      {
+        "variety_id": 18,
+        "variety_name": "低硫燃油",
+        "direction": "多头",
+        "entry_score": 0.7084,
+        "entry_sigma": 0.20840000000000003,
+        "leverage": 0.5,
+        "entry_time": "2026-06-04T21:20:13.904888",
+        "entry_date": "20260604"
+      },
+      {
+        "variety_id": 15,
+        "variety_name": "白银",
+        "direction": "多头",
+        "entry_score": 0.5546,
+        "entry_sigma": 0.05459999999999998,
+        "leverage": 0.3,
+        "entry_time": "2026-06-05T09:19:08.954956",
+        "entry_date": "20260605"
+      }
+    ]
+  },
+  "top5_sigma": [
+    {
+      "name": "低硫燃油",
+      "variety_id": 18,
+      "score": 0.701,
+      "sigma": 0.201
+    },
+    {
+      "name": "PP",
+      "variety_id": 26,
+      "score": 0.6769,
+      "sigma": 0.1769
+    },
+    {
+      "name": "PTA",
+      "variety_id": 22,
+      "score": 0.6764,
+      "sigma": 0.1764
+    },
+    {
+      "name": "燃油",
+      "variety_id": 17,
+      "score": 0.6663,
+      "sigma": 0.1663
+    },
+    {
+      "name": "苯乙烯",
+      "variety_id": 31,
+      "score": 0.6663,
+      "sigma": 0.1663
+    }
+  ]
+}

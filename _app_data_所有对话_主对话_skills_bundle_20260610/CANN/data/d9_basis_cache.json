@@ -1,0 +1,92 @@
+{
+  "_meta": {
+    "description": "D9基差预取缓存，由Agent日历任务每日刷新。缓存AKShare/TQSDK均失败的10个品种。",
+    "last_updated": "20260610",
+    "update_frequency": "daily",
+    "data_source": "Agent search_web工具聚合（生意社/叩富网/期货研报/cdgtw基差表）",
+    "confidence_note": "0.7-0.8=多源交叉验证, 0.5-0.6=单一来源, 0=无可用数据"
+  },
+  "varieties": {
+    "ao": {
+      "basis_rate": -0.034,
+      "spot_price": 2690,
+      "futures_price": 2780,
+      "source": "五矿期货(6/5基差-91)+招商期货(6/7基差-87)+瑞达期货(6/8基差-110)",
+      "confidence": 0.85,
+      "note": "现货贴水，供应过剩格局，偏空"
+    },
+    "sc": {
+      "basis_rate": null,
+      "spot_price": null,
+      "futures_price": null,
+      "source": "待补充",
+      "confidence": 0,
+      "note": "INE原油现货基差数据缺乏公开来源，暂时回退到D7/D8信号（EIA库存已修复）"
+    },
+    "lu": {
+      "basis_rate": 0.04,
+      "spot_price": 5151,
+      "futures_price": 4946,
+      "source": "cdgtw基差表(6/8):基差205,基差率3.98%; 大越期货(6/8):基差293",
+      "confidence": 0.85,
+      "note": "现货升水，中东地缘支撑，偏多"
+    },
+    "nr": {
+      "basis_rate": 0.033,
+      "spot_price": 15822,
+      "futures_price": 15295,
+      "source": "cdgtw基差表(6/8):基差527,基差率3.33%; 瑞达期货(6/9):基差756",
+      "confidence": 0.85,
+      "note": "现货升水，厄尔尼诺炒作+青岛去库，偏多"
+    },
+    "b": {
+      "basis_rate": 0.086,
+      "spot_price": null,
+      "futures_price": null,
+      "source": "叩富网基差表(6/5):基差330,基差率8.59%",
+      "confidence": 0.65,
+      "note": "进口大豆现货大幅升水，利多"
+    },
+    "cs": {
+      "basis_rate": 0.08,
+      "spot_price": 2966,
+      "futures_price": 2728,
+      "source": "生意社(6/9):基差238,基差率~8%; 叩富网(6/5):基差121,基差率4.29%",
+      "confidence": 0.75,
+      "note": "现货升水，玉米成本支撑，偏多"
+    },
+    "ap": {
+      "basis_rate": -0.178,
+      "spot_price": null,
+      "futures_price": 7701,
+      "source": "叩富网基差表(6/5):基差-1155,基差率-17.77%; 华泰期货(6/4):基差AP10约-1100",
+      "confidence": 0.8,
+      "note": "现货大幅贴水，库存高位+消费淡季，偏空"
+    },
+    "cj": {
+      "basis_rate": -0.16,
+      "spot_price": 7900,
+      "futures_price": 9440,
+      "source": "华泰期货(6/4):基差CJ09=-1540; 现货7.9元/公斤=7900元/吨",
+      "confidence": 0.75,
+      "note": "现货贴水，库存高+端午提振有限，偏空"
+    },
+    "pk": {
+      "basis_rate": -0.037,
+      "spot_price": 7800,
+      "futures_price": 8138,
+      "source": "中信建投(6/8):基差约-300(交割品); 叩富网(6/5):基差-1294(通货口径)",
+      "confidence": 0.6,
+      "note": "优先取交割品口径-300。通货与交割品价差大，confidence较低",
+      "note2": "花生基差口径差异大(通货vs交割品升水600-800元/吨)，已取保守估计"
+    },
+    "ec": {
+      "basis_rate": 0.0,
+      "spot_price": null,
+      "futures_price": null,
+      "source": "集运指数非实物商品，无传统基差概念。SCFI欧线≈2605, SCFIS欧线≈2038",
+      "confidence": 0,
+      "note": "特殊品种:运费指数期货,不适用基差框架。暂用中性0.5"
+    }
+  }
+}

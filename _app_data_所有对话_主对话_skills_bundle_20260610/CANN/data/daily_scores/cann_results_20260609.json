@@ -1,0 +1,402 @@
+{
+  "date": "2026-06-09",
+  "total": 55,
+  "bullish": 0,
+  "neutral": 45,
+  "bearish": 0,
+  "cann_range": [
+    0.4639,
+    0.5491
+  ],
+  "cann_std": 0.020007024881978308,
+  "cann_mean": 0.5035490909090908,
+  "threshold_bull": 0.55,
+  "threshold_bear": 0.45,
+  "scores": [
+    {
+      "variety_id": 0,
+      "variety_name": "螺纹钢",
+      "ca_mean": 0.4764,
+      "cann_score": 0.5135,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 1,
+      "variety_name": "热卷",
+      "ca_mean": 0.4713,
+      "cann_score": 0.5397,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 2,
+      "variety_name": "铁矿石",
+      "ca_mean": 0.4771,
+      "cann_score": 0.4858,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 3,
+      "variety_name": "焦煤",
+      "ca_mean": 0.535,
+      "cann_score": 0.5304,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 4,
+      "variety_name": "焦炭",
+      "ca_mean": 0.5372,
+      "cann_score": 0.5084,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 5,
+      "variety_name": "硅铁",
+      "ca_mean": 0.5049,
+      "cann_score": 0.5345,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 6,
+      "variety_name": "锰硅",
+      "ca_mean": 0.4931,
+      "cann_score": 0.4639,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 7,
+      "variety_name": "沪铜",
+      "ca_mean": 0.5184,
+      "cann_score": 0.4873,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 8,
+      "variety_name": "沪铝",
+      "ca_mean": 0.4739,
+      "cann_score": 0.5165,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 9,
+      "variety_name": "沪锌",
+      "ca_mean": 0.4832,
+      "cann_score": 0.5308,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 10,
+      "variety_name": "沪镍",
+      "ca_mean": 0.454,
+      "cann_score": 0.5095,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 11,
+      "variety_name": "沪锡",
+      "ca_mean": 0.4653,
+      "cann_score": 0.5491,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 12,
+      "variety_name": "氧化铝",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 13,
+      "variety_name": "工业硅",
+      "ca_mean": 0.4922,
+      "cann_score": 0.4832,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 14,
+      "variety_name": "黄金",
+      "ca_mean": 0.4587,
+      "cann_score": 0.5331,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 15,
+      "variety_name": "白银",
+      "ca_mean": 0.4532,
+      "cann_score": 0.5085,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 16,
+      "variety_name": "原油",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 17,
+      "variety_name": "燃油",
+      "ca_mean": 0.5214,
+      "cann_score": 0.4688,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 18,
+      "variety_name": "低硫燃油",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 19,
+      "variety_name": "沥青",
+      "ca_mean": 0.5655,
+      "cann_score": 0.494,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 20,
+      "variety_name": "橡胶",
+      "ca_mean": 0.4468,
+      "cann_score": 0.5457,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 21,
+      "variety_name": "20号胶",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 22,
+      "variety_name": "PTA",
+      "ca_mean": 0.5393,
+      "cann_score": 0.5024,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 23,
+      "variety_name": "甲醇",
+      "ca_mean": 0.5847,
+      "cann_score": 0.5249,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 24,
+      "variety_name": "纯碱",
+      "ca_mean": 0.4244,
+      "cann_score": 0.4653,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 25,
+      "variety_name": "玻璃",
+      "ca_mean": 0.4224,
+      "cann_score": 0.4655,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 26,
+      "variety_name": "PP",
+      "ca_mean": 0.5297,
+      "cann_score": 0.4946,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 27,
+      "variety_name": "塑料",
+      "ca_mean": 0.5355,
+      "cann_score": 0.4929,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 28,
+      "variety_name": "PVC",
+      "ca_mean": 0.4494,
+      "cann_score": 0.5008,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 29,
+      "variety_name": "乙二醇",
+      "ca_mean": 0.5292,
+      "cann_score": 0.5169,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 30,
+      "variety_name": "短纤",
+      "ca_mean": 0.5503,
+      "cann_score": 0.5042,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 31,
+      "variety_name": "苯乙烯",
+      "ca_mean": 0.5313,
+      "cann_score": 0.4997,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 32,
+      "variety_name": "纸浆",
+      "ca_mean": 0.5048,
+      "cann_score": 0.4895,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 33,
+      "variety_name": "尿素",
+      "ca_mean": 0.5562,
+      "cann_score": 0.4749,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 34,
+      "variety_name": "豆一",
+      "ca_mean": 0.4895,
+      "cann_score": 0.5129,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 35,
+      "variety_name": "豆二",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 36,
+      "variety_name": "豆粕",
+      "ca_mean": 0.4722,
+      "cann_score": 0.4923,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 37,
+      "variety_name": "豆油",
+      "ca_mean": 0.4882,
+      "cann_score": 0.5087,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 38,
+      "variety_name": "棕榈油",
+      "ca_mean": 0.4937,
+      "cann_score": 0.4818,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 39,
+      "variety_name": "菜油",
+      "ca_mean": 0.4974,
+      "cann_score": 0.5113,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 40,
+      "variety_name": "菜粕",
+      "ca_mean": 0.4914,
+      "cann_score": 0.5136,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 41,
+      "variety_name": "玉米",
+      "ca_mean": 0.5402,
+      "cann_score": 0.5052,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 42,
+      "variety_name": "淀粉",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 43,
+      "variety_name": "生猪",
+      "ca_mean": 0.543,
+      "cann_score": 0.52,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 44,
+      "variety_name": "鸡蛋",
+      "ca_mean": 0.4751,
+      "cann_score": 0.5313,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 45,
+      "variety_name": "棉花",
+      "ca_mean": 0.4816,
+      "cann_score": 0.5141,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 46,
+      "variety_name": "白糖",
+      "ca_mean": 0.475,
+      "cann_score": 0.4943,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 47,
+      "variety_name": "苹果",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 48,
+      "variety_name": "红枣",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 49,
+      "variety_name": "花生",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 50,
+      "variety_name": "棉纱",
+      "ca_mean": 0.491,
+      "cann_score": 0.4897,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 51,
+      "variety_name": "碳酸锂",
+      "ca_mean": 0.4478,
+      "cann_score": 0.482,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 52,
+      "variety_name": "集运指数(欧线)",
+      "ca_mean": -1.0,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 53,
+      "variety_name": "沪铅",
+      "ca_mean": 0.4827,
+      "cann_score": 0.473,
+      "direction": "中性"
+    },
+    {
+      "variety_id": 54,
+      "variety_name": "不锈钢",
+      "ca_mean": 0.4441,
+      "cann_score": 0.5307,
+      "direction": "中性"
+    }
+  ]
+}

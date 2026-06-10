@@ -1,0 +1,123 @@
+{
+  "run_time": "2026-05-30T12:49:34.339546",
+  "date": "20260530",
+  "run_count": 2,
+  "score_stats": {
+    "mean": 0.49641509433962266,
+    "std": 0.034041835505943877,
+    "min": 0.28,
+    "max": 0.58,
+    "bullish_count": 1,
+    "bearish_count": 2,
+    "neutral_count": 50
+  },
+  "decisions": {
+    "opens": 1,
+    "closes": 1,
+    "holds": 2,
+    "adjusts": 0,
+    "skips": 0,
+    "details": [
+      {
+        "action": "平仓",
+        "variety_id": 7,
+        "variety_name": "沪铜",
+        "direction": "多头",
+        "position_pct": 0.5,
+        "score": 0.53,
+        "sigma": 0.030000000000000027,
+        "reason": "多头s=0.5300≤0.55，信号回归中性区"
+      },
+      {
+        "action": "持有",
+        "variety_id": 3,
+        "variety_name": "焦煤",
+        "direction": "空头",
+        "position_pct": 0.5,
+        "score": 0.28,
+        "sigma": 0.21999999999999997,
+        "reason": "信号维持，σ=0.2200"
+      },
+      {
+        "action": "开仓",
+        "variety_id": 10,
+        "variety_name": "沪镍",
+        "direction": "多头",
+        "position_pct": 0.3,
+        "score": 0.58,
+        "sigma": 0.07999999999999996,
+        "reason": "一般显著σ=0.0800，s=0.5800"
+      },
+      {
+        "action": "持有",
+        "variety_id": 3,
+        "variety_name": "焦煤",
+        "direction": "空头",
+        "position_pct": 0.5,
+        "score": 0.28,
+        "sigma": 0.21999999999999997,
+        "reason": "已持有空头，维持"
+      }
+    ]
+  },
+  "positions": {
+    "total": 2,
+    "long": 1,
+    "short": 1,
+    "total_exposure": 0.8,
+    "details": [
+      {
+        "variety_id": 3,
+        "variety_name": "焦煤",
+        "direction": "空头",
+        "entry_score": 0.28,
+        "entry_sigma": 0.21999999999999997,
+        "position_pct": 0.5,
+        "entry_time": "2026-05-30T12:49:34.077742",
+        "entry_date": "20260530"
+      },
+      {
+        "variety_id": 10,
+        "variety_name": "沪镍",
+        "direction": "多头",
+        "entry_score": 0.58,
+        "entry_sigma": 0.07999999999999996,
+        "position_pct": 0.3,
+        "entry_time": "2026-05-30T12:49:34.263073",
+        "entry_date": "20260530"
+      }
+    ]
+  },
+  "top5_sigma": [
+    {
+      "name": "焦煤",
+      "variety_id": 3,
+      "score": 0.28,
+      "sigma": 0.22
+    },
+    {
+      "name": "玻璃",
+      "variety_id": 25,
+      "score": 0.42,
+      "sigma": 0.08
+    },
+    {
+      "name": "沪镍",
+      "variety_id": 10,
+      "score": 0.58,
+      "sigma": 0.08
+    },
+    {
+      "name": "沪铜",
+      "variety_id": 7,
+      "score": 0.53,
+      "sigma": 0.03
+    },
+    {
+      "name": "螺纹钢",
+      "variety_id": 0,
+      "score": 0.5,
+      "sigma": 0.0
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "cached_date": "2026-06-09",
+  "cached_time": "2026-06-09 16:33:59",
+  "macro_scores": {
+    "1_货币政策": 0.59,
+    "4_关键经济指标": 0.56,
+    "5_市场情绪": 0.4587
+  },
+  "sources": {
+    "1_货币政策": "AKShare:M2_yoy=8.6%,LPR1Y=3.0%",
+    "4_关键经济指标": "AKShare:PMI=50.0,CPI_yoy=1.2%",
+    "5_市场情绪": "AKShare:OI_median_change=-0.0083(n=10)"
+  },
+  "expired": false
+}
