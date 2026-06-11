@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-CatTrader — 基于CANN评分的TradFi趋势跟踪交易系统 v3.4
+CatTrader — 基于SANN评分的TradFi趋势跟踪交易系统 v3.4
 
 核心逻辑：
   每4小时执行一次决策循环：
-  1. 读取最新SA评分（14基本面+24技术面，由CANN管线统一计算）
-  2. 加载CANN模型推理，生成35品种综合评分s
+  1. 读取最新SA评分（14基本面+24技术面，由SANN管线统一计算）
+  2. 加载SANN模型推理，生成35品种综合评分s
   3. 查表得到每个品种的目标杠杆（方向+倍数）
   4. 选取目标杠杆最强的1多1空作为操作品种
   5. 与当前持仓对比，派生开仓/调仓/平仓/持有动作
@@ -47,9 +47,9 @@ for pkg in ['numpy']:
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', '..'))
 SA_SCRIPTS = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'StockAnalysis', 'scripts'))
-CANN_SCRIPTS = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'CANN', 'scripts'))
+SANN_SCRIPTS = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'SANN', 'scripts'))
 COMMON_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'common'))
-for p in [PROJECT_ROOT, SA_SCRIPTS, CANN_SCRIPTS, COMMON_DIR, SCRIPT_DIR]:
+for p in [PROJECT_ROOT, SA_SCRIPTS, SANN_SCRIPTS, COMMON_DIR, SCRIPT_DIR]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
@@ -128,7 +128,7 @@ class TraderState:
 # 仓位映射表
 # ============================================================
 def get_target_leverage(score: float) -> TargetLeverage:
-    """CANN评分 → 目标杠杆"""
+    """SANN评分 → 目标杠杆"""
     if score <= 0.35:
         return TargetLeverage(Direction.SHORT.value, 0.5, "空0.5×")
     elif score <= 0.45:
@@ -192,7 +192,7 @@ def select_candidates(scores: Dict[int, float]) -> Tuple[Optional[Tuple[int, flo
 
 
 # ============================================================
-# CANN评分获取
+# SANN评分获取
 # ============================================================
 def _find_latest_ca_scores(scores_dir: str, date_str: str) -> Tuple[Dict[int, List[float]], str]:
     """找到最新含CA评分的CSV"""
@@ -242,14 +242,14 @@ _model_cache_time = 0.0
 
 
 def _load_model_cached(data_dir: str):
-    """加载CANN模型（带缓存）"""
+    """加载SANN模型（带缓存）"""
     global _model_cache, _model_cache_time
     now = time.time()
     if _model_cache is not None and (now - _model_cache_time) < 300:
         return _model_cache
 
-    if CANN_SCRIPTS not in sys.path:
-        sys.path.insert(0, CANN_SCRIPTS)
+    if SANN_SCRIPTS not in sys.path:
+        sys.path.insert(0, SANN_SCRIPTS)
 
     try:
         from pretrain_numpy import load_pretrained_model
@@ -264,7 +264,7 @@ def _load_model_cached(data_dir: str):
 
 
 def get_cann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[int, float]]:
-    """获取50币种CANN评分 + 资金费率
+    """获取50币种SANN评分 + 资金费率
 
     Returns:
         (scores_dict, ca_date, funding_rates_dict)
@@ -272,17 +272,17 @@ def get_cann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[i
     if date_str is None:
         date_str = datetime.utcnow().strftime('%Y%m%d')
 
-    cann_data_dir = os.path.join(PROJECT_ROOT, 'skills', 'CANN', 'data')
+    cann_data_dir = os.path.join(PROJECT_ROOT, 'skills', 'SANN', 'data')
     scores_dir = os.path.join(cann_data_dir, 'daily_scores')
     month = int(date_str[4:6])
 
     # CA评分
     ca_scores, ca_date = _find_latest_ca_scores(scores_dir, date_str)
 
-    # CANN模型
+    # SANN模型
     model = _load_model_cached(cann_data_dir)
     if model is None:
-        logger.warning("无CANN模型，全部返回0.5")
+        logger.warning("无SANN模型，全部返回0.5")
         return {cid: 0.5 for cid in range(NUM_VARIETIES)}, ca_date, {}
 
     # 导入推理函数
@@ -426,7 +426,7 @@ def run_cat_trader(date_str: str = None) -> dict:
     state = load_state()
     positions = [Position(**p) for p in state.positions]
 
-    # Step 1: 获取CANN评分+资金费率
+    # Step 1: 获取SANN评分+资金费率
     scores, ca_date, funding_rates = get_cann_scores(date_str)
 
     # Step 2: 选取候选
@@ -591,7 +591,7 @@ def format_report_text(report: dict) -> str:
     lines.append("=" * 55)
 
     ss = report['score_stats']
-    lines.append(f"\n📊 CANN评分统计")
+    lines.append(f"\n📊 SANN评分统计")
     lines.append(f"  均值={ss['mean']:.4f} σ={ss['std']:.4f}  范围=[{ss['min']:.4f}, {ss['max']:.4f}]")
 
     zd = report['zone_distribution']

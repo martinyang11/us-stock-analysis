@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 统一TradFi品种列表 — 唯一权威数据源
-供 CANN、CatTrader 和其他模块导入
+供 SANN、CatTrader 和其他模块导入
 Binance USDT-M TradFi永续合约（美股个股+ETF+商品）
 """
 

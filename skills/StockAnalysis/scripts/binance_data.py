@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 BinanceDataProvider — Binance USDT-M TradFi永续合约数据接口 (纯 requests 版)
-为 StockAnalysis 和 CANN 提供美股/ETF/商品永续的统一数据层。
+为 StockAnalysis 和 SANN 提供美股/ETF/商品永续的统一数据层。
 
 前置依赖：pip install requests numpy
 """
@@ -258,7 +258,7 @@ class BinanceDataProvider:
         self._set(key, result)
         return result
 
-    # ---- 批量数据（CANN管线使用） ----
+    # ---- 批量数据（SANN管线使用） ----
     def get_all_klines_df(self, interval: str = "1d", limit: int = 200) -> Dict[int, 'pd.DataFrame']:
         import pandas as pd
         result = {}

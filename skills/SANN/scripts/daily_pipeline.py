@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CANN每日管线脚本 — TradFi版 v4.1
+SANN每日管线脚本 — TradFi版 v4.1
 每日 UTC 00:15 执行：回填昨日y值 → 微调 → SA技术面采集 → 追加今日样本 → 推理
 
 核心原则：
@@ -49,9 +49,9 @@ import pandas as pd
 
 # 路径设置
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# skills/CANN/scripts → skills/StockAnalysis/scripts
+# skills/SANN/scripts → skills/StockAnalysis/scripts
 SA_SCRIPTS_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'StockAnalysis', 'scripts'))
-# skills/CANN/scripts → skills/common
+# skills/SANN/scripts → skills/common
 COMMON_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', 'common'))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, '..', '..', '..'))
 for p in [PROJECT_ROOT, COMMON_DIR, SA_SCRIPTS_DIR, SCRIPT_DIR]:
@@ -66,7 +66,7 @@ from skills.common.variety_list import (
 # 导入币安数据接口
 from binance_data import BinanceDataProvider
 
-logger = logging.getLogger('CANN.pipeline')
+logger = logging.getLogger('SANN.pipeline')
 
 
 # ============================================================
@@ -171,17 +171,17 @@ def update_historical_y(data_dir: str) -> Tuple[int, int]:
 # Step 2: 微调模型（代理到 pretrain_numpy）
 # ============================================================
 def finetune_model(data_dir: str):
-    """微调CANN模型"""
+    """微调SANN模型"""
     print(f'\n[Step 2] 微调模型')
 
     # 延迟导入确保路径正确
-    cann_dir = os.path.dirname(data_dir)  # CANN/data → CANN
+    cann_dir = os.path.dirname(data_dir)  # SANN/data → SANN
     scripts_dir = os.path.join(cann_dir, 'scripts')
     if scripts_dir not in sys.path:
         sys.path.insert(0, scripts_dir)
 
     try:
-        from pretrain_numpy import run_daily_training_numpy, NumpyCANNModel
+        from pretrain_numpy import run_daily_training_numpy, NumpySANNModel
         model = run_daily_training_numpy(data_dir, verbose=True)
         return model
     except ImportError as e:
@@ -454,7 +454,7 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     print(f'  ✅ 推理完成: {len(results)}币种')
-    print(f'     CANN范围: [{min(cann_scores):.4f}, {max(cann_scores):.4f}]')
+    print(f'     SANN范围: [{min(cann_scores):.4f}, {max(cann_scores):.4f}]')
     print(f'     μ={np.mean(cann_scores):.4f} σ={np.std(cann_scores):.4f}')
     print(f'     偏多:{len(bullish)} 中性:{len(neutral)} 偏空:{len(bearish)}')
 
@@ -472,7 +472,7 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
 # ============================================================
 # 主流程
 # ============================================================
-def run_daily_pipeline(data_dir: str = './CANN/data', date_str: str = None,
+def run_daily_pipeline(data_dir: str = './SANN/data', date_str: str = None,
                        skip_finetune: bool = False):
     """执行完整每日管线"""
     start_time = time.time()
@@ -487,7 +487,7 @@ def run_daily_pipeline(data_dir: str = './CANN/data', date_str: str = None,
     os.makedirs(scores_dir, exist_ok=True)
 
     print('=' * 60)
-    print(f'CANN每日管线 (Crypto) - {date_str}')
+    print(f'SANN每日管线 (Crypto) - {date_str}')
     print(f'执行时间: {datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")}')
     print('=' * 60)
 
@@ -550,9 +550,9 @@ def check_ca_filled(date_str: str, scores_dir: str) -> Tuple[int, int]:
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='CANN每日管线 (Crypto)')
+    parser = argparse.ArgumentParser(description='SANN每日管线 (Crypto)')
     parser.add_argument('--date', default=None)
-    parser.add_argument('--data-dir', default='./CANN/data')
+    parser.add_argument('--data-dir', default='./SANN/data')
     parser.add_argument('--skip-finetune', action='store_true')
     args = parser.parse_args()
 

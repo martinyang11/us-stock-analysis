@@ -1,14 +1,14 @@
-# CANN (StockAnalysis Neural Network) — 美股TradFi永续神经网络评分技能
+# SANN (StockAnalysis Neural Network) — 美股TradFi永续神经网络评分技能
 
 ## 描述
 基于 SA 技能14维度基本面评分 + 24维度技术面评分，通过纯NumPy神经网络输出综合多空评分。网络通过真实SA评分与实际涨跌的对应关系进行监督学习，逐步优化评分精度。
 
 ## 简称
-CANN（与商品期货/加密版共用名称和架构）
+SANN（与商品期货/加密版共用名称和架构）
 
 ## 触发场景
-- 用户说"CANN"、"CANN分析"、"神经网络评分"等
-- 日程触发（标题含"CANN"）
+- 用户说"SANN"、"SANN分析"、"神经网络评分"等
+- 日程触发（标题含"SANN"）
 - 每日 UTC 00:15 自动执行
 
 ## 依赖
@@ -169,9 +169,9 @@ with BinanceDataProvider() as provider:
 逐品种调用SA技能获取真实14维评分，然后写入CSV：
 
 ```python
-from skills.CANN.scripts.daily_pipeline import write_ca_scores
+from skills.SANN.scripts.daily_pipeline import write_ca_scores
 
-write_ca_scores('YYYYMMDD', variety_id, [d1, d2, ..., d14], './CANN/data/daily_scores')
+write_ca_scores('YYYYMMDD', variety_id, [d1, d2, ..., d14], './SANN/data/daily_scores')
 # 输入校验：品种ID 0-34，CA评分14维且每维在[0,1]范围内
 ```
 
@@ -206,7 +206,7 @@ y = 1 / (1 + exp(-ret * 20))  # sigmoid映射到[0,1]
 仅使用**同时具备真实SA评分 + 真实y值**的有效样本训练：
 
 ```python
-from skills.CANN.scripts.pretrain_numpy import train_from_csv
+from skills.SANN.scripts.pretrain_numpy import train_from_csv
 
 # load_csv_samples(filter_invalid=True) 自动过滤：
 #   - dim值 < 0（CSV占位-1）
@@ -215,12 +215,12 @@ model = train_from_csv('historical_samples.csv')
 ```
 
 **训练策略**：
-1. 从 `CANN/data/historical_samples.csv` 加载有效历史数据
+1. 从 `SANN/data/historical_samples.csv` 加载有效历史数据
 2. 将当日新样本追加到历史数据（y=0.5占位行自动过滤）
 3. 全量有效数据微调网络（小学习率+分层LR+时序划分）
 4. 使用早停法（patience=15）防止过拟合
-5. 保存模型权重到 `CANN/data/model_weights.npz`
-6. 保存训练日志到 `CANN/data/training_log.csv`
+5. 保存模型权重到 `SANN/data/model_weights.npz`
+6. 保存训练日志到 `SANN/data/training_log.csv`
 
 **冷启动规则**：
 
@@ -235,12 +235,12 @@ model = train_from_csv('historical_samples.csv')
 用训练好的网络对35品种计算综合评分：
 
 ```python
-from skills.CANN.scripts.pretrain_numpy import NumpyCANNModel, predict_single
+from skills.SANN.scripts.pretrain_numpy import NumpySANNModel, predict_single
 
 # 加载模型
-model = NumpyCANNModel(num_varieties=35, embedding_dim=8, 
+model = NumpySANNModel(num_varieties=35, embedding_dim=8, 
                        input_scores=38, hidden_dims=[48,32,16,8])
-model.load_weights('skills/CANN/data/model_weights.npz')
+model.load_weights('skills/SANN/data/model_weights.npz')
 
 # 单品种推理
 cann_score = model.predict_single(
@@ -255,7 +255,7 @@ cann_score = model.predict_single(
 - 无模型权重文件时：统一返回0.5（中性）
 - 模型已训练时：正常推理
 
-**多空研判对照表**（CANN评分）：
+**多空研判对照表**（SANN评分）：
 
 | 区间 | 判定 | 颜色标记 | CatTrader动作 |
 |------|------|----------|--------------|
@@ -271,19 +271,19 @@ cann_score = model.predict_single(
 - 14维SA评分明细
 - 24维技术面概述
 - SA加权综合评分
-- CANN综合评分
-- 评分差异（CANN - SA加权）
+- SANN综合评分
+- 评分差异（SANN - SA加权）
 - 多空研判及颜色标记
 - 品种类别分组汇总
 
-报告保存到 `skills/CANN/reports/CANN报告_YYYYMMDD.md`
+报告保存到 `skills/SANN/reports/SANN报告_YYYYMMDD.md`
 
 ---
 
 ## 数据存储结构
 
 ```
-./skills/CANN/
+./skills/SANN/
 ├── SKILL.md
 ├── data/
 │   ├── historical_samples.csv      # 累积训练数据（仅含有效样本：真实SA+真实y）
@@ -294,7 +294,7 @@ cann_score = model.predict_single(
 │   ├── tradfi_meta.json            # 35品种元数据（名称/代码/类别）
 │   └── training_log.csv            # 训练日志（日期/样本数/loss/val_loss/epochs）
 ├── reports/
-│   ├── CANN报告_20260610.md
+│   ├── SANN报告_20260610.md
 │   └── ...
 ├── scripts/
 │   ├── pretrain_numpy.py           # 核心脚本：模型定义+前向+反向+Adam+训练+推理
@@ -381,9 +381,9 @@ date,variety_id,variety_name,month,dim1,dim2,...,dim14,tech1,tech2,...,tech24
 
 ## 注意事项
 
-1. **冷启动**：训练数据不足25个有效样本时不训练，CANN评分输出0.5（中性）
+1. **冷启动**：训练数据不足25个有效样本时不训练，SANN评分输出0.5（中性）
 2. **无权重不推理**：无模型权重文件时统一返回0.5，不使用随机初始化模型
-3. **SA评分质量**：CANN精度直接依赖SA评分质量，确保SA按14维度规范执行
+3. **SA评分质量**：SANN精度直接依赖SA评分质量，确保SA按14维度规范执行
 4. **过拟合防护**：数据量较小时（<100样本），Dropout和早停法是关键防线
 5. **纯NumPy**：不依赖PyTorch或任何深度学习框架，完整手写实现
 6. **品种数量**：35个Binance USDT-M TradFi永续品种

@@ -1,18 +1,18 @@
 ---
 name: cattrader
-description: CatTrader趋势跟踪交易系统（TradFi版）。每次运行读取最新SA评分+CANN推理，按5区间映射输出多空决策与杠杆建议。支持Binance USDT-M TradFi永续合约（美股/ETF/商品）。当用户要求运行交易决策、查看持仓、执行CatTrader时使用。
+description: CatTrader趋势跟踪交易系统（TradFi版）。每次运行读取最新SA评分+SANN推理，按5区间映射输出多空决策与杠杆建议。支持Binance USDT-M TradFi永续合约（美股/ETF/商品）。当用户要求运行交易决策、查看持仓、执行CatTrader时使用。
 ---
 
-# CatTrader — 基于CANN评分的TradFi趋势跟踪交易系统 v3.4
+# CatTrader — 基于SANN评分的TradFi趋势跟踪交易系统 v3.4
 
 ## 概述
 
-CatTrader是基于SA+CANN评分体系的量化交易决策系统，适配 Binance USDT-M TradFi永续合约。每4小时执行一次（6次/天），读取最新SA评分（14基本面+24技术面），CANN推理后通过统一仓位映射表完成品种筛选、杠杆管理和持仓监控。
+CatTrader是基于SA+SANN评分体系的量化交易决策系统，适配 Binance USDT-M TradFi永续合约。每4小时执行一次（6次/天），读取最新SA评分（14基本面+24技术面），SANN推理后通过统一仓位映射表完成品种筛选、杠杆管理和持仓监控。
 
 ## 数据流
 
 ```
-CANN 每日管线（UTC 00:15，每日一次）
+SANN 每日管线（UTC 00:15，每日一次）
   ├── SA全维度评分 dim1-dim14（14基本面） + tech1-tech24（24技术面，Binance自动采集）
   ├── 回填昨日y值（Binance真实涨跌→sigmoid映射）
   ├── 微调模型（仅用有效样本：真实SA+真实y）
@@ -20,13 +20,13 @@ CANN 每日管线（UTC 00:15，每日一次）
 
 CatTrader（每4小时，6次/天 UTC 00:00/04:00/08:00/12:00/16:00/20:00）
   ├── 读取最新SA评分（来自daily_scores CSV）
-  ├── 加载CANN模型 + 推理 → 35品种综合评分s
+  ├── 加载SANN模型 + 推理 → 35品种综合评分s
   ├── 查表 → 确定每个品种的目标杠杆
   ├── 对比当前持仓 → 推导动作（开/平/调/持）
   └── 品种筛选 → 输出决策报告
 ```
 
-**模型训练由CANN 00:15管线负责，CatTrader只做推理和决策。**
+**模型训练由SANN 00:15管线负责，CatTrader只做推理和决策。**
 
 ## 仓位映射表（核心）
 
@@ -149,8 +149,8 @@ def apply_funding_protection(target_leverage, funding_rate):
 
 ### 维度冲突降仓
 
-- 资金面（D9）与技术结构（D12）与CANN评分方向冲突时 → 仓位减半
-- 例：CANN做多，但D9OI显示空头增仓 + D12均线空头排列 → 降至0.15×
+- 资金面（D9）与技术结构（D12）与SANN评分方向冲突时 → 仓位减半
+- 例：SANN做多，但D9OI显示空头增仓 + D12均线空头排列 → 降至0.15×
 - 双重冲突（D9+D12均反对）→ 不开仓
 
 ### 事件风险保护
@@ -197,7 +197,7 @@ skills/CatTrader/
 │       ├── get_target_leverage()      # 5区间映射
 │       ├── apply_funding_protection() # 费率保护
 │       ├── select_candidates()        # 品种筛选
-│       ├── get_cann_scores()          # CANN推理
+│       ├── get_cann_scores()          # SANN推理
 │       ├── _resolve_position()        # 动作推导
 │       ├── run_cat_trader()           # 主决策循环
 │       └── generate_report()          # 报告生成
@@ -214,7 +214,7 @@ skills/CatTrader/
 每次运行输出一份决策报告，保存到 `data/reports/decision_YYYYMMDD_HHMM.md`，含：
 
 1. **执行摘要**：时间、运行次数、当前持仓数
-2. **CANN评分分布**：各区间品种数和比例
+2. **SANN评分分布**：各区间品种数和比例
 3. **Top 5 σ品种**：偏离度最大的5个品种
 4. **当前持仓状态**：每个持仓品种的方向/杠杆/评分
 5. **持仓动作建议**：开仓/平仓/调仓/持有
@@ -225,10 +225,10 @@ skills/CatTrader/
 ## 注意事项
 
 - CatTrader仅输出决策建议，**不直接下单**
-- 冷启动阶段（无CANN模型/无SA数据）→ 全部s=0.5 → 不会产生任何开仓信号
+- 冷启动阶段（无SANN模型/无SA数据）→ 全部s=0.5 → 不会产生任何开仓信号
 - 同品种信号反转时：先平旧仓再开新仓（两段操作）
 - 止损建议：TradFi美股波动低于加密，个股止损≤5%，ETF/商品止损≤3%
 - 仓位上限：单品种不超过0.5×，总杠杆（多+空绝对值之和）不超过2.0×
-- 技术面数据：来自CANN管线CSV，CatTrader不直接查Binance API（避免重复请求）
+- 技术面数据：来自SANN管线CSV，CatTrader不直接查Binance API（避免重复请求）
 - 所有决策基于截至运行时刻的最新可用数据
 - **本系统仅供分析和研究参考，不构成投资建议。永续合约交易具有高风险，可能导致全部本金甚至超额损失。**

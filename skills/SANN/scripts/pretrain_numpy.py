@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CANN 纯NumPy神经网络 — TradFi版 v4.0
+SANN 纯NumPy神经网络 — TradFi版 v4.0
 
 核心适配：
 - 品种数 53→35, Embedding(35,8)
@@ -24,7 +24,7 @@ import logging
 import numpy as np
 from typing import Dict, List, Optional, Tuple
 
-logger = logging.getLogger('CANN.numpy')
+logger = logging.getLogger('SANN.numpy')
 
 # ---- 币种映射 (50个) ----
 NUM_VARIETIES = 35
@@ -49,7 +49,7 @@ def relu_derivative(x): return (x > 0).astype(np.float64)
 # ============================================================
 # 模型定义
 # ============================================================
-class NumpyCANNModel:
+class NumpySANNModel:
     """4层残差MLP + Embedding + BatchNorm"""
 
     def __init__(self, hidden_dims=None, embedding_dim=8, input_scores=38):
@@ -272,7 +272,7 @@ class AdamOptimizer:
         self.v = {}
         self.t = 0
 
-    def step(self, model: NumpyCANNModel, grads: dict):
+    def step(self, model: NumpySANNModel, grads: dict):
         self.t += 1
         # 全局梯度裁剪
         total_norm = 0
@@ -371,7 +371,7 @@ def load_csv_samples(csv_path: str, filter_invalid: bool = True) -> Tuple[np.nda
 # ============================================================
 # 训练
 # ============================================================
-def run_daily_training_numpy(data_dir: str, verbose: bool = True) -> Optional[NumpyCANNModel]:
+def run_daily_training_numpy(data_dir: str, verbose: bool = True) -> Optional[NumpySANNModel]:
     """每日微调"""
     csv_path = os.path.join(data_dir, 'historical_samples.csv')
     features, months, vids, ys, _ = load_csv_samples(csv_path, filter_invalid=True)
@@ -388,7 +388,7 @@ def run_daily_training_numpy(data_dir: str, verbose: bool = True) -> Optional[Nu
     val_idx = np.arange(split, n)
 
     # 初始化模型
-    model = NumpyCANNModel()
+    model = NumpySANNModel()
     optimizer = AdamOptimizer()
 
     best_val_loss = float('inf')
@@ -446,12 +446,12 @@ def run_daily_training_numpy(data_dir: str, verbose: bool = True) -> Optional[Nu
 # ============================================================
 # 推理
 # ============================================================
-def predict_single(model: NumpyCANNModel, dim_scores, month, variety_id,
+def predict_single(model: NumpySANNModel, dim_scores, month, variety_id,
                    tech_scores=None) -> float:
     """单样本推理
 
     Args:
-        model: NumpyCANNModel
+        model: NumpySANNModel
         dim_scores: 38维 (14CA+24Tech) 或 14维(需要tech_scores)
         month: int
         variety_id: int (0-49)
@@ -478,7 +478,7 @@ def predict_single(model: NumpyCANNModel, dim_scores, month, variety_id,
 # ============================================================
 # 模型保存/加载
 # ============================================================
-def save_model(model: NumpyCANNModel, path: str):
+def save_model(model: NumpySANNModel, path: str):
     """保存模型权重"""
     save_dict = {}
     for key, val in model.params.items():
@@ -492,7 +492,7 @@ def save_model(model: NumpyCANNModel, path: str):
     np.savez_compressed(path, **save_dict)
 
 
-def load_pretrained_model(data_dir: str) -> Tuple[Optional[NumpyCANNModel], str]:
+def load_pretrained_model(data_dir: str) -> Tuple[Optional[NumpySANNModel], str]:
     """加载预训练模型权重"""
     # 优先加载 model_weights.npz，否则加载预训练权重
     for fname in ['model_weights.npz', 'model_weights_pretrained.npz']:
@@ -500,7 +500,7 @@ def load_pretrained_model(data_dir: str) -> Tuple[Optional[NumpyCANNModel], str]
         if os.path.exists(path):
             try:
                 data = np.load(path, allow_pickle=True)
-                model = NumpyCANNModel()
+                model = NumpySANNModel()
                 # 恢复参数
                 for key in model.params:
                     if key in data:
@@ -604,7 +604,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                        format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 
-    parser = argparse.ArgumentParser(description='CANN numPy 神经网络 (Crypto)')
+    parser = argparse.ArgumentParser(description='SANN numPy 神经网络 (Crypto)')
     parser.add_argument('--data-dir', default='../data')
     parser.add_argument('--generate-pretrain', action='store_true',
                        help='生成预训练样本')
@@ -627,7 +627,7 @@ if __name__ == '__main__':
             # 模拟CA评分
             dummy_scores = np.full(38, 0.55)
             score = predict_single(model, dummy_scores, 6, 0)
-            print(f'{args.predict}: CANN={score:.4f}')
+            print(f'{args.predict}: SANN={score:.4f}')
         else:
             print('无可用模型')
 

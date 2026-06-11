@@ -10,7 +10,7 @@ StockAnalysis (SA)          ← 14维度基本面评分（宏观3+行业2+公司
     ├─ 14维评分 [0,1] + 24维技术面
     │
     ▼
-CANN                        ← 神经聚合引擎（纯NumPy）
+SANN                        ← 神经聚合引擎（纯NumPy）
     │                         14基本面 + 24技术面 → 48维输入
     │                         4层残差MLP → Sigmoid输出 [0,1]
     │
@@ -27,7 +27,7 @@ CatTrader                   ← 趋势跟踪交易系统
 | 技能 | 目录 | 描述 |
 |------|------|------|
 | **StockAnalysis (SA)** | `skills/StockAnalysis/` | 14维度美股基本面分析 |
-| **CANN** | `skills/CANN/` | 纯NumPy神经网络：48维→评分 |
+| **SANN** | `skills/SANN/` | 纯NumPy神经网络：48维→评分 |
 | **CatTrader** | `skills/CatTrader/` | 趋势跟踪决策：5区间映射，6次/天 |
 
 ## 14维度框架
@@ -90,8 +90,8 @@ pip install python-binance numpy pandas
 cd skills/StockAnalysis/scripts
 python binance_data.py
 
-# 3. CANN管线
-cd skills/CANN/scripts
+# 3. SANN管线
+cd skills/SANN/scripts
 python daily_pipeline.py --date 20260610
 
 # 4. CatTrader决策
@@ -107,7 +107,7 @@ skills/
 │   ├── SKILL.md
 │   ├── references/         # 维度手册 + 报告模板
 │   └── scripts/            # binance_data.py
-├── CANN/                   # 神经网络评分
+├── SANN/                   # 神经网络评分
 │   ├── SKILL.md
 │   ├── references/         # 品种列表
 │   ├── scripts/            # pretrain_numpy.py + daily_pipeline.py
@@ -122,7 +122,7 @@ skills/
 
 ## 参考
 
-- 原始商品期货版技能（A股CA/CANN/CatTrader）位于 `_app_data_` 目录
+- 原始商品期货版技能（A股CA/SANN/CatTrader）位于 `_app_data_` 目录
 - 本文档面向Binance USDT-M TradFi永续合约（美股/ETF/商品）
 
 ## 免责声明
