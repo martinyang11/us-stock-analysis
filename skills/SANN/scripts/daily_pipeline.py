@@ -229,7 +229,7 @@ def generate_today_scores(date_str: str, scores_dir: str) -> int:
             if vid in cache:
                 try:
                     df = cache[vid]
-                    from technical_indicators import compute_technical_scores
+                    from gtrade_data import compute_technical_scores
                     tech_scores = compute_technical_scores(df)
                     if len(tech_scores) == 24:
                         for i, s in enumerate(tech_scores, 1):

@@ -554,6 +554,153 @@ class GtradeDataProvider:
 
 
 # ============================================================
+# 24维技术面评分 (SANN 管线用)
+# ============================================================
+def compute_technical_scores(df: 'pd.DataFrame') -> List[float]:
+    """从 OHLC DataFrame 计算 24 维 [0,1] 技术面评分
+
+    T1-T3:   均线偏离 (MA20/50/200)
+    T4:      MA排列
+    T5-T7:   布林带 (上轨偏离/下轨偏离/带宽)
+    T8:      RSI14
+    T9:      ATR%
+    T10-T13: 动量 (1d/5d/10d/20d)
+    T14-T17: 量比 (1d/5d/10d/20d)
+    T18-T21: 距高低位 (20d/50d)
+    T22-T24: 波动率分位 (20d/50d/200d)
+    """
+    import pandas as pd
+    closes = df['close'].values.astype(float)
+    highs = df['high'].values.astype(float)
+    lows = df['low'].values.astype(float)
+    volumes = df['volume'].values.astype(float) if 'volume' in df.columns else np.ones_like(closes)
+
+    n = len(closes)
+    if n < 20:
+        return [0.5] * 24
+
+    current = closes[-1]
+
+    def ma(arr, p):
+        return float(np.mean(arr[-p:])) if len(arr) >= p else float(arr[-1])
+
+    def sigmoid(x, k=10):
+        return 1.0 / (1.0 + np.exp(-x * k))
+
+    def clip01(x):
+        return float(np.clip(x, 0.0, 1.0))
+
+    ma20, ma50 = ma(closes, 20), ma(closes, 50)
+    ma200 = ma(closes, 200) if n >= 200 else ma50
+
+    scores = []
+
+    # T1: 价格 vs MA20 偏离
+    dev20 = (current - ma20) / ma20 if ma20 > 0 else 0
+    scores.append(clip01(sigmoid(dev20, 50)))
+
+    # T2: 价格 vs MA50
+    dev50 = (current - ma50) / ma50 if ma50 > 0 else 0
+    scores.append(clip01(sigmoid(dev50, 30)))
+
+    # T3: 价格 vs MA200
+    dev200 = (current - ma200) / ma200 if ma200 > 0 else 0
+    scores.append(clip01(sigmoid(dev200, 20)))
+
+    # T4: MA排列
+    if ma20 > ma50 > ma200:
+        scores.append(1.0)
+    elif ma20 < ma50 < ma200:
+        scores.append(0.0)
+    else:
+        scores.append(0.5)
+
+    # T5-T7: 布林带
+    bb_std = float(np.std(closes[-20:])) if n >= 20 else 0
+    bb_upper = ma20 + 2 * bb_std
+    bb_lower = ma20 - 2 * bb_std
+    bb_range = bb_upper - bb_lower
+    if bb_range > 0:
+        scores.append(clip01((current - bb_lower) / bb_range))       # T5: 布林位置
+        scores.append(clip01((bb_upper - current) / bb_range))       # T6: 距上轨
+        scores.append(clip01(bb_range / ma20))                       # T7: 带宽
+    else:
+        scores.extend([0.5, 0.5, 0.5])
+
+    # T8: RSI14
+    if n >= 15:
+        deltas = np.diff(closes[-15:])
+        gains = np.where(deltas > 0, deltas, 0)
+        losses = np.where(deltas < 0, -deltas, 0)
+        avg_g, avg_l = np.mean(gains), np.mean(losses)
+        rsi = float(100 - 100 / (1 + avg_g / avg_l)) if avg_l > 0 else 100.0
+    else:
+        rsi = 50.0
+    scores.append(clip01(rsi / 100.0))
+
+    # T9: ATR%
+    trs = []
+    for i in range(1, min(15, n)):
+        tr = max(highs[-i] - lows[-i],
+                 abs(highs[-i] - closes[-i - 1]),
+                 abs(lows[-i] - closes[-i - 1]))
+        trs.append(tr)
+    atr = float(np.mean(trs)) if trs else 0
+    atr_pct = atr / current if current > 0 else 0
+    scores.append(clip01(atr_pct * 20))
+
+    # T10-T13: 动量
+    for period in [1, 5, 10, 20]:
+        if n > period:
+            momentum = (closes[-1] - closes[-1 - period]) / closes[-1 - period]
+            scores.append(clip01(sigmoid(momentum, 15 + period)))
+        else:
+            scores.append(0.5)
+
+    # T14-T17: 量比
+    for period in [1, 5, 10, 20]:
+        if n > period:
+            vol_curr = float(np.mean(volumes[-period:])) if period > 1 else float(volumes[-1])
+            vol_prev = float(np.mean(volumes[-2*period:-period]))
+            ratio = vol_curr / vol_prev if vol_prev > 0 else 1.0
+            # 量比 → [0,1], 1.0=正常, >2=放量, <0.5=缩量
+            scores.append(clip01((ratio - 0.5) / 2.0))
+        else:
+            scores.append(0.5)
+
+    # T18-T21: 距高低位
+    for period in [20, 50]:
+        p = min(period, n)
+        hh = float(np.max(highs[-p:]))
+        ll = float(np.min(lows[-p:]))
+        rng = hh - ll
+        if rng > 0:
+            scores.append(clip01((current - ll) / rng))   # 距低位
+            scores.append(clip01((hh - current) / rng))    # 距高位
+        else:
+            scores.extend([0.5, 0.5])
+
+    # T22-T24: 波动率分位
+    for period in [20, 50, 200]:
+        p = min(period, n)
+        if p >= 5:
+            rets = np.diff(closes[-p:]) / closes[-p:-1]
+            vol = float(np.std(rets))
+            # 当前波动率 vs 历史
+            if n >= p * 2:
+                hist_rets = np.diff(closes[-2*p:-p]) / closes[-2*p:-p-1]
+                hist_vol = float(np.std(hist_rets))
+            else:
+                hist_vol = vol
+            ratio = vol / hist_vol if hist_vol > 0 else 1.0
+            scores.append(clip01(ratio / 2.0))
+        else:
+            scores.append(0.5)
+
+    return scores
+
+
+# ============================================================
 # 兼容接口 (对应 binance_data.py 的函数签名)
 # ============================================================
 def get_klines_for_technical(name: str, count: int = 200) -> List[Dict]:
