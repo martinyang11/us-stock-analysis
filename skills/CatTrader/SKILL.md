@@ -114,44 +114,31 @@ cmin = min(short_candidates, key=lambda x: x[1]) if short_candidates else None
 
 ## 保护机制
 
-### **市场关闭保护** (新增)
+### 🛑 止损/止盈 (15%)
 
-永续合约的市场关闭保护：isStocksOpen=false → 不新开仓
+每笔持仓在开仓时记录入场价格，每次运行自动检查：
 
-| 费率区间 | 保护动作 | 逻辑 |
-|----------|---------|------|
-| funding > 0.1%（做多拥挤） | 做多仓位 → 降一档（0.5×→0.3×，0.3×→平仓） | 多头拥挤 → 回调风险高 |
-| funding < -0.1%（做空拥挤） | 做空仓位 → 降一档 | 空头拥挤 → 逼空风险高 |
-| funding ∈ [-0.03%, 0.03%] | 正常 | 市场平衡 |
-| funding ∈ [0.03%, 0.1%] 或 [-0.1%, -0.03%] | 警告但不强制降仓 | 偏离但未到极端 |
+| 方向 | 止损触发条件 | 止盈触发条件 |
+|------|------------|------------|
+| 做多 | 现价 ≤ entry_price × 0.85 (跌15%) | 现价 ≥ entry_price × 1.15 (涨15%) |
+| 做空 | 现价 ≥ entry_price × 1.15 (涨15%) | 现价 ≤ entry_price × 0.85 (跌15%) |
 
-```python
-def apply_funding_protection(target_leverage, funding_rate):
-    """**市场关闭保护** (新增)：极端费率时降低仓位"""
-    if target_leverage > 0 and funding_rate > 0.001:  # 做多+多头拥挤
-        return max(0, target_leverage - 0.2)  # 降一档
-    if target_leverage < 0 and funding_rate < -0.001:  # 做空+空头拥挤
-        return min(0, target_leverage + 0.2)
-    return target_leverage
-```
+- SL/TP 优先级**最高**，触发即强制平仓，不经过 SANN 评分判断
+- 入场价格来源：yfinance 最近收盘价
+- 无入场价格的旧持仓（entry_price=0）跳过 SL/TP 检查
 
-### Spread过热保护
+### 市场关闭保护
 
-- 追踪每个品种OI的30日滚动窗口
-- OI达到30日历史95%分位 → ⚠️ **Spread过热警告**
-- OI达到30日历史最高值 → 🔴 **建议暂停开仓**（极端拥挤/恐慌）
-- 警告级别不影响现有持仓，仅影响新开仓决策
+`isStocksOpen=false` → 不新开仓。已有持仓正常管理（SL/TP 仍生效）。
+
+### Spread 保护
+
+gTrade spread > 0.6% → 仓位降一档（0.5×→0.3×，0.3×→0）。高spread = 流动性差 = 滑点风险大。
 
 ### 中性区保护
 
 - s ∈ (0.45, 0.55) 时绝不开仓
-- 已持仓品种s回归中性区 → 立即平仓
-
-### 维度冲突降仓
-
-- 资金面（D9）与技术结构（D12）与SANN评分方向冲突时 → 仓位减半
-- 例：SANN做多，但D9OI显示空头增仓 + D12均线空头排列 → 降至0.15×
-- 双重冲突（D9+D12均反对）→ 不开仓
+- 已持仓品种 s 回归中性区 → SANN 信号触发平仓
 
 ### 事件风险保护
 

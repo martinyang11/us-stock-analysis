@@ -64,6 +64,10 @@ logger = logging.getLogger('CatTrader')
 # ============================================================
 # 常量
 # ============================================================
+SL_PCT = 0.15  # 15% 止损
+TP_PCT = 0.15  # 15% 止盈
+
+
 class Direction(Enum):
     LONG = "多头"
     SHORT = "空头"
@@ -99,6 +103,7 @@ class Position:
     leverage: float
     entry_time: str
     entry_date: str
+    entry_price: float = 0.0  # 入场价格 (用于SL/TP计算)
 
 
 @dataclass
@@ -146,7 +151,54 @@ def compute_sigma(score: float) -> float:
 
 
 # ============================================================
-# 资金费率保护（加密版新增）
+# 止损止盈检查
+# ============================================================
+def check_sl_tp(position: Position, current_price: float) -> Optional[str]:
+    """检查是否触发止损或止盈
+
+    Returns:
+        'stop_loss' | 'take_profit' | None
+    """
+    if position.entry_price <= 0 or current_price <= 0:
+        return None
+
+    if position.direction == Direction.LONG.value:
+        sl_price = position.entry_price * (1 - SL_PCT)
+        tp_price = position.entry_price * (1 + TP_PCT)
+        if current_price <= sl_price:
+            return 'stop_loss'
+        if current_price >= tp_price:
+            return 'take_profit'
+    else:  # SHORT
+        sl_price = position.entry_price * (1 + SL_PCT)
+        tp_price = position.entry_price * (1 - TP_PCT)
+        if current_price >= sl_price:
+            return 'stop_loss'
+        if current_price <= tp_price:
+            return 'take_profit'
+
+    return None
+
+
+def _fetch_current_prices(vids: List[int]) -> Dict[int, float]:
+    """获取指定品种的当前价格"""
+    prices = {}
+    try:
+        from skills.StockAnalysis.scripts.gtrade_data import get_pair_index_by_name
+        with GtradeDataProvider(use_ws=False) as p:
+            for vid in vids:
+                name = VARIETY_NAMES.get(vid, '')
+                # 按品种名从yfinance获取最新价格
+                klines = p.get_klines(name, limit=2)
+                if klines:
+                    prices[vid] = klines[-1]['close']
+    except Exception:
+        pass
+    return prices
+
+
+# ============================================================
+# Spread保护 (gTrade版)
 # ============================================================
 def apply_spread_protection(target: TargetLeverage, spread: float) -> TargetLeverage:
     """资金费率极端时降仓保护
@@ -432,10 +484,33 @@ def run_cat_trader(date_str: str = None) -> dict:
     # Step 2: 选取候选
     cmax, cmin = select_candidates(scores)
 
-    # Step 3: 处理现有持仓
+    # Step 3: 获取当前价格 + 检查止损止盈
     decisions = []
     positions_after = []
     processed_ids = set()
+
+    # 获取所有持仓品种的当前价格 (用于SL/TP检查)
+    held_vids = [p.crypto_id for p in positions if p.entry_price <= 0 or True]
+    current_prices = _fetch_current_prices(held_vids) if held_vids else {}
+
+    # 先检查已有持仓的SL/TP
+    for pos in positions[:]:  # 用切片避免迭代时修改
+        current_price = current_prices.get(pos.crypto_id, 0)
+        sl_tp = check_sl_tp(pos, current_price)
+        if sl_tp:
+            name = VARIETY_NAMES.get(pos.crypto_id, '?')
+            emoji = '🛑' if sl_tp == 'stop_loss' else '🎯'
+            pct = SL_PCT if sl_tp == 'stop_loss' else TP_PCT
+            reason = f'{emoji} {sl_tp}: {pos.direction}入场@{pos.entry_price:.2f} → 现价@{current_price:.2f} (触发{int(pct*100)}%)'
+            decisions.append(Decision(
+                action=Action.CLOSE.value, crypto_id=pos.crypto_id, crypto_name=name,
+                symbol=pos.symbol, direction=pos.direction, leverage=pos.leverage,
+                score=scores.get(pos.crypto_id, 0.5), sigma=0, zone=sl_tp,
+                reason=reason,
+            ))
+            positions.remove(pos)
+            processed_ids.add(pos.crypto_id)
+            continue
 
     for pos in positions:
         current_score = scores.get(pos.crypto_id, 0.5)
@@ -454,12 +529,13 @@ def run_cat_trader(date_str: str = None) -> dict:
                 pos.leverage = target.leverage
             positions_after.append(pos)
         elif reversed_open:
+            ep = current_prices.get(pos.crypto_id, pos.entry_price)
             positions_after.append(Position(
                 crypto_id=pos.crypto_id, crypto_name=pos.crypto_name,
                 symbol=pos.symbol, direction=target.direction,
                 entry_score=current_score, entry_sigma=compute_sigma(current_score),
                 leverage=target.leverage, entry_time=now.isoformat(),
-                entry_date=date_str,
+                entry_date=date_str, entry_price=ep,
             ))
         processed_ids.add(pos.crypto_id)
 
@@ -486,6 +562,12 @@ def run_cat_trader(date_str: str = None) -> dict:
 
         opened = any(d.action == Action.OPEN.value for d in pos_decisions)
         if opened:
+            # 获取入场价格
+            entry_price = current_prices.get(cid, 0)
+            if entry_price <= 0:
+                # fallback: 单独获取
+                ep_dict = _fetch_current_prices([cid])
+                entry_price = ep_dict.get(cid, 0)
             positions_after.append(Position(
                 crypto_id=cid,
                 crypto_name=VARIETY_NAMES.get(cid, f"币种{cid}"),
@@ -496,6 +578,7 @@ def run_cat_trader(date_str: str = None) -> dict:
                 leverage=target.leverage,
                 entry_time=now.isoformat(),
                 entry_date=date_str,
+                entry_price=entry_price,
             ))
         processed_ids.add(cid)
 
@@ -621,7 +704,14 @@ def format_report_text(report: dict) -> str:
     lines.append(f"  多头:{pp['long']}  空头:{pp['short']}")
     for p in pp['details']:
         emoji = "📈" if p['direction'] == '多头' else "📉"
-        lines.append(f"  {emoji} {p['crypto_name']}({p.get('symbol','')}) {p['direction']} {p['leverage']}× | 入场s={p['entry_score']:.4f}")
+        ep = p.get('entry_price', 0)
+        if ep > 0:
+            sl = ep * (1 - SL_PCT) if p['direction'] == '多头' else ep * (1 + SL_PCT)
+            tp = ep * (1 + TP_PCT) if p['direction'] == '多头' else ep * (1 - TP_PCT)
+            sl_tp_info = f" | 入场价=${ep:.2f} SL=${sl:.2f} TP=${tp:.2f}"
+        else:
+            sl_tp_info = ""
+        lines.append(f"  {emoji} {p['crypto_name']}({p.get('symbol','')}) {p['direction']} {p['leverage']}× | 入场s={p['entry_score']:.4f}{sl_tp_info}")
 
     if report.get('spread_warnings'):
         lines.append(f"\n⚠️ 资金费率警告")
