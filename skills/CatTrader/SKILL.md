@@ -1,26 +1,26 @@
 ---
 name: cattrader
-description: CatTrader趋势跟踪交易系统（TradFi版）。每次运行读取最新SA评分+SANN推理，按5区间映射输出多空决策与杠杆建议。支持Binance USDT-M TradFi永续合约（美股/ETF/商品）。当用户要求运行交易决策、查看持仓、执行CatTrader时使用。
+description: CatTrader趋势跟踪交易系统（TradFi版）。每次运行读取最新SA评分+SANN推理，按5区间映射输出多空决策与杠杆建议。支持gTrade USDT-M TradFi永续合约（美股/ETF/商品）。当用户要求运行交易决策、查看持仓、执行CatTrader时使用。
 ---
 
 # CatTrader — 基于SANN评分的TradFi趋势跟踪交易系统 v3.4
 
 ## 概述
 
-CatTrader是基于SA+SANN评分体系的量化交易决策系统，适配 Binance USDT-M TradFi永续合约。每4小时执行一次（6次/天），读取最新SA评分（14基本面+24技术面），SANN推理后通过统一仓位映射表完成品种筛选、杠杆管理和持仓监控。
+CatTrader是基于SA+SANN评分体系的量化交易决策系统，适配 gTrade USDT-M TradFi永续合约。每4小时执行一次（6次/天），读取最新SA评分（14基本面+24技术面），SANN推理后通过统一仓位映射表完成品种筛选、杠杆管理和持仓监控。
 
 ## 数据流
 
 ```
 SANN 每日管线（UTC 00:15，每日一次）
-  ├── SA全维度评分 dim1-dim14（14基本面） + tech1-tech24（24技术面，Binance自动采集）
-  ├── 回填昨日y值（Binance真实涨跌→sigmoid映射）
+  ├── SA全维度评分 dim1-dim14（14基本面） + tech1-tech24（24技术面，gTrade自动采集）
+  ├── 回填昨日y值（gTrade真实涨跌→sigmoid映射）
   ├── 微调模型（仅用有效样本：真实SA+真实y）
-  └── 全品种推理 → 35品种综合评分 s ∈ [0,1]
+  └── 全品种推理 → 56品种综合评分 s ∈ [0,1]
 
 CatTrader（每4小时，6次/天 UTC 00:00/04:00/08:00/12:00/16:00/20:00）
   ├── 读取最新SA评分（来自daily_scores CSV）
-  ├── 加载SANN模型 + 推理 → 35品种综合评分s
+  ├── 加载SANN模型 + 推理 → 56品种综合评分s
   ├── 查表 → 确定每个品种的目标杠杆
   ├── 对比当前持仓 → 推导动作（开/平/调/持）
   └── 品种筛选 → 输出决策报告
@@ -84,7 +84,7 @@ s:  0 ════ 0.35 ════ 0.45 ════ 0.55 ════ 0.65 �
 
 ## 品种筛选
 
-从35品种中各选1个最强信号：
+从56品种中各选1个最强信号：
 
 - **cmax**：目标为做多（s ≥ 0.55）的品种中，s最大者 → 最佳做多候选
 - **cmin**：目标为做空（s ≤ 0.45）的品种中，s最小者 → 最佳做空候选
@@ -114,9 +114,9 @@ cmin = min(short_candidates, key=lambda x: x[1]) if short_candidates else None
 
 ## 保护机制
 
-### 资金费率保护
+### **市场关闭保护** (新增)
 
-永续合约的资金费率是多空力量的重要指标：
+永续合约的市场关闭保护：isStocksOpen=false → 不新开仓
 
 | 费率区间 | 保护动作 | 逻辑 |
 |----------|---------|------|
@@ -127,7 +127,7 @@ cmin = min(short_candidates, key=lambda x: x[1]) if short_candidates else None
 
 ```python
 def apply_funding_protection(target_leverage, funding_rate):
-    """资金费率保护：极端费率时降低仓位"""
+    """**市场关闭保护** (新增)：极端费率时降低仓位"""
     if target_leverage > 0 and funding_rate > 0.001:  # 做多+多头拥挤
         return max(0, target_leverage - 0.2)  # 降一档
     if target_leverage < 0 and funding_rate < -0.001:  # 做空+空头拥挤
@@ -135,10 +135,10 @@ def apply_funding_protection(target_leverage, funding_rate):
     return target_leverage
 ```
 
-### OI过热保护
+### Spread过热保护
 
 - 追踪每个品种OI的30日滚动窗口
-- OI达到30日历史95%分位 → ⚠️ **OI过热警告**
+- OI达到30日历史95%分位 → ⚠️ **Spread过热警告**
 - OI达到30日历史最高值 → 🔴 **建议暂停开仓**（极端拥挤/恐慌）
 - 警告级别不影响现有持仓，仅影响新开仓决策
 
@@ -229,6 +229,6 @@ skills/CatTrader/
 - 同品种信号反转时：先平旧仓再开新仓（两段操作）
 - 止损建议：TradFi美股波动低于加密，个股止损≤5%，ETF/商品止损≤3%
 - 仓位上限：单品种不超过0.5×，总杠杆（多+空绝对值之和）不超过2.0×
-- 技术面数据：来自SANN管线CSV，CatTrader不直接查Binance API（避免重复请求）
+- 技术面数据：来自SANN管线CSV，CatTrader不直接查gTrade API（避免重复请求）
 - 所有决策基于截至运行时刻的最新可用数据
 - **本系统仅供分析和研究参考，不构成投资建议。永续合约交易具有高风险，可能导致全部本金甚至超额损失。**

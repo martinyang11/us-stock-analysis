@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-SANN 纯NumPy神经网络 — TradFi版 v4.0
+SANN 纯NumPy神经网络 — TradFi gTrade版 v4.1
 
 核心适配：
-- 品种数 53→35, Embedding(35,8)
+- 品种数 35→56, Embedding(56,8)
 - y值 sigmoid 系数 20 (适配股票波动率)
-- 数据源 Binance API (TradFi永续)
-- 美股+ETF+商品永续
+- 数据源 gTrade + yfinance (TradFi永续)
+- gTrade 美股+ETF+商品+加密
 
 架构：
 Input(48) → Linear(48,48) + BN + ReLU + Drop(0.25) + Residual
@@ -26,8 +26,8 @@ from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger('SANN.numpy')
 
-# ---- 币种映射 (50个) ----
-NUM_VARIETIES = 35
+# ---- 品种映射 (gTrade 56个TradFi品种) ----
+NUM_VARIETIES = 56
 EMBEDDING_DIM = 8
 INPUT_SCORES = 38  # 14基本面 + 24技术面
 HIDDEN_DIMS = [48, 32, 16, 8]  # 4层

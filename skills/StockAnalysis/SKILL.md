@@ -1,9 +1,9 @@
 # StockAnalysis (SA) — 美股TradFi永续合约14维度分析技能
 
 ## 描述
-从美股分析师的视角，基于**14维度评估框架**，对 Binance USDT-M 永续合约上的传统金融（TradFi）品种进行系统性基本面分析，覆盖宏观、行业、公司、市场、治理催化五大板块，输出多空研判综合打分（0-1之间）。
+从美股分析师的视角，基于**14维度评估框架**，对 gTrade（Gains Network）去中心化永续合约上的传统金融（TradFi）品种进行系统性基本面分析，覆盖宏观、行业、公司、市场、治理催化五大板块，输出多空研判综合打分（0-1之间）。
 
-**品种范围**：Binance 上架的 ~35 个 TradFi 永续合约品种，包括美股个股（NVDA/AAPL/MSFT/AMZN/GOOGL/META/TSLA等）、半导体（INTC/AMD/AVGO/QCOM）、加密相关（MSTR/COIN等）、企业科技（ORCL/CSCO/UBER）、消费（DIS/HD）、医药（LLY）、ETF（SPY/QQQ/SOXL）、商品（XAU/XAG/CL）。
+**品种范围**：gTrade Arbitrum 上架的 **56 个** TradFi 品种，包括美股个股（NVDA/AAPL/MSFT/AMZN/GOOGL/META/TSLA等36只）、ETF/指数（SPY/QQQ/IWM等10只）、商品（XAU/XAG/WTI等8个）、加密（BTC/ETH）。gTrade 是链上合成资产平台，价格通过 Chainlink DON 喂价跟踪标的现货。
 
 ## 触发场景
 - 用户要求对某个TradFi永续品种进行基本面+技术面分析
@@ -50,7 +50,7 @@
 收集每个维度需要的数据和信息。
 
 **采集方法**：
-- **Binance API（优先）**：K线/价格/OI/资金费率 → `binance_data.py`
+- **gTrade API + yfinance（优先）**：品种元数据/市场状态/spread → `gtrade_data.py`；历史K线 → yfinance
 - **Yahoo Finance**：公司财务数据、估值指标、分析师预期
 - **Web Search**：宏观数据、新闻、SEC EDGAR、ETF流量、事件动态
 - **FRED**：宏观经济指标（利率、GDP、CPI等）
@@ -62,37 +62,36 @@
 | 宏观（D1-D3） | Web Search + FRED | CME FedWatch、BLS.gov、BEA.gov |
 | 行业（D4-D5） | Web Search + Yahoo Finance | Gartner/IDC行业报告 |
 | 公司财务（D6-D8） | Yahoo Finance + SEC EDGAR | Seeking Alpha、Nasdaq.com |
-| **永续特有（D9）** | **Binance API** | Coinglass |
+| **永续特有（D9）** | **gTrade API + yfinance** | — |
 | 机构/情绪（D10-D11） | Web Search + Yahoo Finance | SEC 13F、CBOE、AAII |
-| **技术面（D12）** | **Binance API K线** | TradingView |
+| **技术面（D12）** | **yfinance K线 → numpy计算** | TradingView |
 | 治理/催化（D13-D14） | Web Search + SEC EDGAR | Earnings Whispers、FDA Calendar |
 
-**Binance API 使用方式**：
+**gTrade 数据使用方式**：
 ```python
-from skills.StockAnalysis.scripts.binance_data import BinanceDataProvider
+from skills.StockAnalysis.scripts.gtrade_data import GtradeDataProvider
 
-with BinanceDataProvider() as provider:
-    # 实时价格
-    price = provider.get_price("NVDAUSDT")
+with GtradeDataProvider(use_ws=True) as provider:
+    # 品种元数据
+    pairs = provider.get_tradfi_pairs()  # 全部56品种
+    spread = provider.get_spread("NVDA")  # gTrade spread
     
-    # K线（日线200根）
-    klines = provider.get_klines("NVDAUSDT", interval="1d", limit=200)
+    # 实时价格 (WebSocket v4)
+    nvda_idx = get_pair_index_by_name("NVDA")
+    price = provider.get_price(nvda_idx)  # mark price
     
-    # 资金费率
-    funding = provider.get_funding_rate("NVDAUSDT")
-    # 返回: {'funding_rate': 0.000123, 'funding_time': ..., 'mark_price': ...}
+    # 历史K线 (yfinance)
+    klines = provider.get_klines("NVDA", interval="1d", limit=200)
     
-    # 持仓量
-    oi = provider.get_open_interest("NVDAUSDT")
-    # 返回: {'open_interest': 1234567.89, 'time': ...}
+    # 市场状态
+    status = provider.get_market_status()
+    # {'stocks': True/False, 'commodities': ..., 'indices': ...}
     
-    # 技术指标（含MA/布林/ATR/RSI/价格分位/均线排列）
-    tech = provider.get_technical_indicators("NVDAUSDT", interval="1d", limit=200)
-    # 返回: {'price': ..., 'ma20': ..., 'ma50': ..., 'ma200': ...,
-    #         'bb_upper': ..., 'bb_lower': ..., 'bb_middle': ...,
-    #         'atr': ..., 'atr_pct': ..., 'rsi14': ...,
-    #         'high_20d': ..., 'low_20d': ..., 
-    #         'price_percentile_200d': ..., 'ma_alignment': 'bullish'|'bearish'|'mixed'}
+    # 技术指标（从K线计算）
+    tech = provider.get_technical_indicators("NVDA")
+    # {'price': ..., 'ma20': ..., 'ma50': ..., 'ma200': ...,
+    #  'bb_upper': ..., 'bb_lower': ..., 'atr': ..., 'rsi14': ...,
+    #  'ma_alignment': 'bullish'|'bearish'|'mixed'}
 ```
 
 **全局要求**：
@@ -231,26 +230,41 @@ with BinanceDataProvider() as provider:
 推荐来源：Yahoo Finance Analyst Estimates、Seeking Alpha Earnings Transcripts、Nasdaq.com Insider Trading
 **数据窗口**：30天
 
-**维度9 - 合约资金流**（⚠️ 永续合约特有维度，权重应高于平均）
+**维度9 - 合约资金流**（⚠️ gTrade 合成资产特有维度，权重应高于平均）
 
-这是永续合约最核心的维度之一，OI+价格的组合信号是CTA类策略的基石：
+gTrade 是去中心化合成资产平台，**没有传统的 OI 和资金费率**。D9 重设计为：**Spread 分析 + 24h交易量 + 价格方向组合**。
 
-**OI+价格组合（核心实战信号）**：
+**Spread 分析（gTrade 核心指标）**：
+- gTrade 的 `spreadP` 字段反映该品种的流动性成本（类似传统做市商价差）
+- spread 越低 → 流动性越好 → 多空博弈更充分
+- spread 异常扩大 → 流动性紧缩 → 警惕极端行情
+- 各级别 spread 品种：
 
-| 价格变化 | OI变化 | 研判 | 含义 |
-|----------|--------|------|------|
-| 涨 | 增仓 | ✅ **多头趋势确认** | 新资金进场做多，趋势可持续 |
-| 涨 | 减仓 | ⚠️ 空头平仓推动 | 空头被迫平仓=反弹脆弱，可能回落 |
-| 跌 | 增仓 | ✅ **空头趋势确认** | 新资金进场做空，趋势可持续 |
-| 跌 | 减仓 | ⚠️ 多头平仓踩踏 | 多头恐慌平仓，可能超卖见底 |
+| Spread 级别 | spread值 | 品种举例 | 信号含义 |
+|------------|----------|---------|----------|
+| 低 spread | ≤0.3% | GOOGL, MSFT, SPY, QQQ, XAU, BTC | 流动性好，信号可信度高 |
+| 中 spread | 0.3%-0.5% | AAPL, NVDA, AMZN, INTC, META | 流动性正常 |
+| 高 spread | 0.5%-0.8% | TSLA, AMD, COIN, MSTR, HOOD | 流动性略低，注意滑点 |
+| 极高 spread | >0.8% | XPD | 流动性差，信号降权 |
 
-**资金费率信号**：
-- 正费率（多头支付空头）→ 市场偏多，但**>0.1%=多头拥挤**→ 警惕回调
-- 负费率（空头支付多头）→ 市场偏空，但**<-0.1%=空头拥挤**→ 逼空机会
-- TradFi永续费率一般低于加密币（美股波动更小），极端信号阈值可适当下调
+**24h交易量分析（yfinance）**：
+- yfinance 提供标的现货的真实成交量（gTrade 合成资产价格跟踪现货）
+- 量价组合信号：
 
-**数据来源**：Binance API `open_interest` / `funding_rate`（纯requests，无python-binance依赖）
-**数据窗口**：4小时（实时）
+| 价格变化 | 成交量变化 | 研判 | 含义 |
+|----------|-----------|------|------|
+| 涨 | 放量 | ✅ **多头趋势确认** | 量价配合，趋势健康 |
+| 涨 | 缩量 | ⚠️ 上涨动能减弱 | 量价背离，注意回调 |
+| 跌 | 放量 | ✅ **空头趋势确认** | 资金加速出逃 |
+| 跌 | 缩量 | ⚠️ 抛压减缓 | 可能见底或盘整 |
+
+**gTrade 特有信号**：
+- **市场开关**：`isStocksOpen` 决定美股能否交易。盘前盘后流动性差，信号降权
+- **杠杆限制**：gTrade 股票最高 50×，远高于传统券商，极端杠杆可能放大波动
+- **合成资产溢价**：gTrade 价格 vs 现货基准价偏离过大时 → 注意套利压力
+
+**数据来源**：gTrade REST API `spreadP` + yfinance `Volume` + `isStocksOpen`
+**数据窗口**：4小时（市场状态实时，spread 来自品种元数据每日刷新）
 
 **维度10 - 机构动向**：
 - 搜索关键词：品种代码 + `ETF inflows outflows`、`13F filing`、`insider selling buying`、`short interest percent`
@@ -280,15 +294,15 @@ with BinanceDataProvider() as provider:
 - 推荐来源：CBOE（VIX和Put-Call）、AAII Sentiment Survey
 - **数据窗口**：4小时（VIX实时变动）
 
-**维度12 - 技术结构**（Binance API 优先）：
-- 数据源：**Binance API K线** → `get_technical_indicators()` 自动计算
+**维度12 - 技术结构**（gTrade/yfinance K线 优先）：
+- 数据源：**yfinance K线** → `GtradeDataProvider.get_technical_indicators()` 自动计算
 - 关注：MA20/MA50/MA200多空排列、布林带位置和带宽、ATR波动率、价格在200日分位数、RS vs SPY（相对强弱）
 - 信号判断：
   - MA20>MA50>MA200（bullish多头排列）→ 强趋势偏多
   - MA20<MA50<MA200（bearish空头排列）→ 强趋势偏空
   - 布林带宽收窄+低ATR → 酝酿突破
   - 持续跑赢SPY → 资金青睐的相对强势股
-- ⚠️ 注意：永续K线与美股现货高度同步但24/7有差异，日线一致性好
+- ⚠️ 注意：yfinance K线与gTrade合成价格高度同步（Chainlink DON 喂价跟踪标的现货），日线一致性好
 - **数据窗口**：24小时
 
 **维度13 - 公司治理**：
@@ -460,11 +474,11 @@ $$综合得分 = \sum_{i=1}^{14} (得分_i \times 权重_i)$$
 #### 5.5 操作方案约束（铁律）
 
 - **中性区间不开仓**：综合得分在0.45-0.55时，仅输出观望建议，不主动开仓
-- **维度冲突降仓**：D9OI与综合得分方向冲突时，仓位减半；D9+D12同时冲突时，不开仓
-- **资金费率保护**：>0.1%→做多降仓或不开仓；<-0.1%→做空降仓或不开仓
-- **OI过热保护**：OI达到30日极值时标注"OI异常，建议降低仓位"警告
+- **维度冲突降仓**：D9 Spread/量与综合得分方向冲突时，仓位减半；D9+D12同时冲突时，不开仓
+- **市场关闭保护**：`isStocksOpen=false` 时 → 不新开仓；已有仓位标注"市场关闭中"
+- **高 Spread 降仓**：gTrade spread > 0.6% → 仓位降一档（流动性差，滑点风险大）
 - **事件前保护**：品种有未来24h内财报/FDA/重大事件时，标注"建议事件落地后再操作"
-- **无数据不开仓**：D9和D12均无有效Binance数据时，标注"数据不足，不建议开仓"
+- **无数据不开仓**：D9和D12均无有效数据时，标注"数据不足，不建议开仓"
 
 ---
 

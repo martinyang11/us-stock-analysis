@@ -1,58 +1,509 @@
 {
-  "version": "1.0",
-  "universe": "Binance USDT-M Perpetual Futures",
-  "total_varieties": 50,
-  "last_updated": "2026-06-10",
+  "total": 56,
   "varieties": [
-    {"id": 0, "name": "Bitcoin", "symbol": "BTCUSDT", "category": "L1", "cmc_rank": 1},
-    {"id": 1, "name": "Ethereum", "symbol": "ETHUSDT", "category": "L1", "cmc_rank": 2},
-    {"id": 2, "name": "BNB", "symbol": "BNBUSDT", "category": "L1", "cmc_rank": 4},
-    {"id": 3, "name": "Solana", "symbol": "SOLUSDT", "category": "L1", "cmc_rank": 5},
-    {"id": 4, "name": "XRP", "symbol": "XRPUSDT", "category": "L1", "cmc_rank": 3},
-    {"id": 5, "name": "Cardano", "symbol": "ADAUSDT", "category": "L1", "cmc_rank": 8},
-    {"id": 6, "name": "Avalanche", "symbol": "AVAXUSDT", "category": "L1", "cmc_rank": 12},
-    {"id": 7, "name": "Polkadot", "symbol": "DOTUSDT", "category": "L1", "cmc_rank": 15},
-    {"id": 8, "name": "Litecoin", "symbol": "LTCUSDT", "category": "L1", "cmc_rank": 20},
-    {"id": 9, "name": "Cosmos", "symbol": "ATOMUSDT", "category": "L1", "cmc_rank": 25},
-    {"id": 10, "name": "NEAR Protocol", "symbol": "NEARUSDT", "category": "L1", "cmc_rank": 18},
-    {"id": 11, "name": "Aptos", "symbol": "APTUSDT", "category": "L1", "cmc_rank": 22},
-    {"id": 12, "name": "Sui", "symbol": "SUIUSDT", "category": "L1", "cmc_rank": 14},
-    {"id": 13, "name": "Internet Computer", "symbol": "ICPUSDT", "category": "L1", "cmc_rank": 24},
-    {"id": 14, "name": "Sei", "symbol": "SEIUSDT", "category": "L1", "cmc_rank": 50},
-    {"id": 15, "name": "Ethereum Classic", "symbol": "ETCUSDT", "category": "L1", "cmc_rank": 28},
-    {"id": 16, "name": "Polygon", "symbol": "MATICUSDT", "category": "L2", "cmc_rank": 30},
-    {"id": 17, "name": "Optimism", "symbol": "OPUSDT", "category": "L2", "cmc_rank": 35},
-    {"id": 18, "name": "Arbitrum", "symbol": "ARBUSDT", "category": "L2", "cmc_rank": 32},
-    {"id": 19, "name": "Stacks", "symbol": "STXUSDT", "category": "L2", "cmc_rank": 38},
-    {"id": 20, "name": "StarkNet", "symbol": "STRKUSDT", "category": "L2", "cmc_rank": 55},
-    {"id": 21, "name": "zkSync", "symbol": "ZKUSDT", "category": "L2", "cmc_rank": 60},
-    {"id": 22, "name": "Movement", "symbol": "MOVEUSDT", "category": "L2", "cmc_rank": 65},
-    {"id": 23, "name": "Uniswap", "symbol": "UNIUSDT", "category": "DeFi", "cmc_rank": 16},
-    {"id": 24, "name": "Chainlink", "symbol": "LINKUSDT", "category": "DeFi", "cmc_rank": 13},
-    {"id": 25, "name": "Maker", "symbol": "MKRUSDT", "category": "DeFi", "cmc_rank": 40},
-    {"id": 26, "name": "Aave", "symbol": "AAVEUSDT", "category": "DeFi", "cmc_rank": 33},
-    {"id": 27, "name": "Injective", "symbol": "INJUSDT", "category": "DeFi", "cmc_rank": 45},
-    {"id": 28, "name": "Ethena", "symbol": "ENAUSDT", "category": "DeFi", "cmc_rank": 48},
-    {"id": 29, "name": "Jupiter", "symbol": "JUPUSDT", "category": "DeFi", "cmc_rank": 52},
-    {"id": 30, "name": "Curve", "symbol": "CRVUSDT", "category": "DeFi", "cmc_rank": 70},
-    {"id": 31, "name": "Lido", "symbol": "LDOUSDT", "category": "DeFi", "cmc_rank": 42},
-    {"id": 32, "name": "Ondo", "symbol": "ONDOUSDT", "category": "DeFi", "cmc_rank": 58},
-    {"id": 33, "name": "Pendle", "symbol": "PENDLEUSDT", "category": "DeFi", "cmc_rank": 62},
-    {"id": 34, "name": "Dogecoin", "symbol": "DOGEUSDT", "category": "Meme", "cmc_rank": 7},
-    {"id": 35, "name": "Shiba Inu", "symbol": "SHIBUSDT", "category": "Meme", "cmc_rank": 11},
-    {"id": 36, "name": "Pepe", "symbol": "PEPEUSDT", "category": "Meme", "cmc_rank": 19},
-    {"id": 37, "name": "dogwifhat", "symbol": "WIFUSDT", "category": "Meme", "cmc_rank": 36},
-    {"id": 38, "name": "Bonk", "symbol": "BONKUSDT", "category": "Meme", "cmc_rank": 44},
-    {"id": 39, "name": "Floki", "symbol": "FLOKIUSDT", "category": "Meme", "cmc_rank": 47},
-    {"id": 40, "name": "Brett", "symbol": "BRETTUSDT", "category": "Meme", "cmc_rank": 68},
-    {"id": 41, "name": "Render", "symbol": "RENDERUSDT", "category": "AI", "cmc_rank": 31},
-    {"id": 42, "name": "Bittensor", "symbol": "TAOUSDT", "category": "AI", "cmc_rank": 27},
-    {"id": 43, "name": "Fetch.ai", "symbol": "FETUSDT", "category": "AI", "cmc_rank": 43},
-    {"id": 44, "name": "Worldcoin", "symbol": "WLDUSDT", "category": "AI", "cmc_rank": 56},
-    {"id": 45, "name": "Celestia", "symbol": "TIAUSDT", "category": "Infra", "cmc_rank": 39},
-    {"id": 46, "name": "Pyth Network", "symbol": "PYTHUSDT", "category": "Infra", "cmc_rank": 54},
-    {"id": 47, "name": "Filecoin", "symbol": "FILUSDT", "category": "Infra", "cmc_rank": 34},
-    {"id": 48, "name": "The Graph", "symbol": "GRTUSDT", "category": "Infra", "cmc_rank": 49},
-    {"id": 49, "name": "Wormhole", "symbol": "WUSDT", "category": "Infra", "cmc_rank": 72}
+    {
+      "variety_id": 0,
+      "name": "BTC",
+      "pairIndex": 0,
+      "group": "crypto",
+      "category": "加密",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 1,
+      "name": "ETH",
+      "pairIndex": 1,
+      "group": "crypto",
+      "category": "加密",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 2,
+      "name": "AAPL",
+      "pairIndex": 58,
+      "group": "stocks",
+      "category": "科技巨头",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 3,
+      "name": "GOOGL",
+      "pairIndex": 60,
+      "group": "stocks",
+      "category": "科技巨头",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 4,
+      "name": "AMZN",
+      "pairIndex": 61,
+      "group": "stocks",
+      "category": "科技巨头",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 5,
+      "name": "MSFT",
+      "pairIndex": 62,
+      "group": "stocks",
+      "category": "科技巨头",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 6,
+      "name": "TSLA",
+      "pairIndex": 63,
+      "group": "stocks",
+      "category": "科技巨头",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 7,
+      "name": "SNAP",
+      "pairIndex": 64,
+      "group": "stocks",
+      "category": "科技其他",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 8,
+      "name": "NVDA",
+      "pairIndex": 65,
+      "group": "stocks",
+      "category": "科技巨头",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 9,
+      "name": "V",
+      "pairIndex": 66,
+      "group": "stocks",
+      "category": "金融科技",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 10,
+      "name": "MA",
+      "pairIndex": 67,
+      "group": "stocks",
+      "category": "金融科技",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 11,
+      "name": "PFE",
+      "pairIndex": 68,
+      "group": "stocks",
+      "category": "医药",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 12,
+      "name": "KO",
+      "pairIndex": 69,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 13,
+      "name": "DIS",
+      "pairIndex": 70,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 14,
+      "name": "GME",
+      "pairIndex": 71,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 15,
+      "name": "NKE",
+      "pairIndex": 72,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 16,
+      "name": "AMD",
+      "pairIndex": 73,
+      "group": "stocks",
+      "category": "半导体",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 17,
+      "name": "PYPL",
+      "pairIndex": 74,
+      "group": "stocks",
+      "category": "金融科技",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 18,
+      "name": "ABNB",
+      "pairIndex": 75,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 19,
+      "name": "BA",
+      "pairIndex": 76,
+      "group": "stocks",
+      "category": "工业/国防",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 20,
+      "name": "SBUX",
+      "pairIndex": 77,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 21,
+      "name": "WMT",
+      "pairIndex": 78,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 22,
+      "name": "INTC",
+      "pairIndex": 79,
+      "group": "stocks",
+      "category": "半导体",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 23,
+      "name": "MCD",
+      "pairIndex": 80,
+      "group": "stocks",
+      "category": "消费零售",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 24,
+      "name": "META",
+      "pairIndex": 81,
+      "group": "stocks",
+      "category": "科技巨头",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 25,
+      "name": "SPY",
+      "pairIndex": 86,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 26,
+      "name": "QQQ",
+      "pairIndex": 87,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 27,
+      "name": "IWM",
+      "pairIndex": 88,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 28,
+      "name": "DIA",
+      "pairIndex": 89,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 29,
+      "name": "XAU",
+      "pairIndex": 90,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 30,
+      "name": "XAG",
+      "pairIndex": 91,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 31,
+      "name": "WTI",
+      "pairIndex": 187,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 32,
+      "name": "XPT",
+      "pairIndex": 188,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 33,
+      "name": "XPD",
+      "pairIndex": 189,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 34,
+      "name": "HG",
+      "pairIndex": 190,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 35,
+      "name": "COIN",
+      "pairIndex": 376,
+      "group": "stocks",
+      "category": "加密相关",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 36,
+      "name": "HOOD",
+      "pairIndex": 377,
+      "group": "stocks",
+      "category": "加密相关",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 37,
+      "name": "MSTR",
+      "pairIndex": 378,
+      "group": "stocks",
+      "category": "加密相关",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 38,
+      "name": "NFLX",
+      "pairIndex": 379,
+      "group": "stocks",
+      "category": "科技其他",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 39,
+      "name": "CRCL",
+      "pairIndex": 386,
+      "group": "stocks",
+      "category": "加密相关",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 40,
+      "name": "SBET",
+      "pairIndex": 393,
+      "group": "stocks",
+      "category": "科技其他",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 41,
+      "name": "PLTR",
+      "pairIndex": 394,
+      "group": "stocks",
+      "category": "科技其他",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 42,
+      "name": "BIDU",
+      "pairIndex": 395,
+      "group": "stocks",
+      "category": "科技其他",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 43,
+      "name": "ROKU",
+      "pairIndex": 396,
+      "group": "stocks",
+      "category": "科技其他",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 44,
+      "name": "LMT",
+      "pairIndex": 397,
+      "group": "stocks",
+      "category": "工业/国防",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 45,
+      "name": "RIOT",
+      "pairIndex": 398,
+      "group": "stocks",
+      "category": "加密相关",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 46,
+      "name": "MARA",
+      "pairIndex": 399,
+      "group": "stocks",
+      "category": "加密相关",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 47,
+      "name": "SPX500",
+      "pairIndex": 436,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 48,
+      "name": "NAS100",
+      "pairIndex": 437,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 49,
+      "name": "USA30",
+      "pairIndex": 438,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 50,
+      "name": "GDX",
+      "pairIndex": 446,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 51,
+      "name": "URA",
+      "pairIndex": 447,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 52,
+      "name": "WPM",
+      "pairIndex": 448,
+      "group": "stocks",
+      "category": "科技其他",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 53,
+      "name": "NATGAS",
+      "pairIndex": 449,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 54,
+      "name": "BRENT",
+      "pairIndex": 450,
+      "group": "commodities",
+      "category": "商品",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    },
+    {
+      "variety_id": 55,
+      "name": "URNM",
+      "pairIndex": 451,
+      "group": "indices",
+      "category": "ETF/指数",
+      "spread_pct": 0,
+      "maxLeverage": 0
+    }
   ]
 }

@@ -5,7 +5,7 @@ CatTrader — 基于SANN评分的TradFi趋势跟踪交易系统 v3.4
 核心逻辑：
   每4小时执行一次决策循环：
   1. 读取最新SA评分（14基本面+24技术面，由SANN管线统一计算）
-  2. 加载SANN模型推理，生成35品种综合评分s
+  2. 加载SANN模型推理，生成56品种综合评分s
   3. 查表得到每个品种的目标杠杆（方向+倍数）
   4. 选取目标杠杆最强的1多1空作为操作品种
   5. 与当前持仓对比，派生开仓/调仓/平仓/持有动作
@@ -18,9 +18,9 @@ CatTrader — 基于SANN评分的TradFi趋势跟踪交易系统 v3.4
   s ≥ 0.65       → 做多 0.5×（σ≥0.15）
 
 TradFi版保护：
-  - 资金费率 > 0.1% → 做多仓位减半
-  - 资金费率 < -0.1% → 做空仓位减半
-  - OI达到30日极值 → 标记警告
+  - gTrade spread > 0.6% → gTrade高spread→仓位降一档
+  - gTrade spread > 0.6% → gTrade高spread→仓位降一档
+  - isStocksOpen=false → 不新开仓 (市场关闭保护)
 """
 
 import os
@@ -56,7 +56,7 @@ for p in [PROJECT_ROOT, SA_SCRIPTS, SANN_SCRIPTS, COMMON_DIR, SCRIPT_DIR]:
 from skills.common.variety_list import (
     VARIETY_NAMES, VARIETY_CODES, SYMBOLS, NUM_VARIETIES
 )
-from binance_data import BinanceDataProvider
+from gtrade_data import GtradeDataProvider
 
 logger = logging.getLogger('CatTrader')
 
@@ -113,7 +113,7 @@ class Decision:
     sigma: float
     zone: str
     reason: str
-    funding_warning: str = ""
+    spread_warning: str = ""
 
 
 @dataclass
@@ -148,22 +148,22 @@ def compute_sigma(score: float) -> float:
 # ============================================================
 # 资金费率保护（加密版新增）
 # ============================================================
-def apply_funding_protection(target: TargetLeverage, funding_rate: float) -> TargetLeverage:
+def apply_spread_protection(target: TargetLeverage, spread: float) -> TargetLeverage:
     """资金费率极端时降仓保护
 
-    - 资金费率 > 0.1% → 做多拥挤，多头仓位减半
-    - 资金费率 < -0.1% → 做空拥挤，空头仓位减半
+    - gTrade spread > 0.6% → 做多拥挤，多头仓位减半
+    - gTrade spread > 0.6% → 做空拥挤，空头仓位减半
     """
     if target.leverage == 0:
         return target
 
-    if funding_rate > 0.001:  # >0.1%
+    if spread > 0.001:  # >0.1%
         if target.direction == Direction.LONG.value:
             new_lev = target.leverage / 2
             return TargetLeverage(target.direction, new_lev,
                                  f"{target.zone}(费率保护)")
 
-    if funding_rate < -0.001:  # <-0.1%
+    if spread < -0.001:  # <-0.1%
         if target.direction == Direction.SHORT.value:
             new_lev = target.leverage / 2
             return TargetLeverage(target.direction, new_lev,
@@ -263,24 +263,24 @@ def _load_model_cached(data_dir: str):
     return None
 
 
-def get_cann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[int, float]]:
+def get_sann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[int, float]]:
     """获取50币种SANN评分 + 资金费率
 
     Returns:
-        (scores_dict, ca_date, funding_rates_dict)
+        (scores_dict, ca_date, spreads_dict)
     """
     if date_str is None:
         date_str = datetime.utcnow().strftime('%Y%m%d')
 
-    cann_data_dir = os.path.join(PROJECT_ROOT, 'skills', 'SANN', 'data')
-    scores_dir = os.path.join(cann_data_dir, 'daily_scores')
+    sann_data_dir = os.path.join(PROJECT_ROOT, 'skills', 'SANN', 'data')
+    scores_dir = os.path.join(sann_data_dir, 'daily_scores')
     month = int(date_str[4:6])
 
     # CA评分
     ca_scores, ca_date = _find_latest_ca_scores(scores_dir, date_str)
 
     # SANN模型
-    model = _load_model_cached(cann_data_dir)
+    model = _load_model_cached(sann_data_dir)
     if model is None:
         logger.warning("无SANN模型，全部返回0.5")
         return {cid: 0.5 for cid in range(NUM_VARIETIES)}, ca_date, {}
@@ -301,14 +301,14 @@ def get_cann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[i
         result[cid] = score
 
     # 获取资金费率
-    funding_rates = {}
+    spreads = {}
     try:
-        with BinanceDataProvider() as provider:
-            funding_rates = provider.get_all_funding_rates_dict()
+        with GtradeDataProvider() as provider:
+            spreads = provider.get_all_spreads_dict()
     except Exception:
         pass
 
-    return result, ca_date, funding_rates
+    return result, ca_date, spreads
 
 
 # ============================================================
@@ -353,7 +353,7 @@ def save_state(state: TraderState):
 # ============================================================
 def _resolve_position(current: Optional[Position], target: TargetLeverage,
                       score: float, cid: int, now: datetime, date_str: str,
-                      funding_rate: float = 0.0) -> List[Decision]:
+                      spread: float = 0.0) -> List[Decision]:
     """根据当前持仓和目标杠杆派生决策"""
     name = VARIETY_NAMES.get(cid, f"币种{cid}")
     symbol = VARIETY_CODES.get(cid, "")
@@ -361,11 +361,11 @@ def _resolve_position(current: Optional[Position], target: TargetLeverage,
     decisions = []
 
     # 资金费率警告
-    funding_warning = ""
-    if funding_rate > 0.001:
-        funding_warning = f"⚠️费率{funding_rate*100:.3f}%极高，做多拥挤"
-    elif funding_rate < -0.001:
-        funding_warning = f"⚠️费率{funding_rate*100:.3f}%极低，做空拥挤"
+    spread_warning = ""
+    if spread > 0.001:
+        spread_warning = f"⚠️费率{spread*100:.3f}%极高，做多拥挤"
+    elif spread < -0.001:
+        spread_warning = f"⚠️费率{spread*100:.3f}%极低，做空拥挤"
 
     if current is None:
         if target.leverage > 0:
@@ -374,7 +374,7 @@ def _resolve_position(current: Optional[Position], target: TargetLeverage,
                 symbol=symbol, direction=target.direction, leverage=target.leverage,
                 score=score, sigma=sigma, zone=target.zone,
                 reason=f"{target.zone}区间 s={score:.4f} σ={sigma:.4f}",
-                funding_warning=funding_warning,
+                spread_warning=spread_warning,
             ))
         return decisions
 
@@ -397,7 +397,7 @@ def _resolve_position(current: Optional[Position], target: TargetLeverage,
             symbol=symbol, direction=target.direction, leverage=target.leverage,
             score=score, sigma=sigma, zone=target.zone,
             reason=f"信号反转开{target.direction}{target.leverage}× s={score:.4f}",
-            funding_warning=funding_warning,
+            spread_warning=spread_warning,
         ))
     elif abs(target.leverage - current.leverage) > 0.01:
         decisions.append(Decision(
@@ -427,7 +427,7 @@ def run_cat_trader(date_str: str = None) -> dict:
     positions = [Position(**p) for p in state.positions]
 
     # Step 1: 获取SANN评分+资金费率
-    scores, ca_date, funding_rates = get_cann_scores(date_str)
+    scores, ca_date, spreads = get_sann_scores(date_str)
 
     # Step 2: 选取候选
     cmax, cmin = select_candidates(scores)
@@ -440,8 +440,8 @@ def run_cat_trader(date_str: str = None) -> dict:
     for pos in positions:
         current_score = scores.get(pos.crypto_id, 0.5)
         target = get_target_leverage(current_score)
-        fr = funding_rates.get(pos.crypto_id, 0.0)
-        target = apply_funding_protection(target, fr)
+        fr = spreads.get(pos.crypto_id, 0.0)
+        target = apply_spread_protection(target, fr)
         pos_decisions = _resolve_position(pos, target, current_score, pos.crypto_id, now, date_str, fr)
         decisions.extend(pos_decisions)
 
@@ -479,8 +479,8 @@ def run_cat_trader(date_str: str = None) -> dict:
             continue
 
         target = get_target_leverage(score)
-        fr = funding_rates.get(cid, 0.0)
-        target = apply_funding_protection(target, fr)
+        fr = spreads.get(cid, 0.0)
+        target = apply_spread_protection(target, fr)
         pos_decisions = _resolve_position(None, target, score, cid, now, date_str, fr)
         decisions.extend(pos_decisions)
 
@@ -511,7 +511,7 @@ def run_cat_trader(date_str: str = None) -> dict:
     save_state(state)
 
     return generate_report(decisions, scores, positions_after, date_str,
-                          state, ca_date, funding_rates)
+                          state, ca_date, spreads)
 
 
 # ============================================================
@@ -519,9 +519,9 @@ def run_cat_trader(date_str: str = None) -> dict:
 # ============================================================
 def generate_report(decisions: List[Decision], scores: Dict[int, float],
                     positions: List[Position], date_str: str, state: TraderState,
-                    ca_date: str = '', funding_rates: Dict[int, float] = None) -> dict:
+                    ca_date: str = '', spreads: Dict[int, float] = None) -> dict:
     now = datetime.utcnow()
-    fr = funding_rates or {}
+    fr = spreads or {}
     score_values = list(scores.values()) if scores else [0.5]
     score_arr = np.array(score_values)
 
@@ -569,13 +569,13 @@ def generate_report(decisions: List[Decision], scores: Dict[int, float],
             'short': len([p for p in positions if p.direction == Direction.SHORT.value]),
             'details': [asdict(p) for p in positions],
         },
-        'funding_warnings': [
+        'spread_warnings': [
             {'crypto': name, 'rate': f'{rate*100:.4f}%'}
             for name, cid, s, sig, rate in top5 if abs(rate) > 0.0005
         ],
         'top5_sigma': [
             {'name': name, 'crypto_id': cid, 'score': round(s, 4),
-             'sigma': round(sig, 4), 'funding_rate': f'{rate*100:.4f}%'}
+             'sigma': round(sig, 4), 'spread': f'{rate*100:.4f}%'}
             for name, cid, s, sig, rate in top5
         ],
     }
@@ -604,7 +604,7 @@ def format_report_text(report: dict) -> str:
 
     for d in dd['details']:
         sym = d.get('symbol', '')
-        fw = f" {d.get('funding_warning', '')}" if d.get('funding_warning') else ""
+        fw = f" {d.get('spread_warning', '')}" if d.get('spread_warning') else ""
         if d['action'] == '空缺':
             lines.append(f"  ⚪ {d['direction']}: {d['reason']}")
         elif d['action'] == '开仓':
@@ -623,14 +623,14 @@ def format_report_text(report: dict) -> str:
         emoji = "📈" if p['direction'] == '多头' else "📉"
         lines.append(f"  {emoji} {p['crypto_name']}({p.get('symbol','')}) {p['direction']} {p['leverage']}× | 入场s={p['entry_score']:.4f}")
 
-    if report.get('funding_warnings'):
+    if report.get('spread_warnings'):
         lines.append(f"\n⚠️ 资金费率警告")
-        for w in report['funding_warnings']:
+        for w in report['spread_warnings']:
             lines.append(f"  {w['crypto']}: {w['rate']}")
 
     lines.append(f"\n🏆 信号最强TOP5")
     for t in report['top5_sigma']:
-        lines.append(f"  {t['name']}: s={t['score']:.4f} σ={t['sigma']:.4f} 费率={t['funding_rate']}")
+        lines.append(f"  {t['name']}: s={t['score']:.4f} σ={t['sigma']:.4f} 费率={t['spread']}")
 
     lines.append("\n" + "=" * 55)
     return "\n".join(lines)

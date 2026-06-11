@@ -9,18 +9,18 @@ SANN（与商品期货/加密版共用名称和架构）
 ## 触发场景
 - 用户说"SANN"、"SANN分析"、"神经网络评分"等
 - 日程触发（标题含"SANN"）
-- 每日 UTC 00:15 自动执行
+- 每日 UTC 21:00（美股收盘后） 自动执行
 
 ## 依赖
 - StockAnalysis (SA) 技能：提供14维度基本面评分（**必须来自真实分析**）
-- 技术面模块：`skills/StockAnalysis/scripts/binance_data.py` 提供24维度技术面评分
+- 技术面模块：`skills/StockAnalysis/scripts/gtrade_data.py` 提供24维度技术面评分
 - NumPy：纯NumPy实现，无PyTorch/深度学习框架依赖
 
 ## ⚠️ 铁律：禁止合成数据
 
 - D1-D14（基本面评分）**必须**来自SA技能的真实14维度分析输出
-- T1-T24（技术面评分）**必须**来自Binance API真实K线计算
-- y值**必须**来自Binance API真实次日涨跌（sigmoid映射）
+- T1-T24（技术面评分）**必须**来自gTrade API + yfinance真实K线计算
+- y值**必须**来自gTrade API + yfinance真实次日涨跌（sigmoid映射）
 - **禁止**用任何公式推算/合成y值或其他维度
 - 有多少天真实SA数据，就有多少天有效训练样本
 
@@ -64,7 +64,7 @@ SANN（与商品期货/加密版共用名称和架构）
 
 ### 24维技术面评分（T1-T24）
 
-由 `binance_data.py` 的 `get_technical_indicators()` 从Binance K线自动计算：
+由 `gtrade_data.py` 的 `get_technical_indicators()` 从gTrade K线自动计算：
 
 | 序号 | 指标 | 说明 |
 |------|------|------|
@@ -82,7 +82,7 @@ SANN（与商品期货/加密版共用名称和架构）
 | T18-21 | 高低位 | 距20日/50日/200日高低位的百分比 |
 | T22-24 | 波动率 | 20日/50日/200日历史波动率分位 |
 
-⚠️ **T1-T24全部由Binance API自动计算**，无需人工干预。SA技能只需填充D1-D14。
+⚠️ **T1-T24全部由gTrade API + yfinance自动计算**，无需人工干预。SA技能只需填充D1-D14。
 
 ### 网络结构
 
@@ -142,16 +142,16 @@ Input: scores(14基本面+24技术面=38) + month_sin + month_cos + variety_embe
 
 ---
 
-## 每日执行流程（UTC 00:15 自动触发）
+## 每日执行流程（UTC 21:00（美股收盘后） 自动触发）
 
 ### 第一步：采集技术面（自动）
 
-通过Binance API获取35品种日线K线数据，计算24维技术面评分：
+通过gTrade API + yfinance获取56品种日线K线数据，计算24维技术面评分：
 
 ```python
-from skills.StockAnalysis.scripts.binance_data import BinanceDataProvider
+from skills.StockAnalysis.scripts.gtrade_data import GtradeDataProvider
 
-with BinanceDataProvider() as provider:
+with GtradeDataProvider() as provider:
     for vid, sym in VARIETY_CODES.items():
         tech = provider.get_technical_indicators(sym, interval="1d", limit=200)
         # tech 返回 dict 含 price, ma20, ma50, ma200, bb_upper, bb_lower, 
@@ -175,11 +175,11 @@ write_ca_scores('YYYYMMDD', variety_id, [d1, d2, ..., d14], './SANN/data/daily_s
 # 输入校验：品种ID 0-34，CA评分14维且每维在[0,1]范围内
 ```
 
-⚠️ **CA评分必须来自SA技能真实分析**，禁止合成/生成。35品种完整分析约需30-60分钟。
+⚠️ **CA评分必须来自SA技能真实分析**，禁止合成/生成。56品种完整分析约需30-60分钟。
 
 ### 第三步：计算真实涨跌标签 y 值（次日）
 
-在下一个UTC 00:15管线运行时，用Binance API获取该品种次日真实涨跌：
+在下一个UTC 21:00（美股收盘后）管线运行时，用gTrade API + yfinance获取该品种次日真实涨跌：
 
 ```python
 # 在 daily_pipeline.py 的 update_historical_y() 中执行
@@ -232,7 +232,7 @@ model = train_from_csv('historical_samples.csv')
 
 ### 第五步：推理评分
 
-用训练好的网络对35品种计算综合评分：
+用训练好的网络对56品种计算综合评分：
 
 ```python
 from skills.SANN.scripts.pretrain_numpy import NumpySANNModel, predict_single
@@ -291,7 +291,7 @@ cann_score = model.predict_single(
 │   │   ├── scores_20260610.csv     # 格式：date,variety_id,variety_name,month,dim1..14,tech1..24
 │   │   └── ...
 │   ├── model_weights.npz           # 当前模型权重（含嵌入矩阵+各层参数+BN统计量）
-│   ├── tradfi_meta.json            # 35品种元数据（名称/代码/类别）
+│   ├── tradfi_meta.json            # 56品种元数据（名称/代码/类别）
 │   └── training_log.csv            # 训练日志（日期/样本数/loss/val_loss/epochs）
 ├── reports/
 │   ├── SANN报告_20260610.md
@@ -300,7 +300,7 @@ cann_score = model.predict_single(
 │   ├── pretrain_numpy.py           # 核心脚本：模型定义+前向+反向+Adam+训练+推理
 │   └── daily_pipeline.py           # 每日管线：技术面采集→CA写入→y值回填→微调→推理
 └── references/
-    └── 币种列表.md                  # 35品种ID映射+类别分组
+    └── 币种列表.md                  # 56品种ID映射+类别分组
 ```
 
 ### CSV格式示例（daily_scores/scores_YYYYMMDD.csv）
@@ -312,7 +312,7 @@ date,variety_id,variety_name,month,dim1,dim2,...,dim14,tech1,tech2,...,tech24
 ```
 
 - dim1-dim14：SA基本面评分 [0,1]，**未填充时为-1**（占位值，训练时自动过滤）
-- tech1-tech24：技术面评分 [0,1]，**由Binance API自动计算填充**
+- tech1-tech24：技术面评分 [0,1]，**由gTrade API + yfinance自动计算填充**
 
 ### historical_samples.csv 额外列
 
@@ -335,7 +335,7 @@ date,variety_id,variety_name,month,dim1,dim2,...,dim14,tech1,tech2,...,tech24
 
 | 键名 | 形状 | 说明 |
 |------|------|------|
-| `embedding` | (35, 8) | 品种嵌入矩阵（35品种×8维） |
+| `embedding` | (35, 8) | 品种嵌入矩阵（56品种×8维） |
 | `fc0.W` | (48, 48) | 第1层全连接权重 |
 | `fc0.b` | (48,) | 第1层全连接偏置 |
 | `fc1.W` | (48, 32) | 第2层全连接权重 |
@@ -369,9 +369,9 @@ date,variety_id,variety_name,month,dim1,dim2,...,dim14,tech1,tech2,...,tech24
 | 维度 | 规则 |
 |------|------|
 | 美股现货交易 | 周一至周五 9:30-16:00 ET（夏令时13:30-20:00 UTC） |
-| **永续合约交易** | **24小时/7天** 无休市（Binance永续不间断） |
+| **永续合约交易** | **24小时/7天** 无休市（gTrade永续不间断） |
 | **日切时刻** | **UTC 00:00**（统一日切，对应美股收盘后约4小时） |
-| **管线触发** | **UTC 00:15**（日切后15分钟，等待Binance日线K线收线） |
+| **管线触发** | **UTC 21:00（美股收盘后）**（日切后15分钟，等待gTrade日线K线收线） |
 | 周末/节假日 | 永续合约不休市，但现货不交易 → 流动性可能降低 |
 | y值计算基准 | 以 **UTC 00:00 价格** 为日切收盘价 |
 
@@ -386,8 +386,8 @@ date,variety_id,variety_name,month,dim1,dim2,...,dim14,tech1,tech2,...,tech24
 3. **SA评分质量**：SANN精度直接依赖SA评分质量，确保SA按14维度规范执行
 4. **过拟合防护**：数据量较小时（<100样本），Dropout和早停法是关键防线
 5. **纯NumPy**：不依赖PyTorch或任何深度学习框架，完整手写实现
-6. **品种数量**：35个Binance USDT-M TradFi永续品种
+6. **品种数量**：35个gTrade USDT-M TradFi永续品种
 7. **时序划分**：训练/验证集按时序80/20划分，不随机打乱（防止未来信息泄露）
-8. **数据来源铁律**：D1-D14只能来自SA真实分析，y值只能来自Binance真实涨跌
+8. **数据来源铁律**：D1-D14只能来自SA真实分析，y值只能来自gTrade真实涨跌
 9. **免责声明**：所有报告必须附带免责声明，本分析仅供参考，不构成投资建议
-10. **Binance可用性**：如遇API 451/403，需切换代理；纯requests实现无python-binance依赖
+10. **gTrade可用性**：如遇API 451/403，需切换代理；纯requests实现无python-binance依赖

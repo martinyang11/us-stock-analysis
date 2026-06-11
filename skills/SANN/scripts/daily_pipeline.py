@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-SANN每日管线脚本 — TradFi版 v4.1
-每日 UTC 00:15 执行：回填昨日y值 → 微调 → SA技术面采集 → 追加今日样本 → 推理
+SANN每日管线脚本 — TradFi gTrade版 v4.2
+每日 UTC 21:00 执行：回填昨日y值 → 微调 → 技术面采集 → 追加今日样本 → 推理
 
 核心原则：
-- SA统一输出14维基本面评分，技术面24维由Binance K线计算
-- y值来自Binance API次日真实涨跌（UTC 00:00为日切）
+- SA统一输出14维基本面评分，技术面24维由yfinance K线计算
+- y值来自yfinance次日真实涨跌（美股收盘价为日切）
 - 只有同时具备真实SA+真实y的样本才是有效训练数据
 - 今日新采集的SA数据(y=0.5占位)不参与当日微调
 
-调度：每日 UTC 00:15 执行
+调度：每日 UTC 21:00 执行（美股收盘后约1小时）
 """
 
 import os
@@ -35,16 +35,6 @@ for pkg in REQUIRED_PKGS:
         print(f"[自检] 安装缺失依赖: {pkg}")
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', pkg, '-q'])
 
-# 尝试安装 binance 包
-try:
-    from binance.client import Client
-except ImportError:
-    try:
-        from binance.um_futures import UMFutures
-    except ImportError:
-        print("[自检] 安装 python-binance...")
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'python-binance', '-q'])
-
 import pandas as pd
 
 # 路径设置
@@ -58,13 +48,13 @@ for p in [PROJECT_ROOT, COMMON_DIR, SA_SCRIPTS_DIR, SCRIPT_DIR]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-# 导入品种列表（统一权威源）
+# 导入品种列表（统一权威源，gTrade动态加载）
 from skills.common.variety_list import (
     VARIETY_CODES, VARIETY_NAMES, SYMBOLS, SYMBOL_TO_ID, NUM_VARIETIES
 )
 
-# 导入币安数据接口
-from binance_data import BinanceDataProvider
+# 导入gTrade数据接口
+from gtrade_data import GtradeDataProvider
 
 logger = logging.getLogger('SANN.pipeline')
 
@@ -76,16 +66,16 @@ _kline_cache = None
 
 
 def get_kline_cache() -> Dict[int, pd.DataFrame]:
-    """懒加载全币种K线缓存（Binance API）"""
+    """懒加载全币种K线缓存（gTrade API）"""
     global _kline_cache
     if _kline_cache is not None:
         return _kline_cache
 
     _kline_cache = {}
-    print(f'  [K线缓存] 从Binance获取 {NUM_VARIETIES} 币种日K线...')
+    print(f'  [K线缓存] 从gTrade获取 {NUM_VARIETIES} 币种日K线...')
 
     ok = 0
-    with BinanceDataProvider() as provider:
+    with GtradeDataProvider() as provider:
         for vid in range(NUM_VARIETIES):
             symbol = VARIETY_CODES[vid]
             try:
@@ -103,7 +93,7 @@ def get_kline_cache() -> Dict[int, pd.DataFrame]:
                 print(f'    ❌ {symbol}: {e}')
 
     failed = NUM_VARIETIES - ok
-    print(f'  [K线缓存] Binance OK={ok}/{NUM_VARIETIES}' + (f' 失败={failed}' if failed else ''))
+    print(f'  [K线缓存] gTrade OK={ok}/{NUM_VARIETIES}' + (f' 失败={failed}' if failed else ''))
     return _kline_cache
 
 
@@ -111,7 +101,7 @@ def get_kline_cache() -> Dict[int, pd.DataFrame]:
 # Step 1: 回填昨日y值
 # ============================================================
 def update_historical_y(data_dir: str) -> Tuple[int, int]:
-    """用Binance次日涨跌更新historical_samples.csv中缺失y值的样本"""
+    """用gTrade次日涨跌更新historical_samples.csv中缺失y值的样本"""
     print(f'\n[Step 1] 回填昨日y值')
 
     csv_path = os.path.join(data_dir, 'historical_samples.csv')
@@ -134,7 +124,7 @@ def update_historical_y(data_dir: str) -> Tuple[int, int]:
 
     for row in samples:
         date_str = row['date']
-        vid = int(row['crypto_id'] if 'crypto_id' in row else row.get('variety_id', 0))
+        vid = int(row['variety_id'] if 'variety_id' in row else row.get('variety_id', 0))
         raw_change = float(row.get('raw_change', '0.0'))
 
         if abs(raw_change) > 1e-8:
@@ -199,7 +189,7 @@ def generate_today_scores(date_str: str, scores_dir: str) -> int:
     target_date = f'{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}'
     month = int(date_str[4:6])
 
-    fieldnames = ['date', 'crypto_id', 'crypto_name', 'month'] + \
+    fieldnames = ['date', 'variety_id', 'variety_name', 'month'] + \
                  [f'dim{i}' for i in range(1, 15)] + \
                  [f'tech{i}' for i in range(1, 25)]
 
@@ -225,8 +215,8 @@ def generate_today_scores(date_str: str, scores_dir: str) -> int:
             name = VARIETY_NAMES.get(vid, f"品种{vid}")
             row = {
                 'date': target_date,
-                'crypto_id': vid,
-                'crypto_name': name,
+                'variety_id': vid,
+                'variety_name': name,
                 'month': month,
             }
 
@@ -261,17 +251,17 @@ def generate_today_scores(date_str: str, scores_dir: str) -> int:
 # ============================================================
 # Step 4: CA评分写入接口
 # ============================================================
-def write_ca_scores(date_str: str, crypto_id: int, ca_scores: List[float],
+def write_ca_scores(date_str: str, variety_id: int, ca_scores: List[float],
                      scores_dir: str):
     """将CA技能输出的14维评分写入daily_scores CSV
 
     Args:
         date_str: 日期 YYYYMMDD
-        crypto_id: 币种ID (0-49)
+        variety_id: 币种ID (0-49)
         ca_scores: 14维CA评分 [0,1]
         scores_dir: daily_scores目录
     """
-    if not isinstance(crypto_id, int) or crypto_id < 0 or crypto_id >= NUM_VARIETIES:
+    if not isinstance(variety_id, int) or variety_id < 0 or variety_id >= NUM_VARIETIES:
         raise ValueError(f"币种ID必须在0-{NUM_VARIETIES-1}范围内")
     if len(ca_scores) != 14:
         raise ValueError(f"CA评分必须为14维列表")
@@ -286,7 +276,7 @@ def write_ca_scores(date_str: str, crypto_id: int, ca_scores: List[float],
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames
         for row in reader:
-            if int(row.get('crypto_id', row.get('variety_id', -1))) == crypto_id:
+            if int(row.get('variety_id', row.get('variety_id', -1))) == variety_id:
                 for i, s in enumerate(ca_scores, 1):
                     row[f'dim{i}'] = f'{s:.4f}'
             rows.append(row)
@@ -334,8 +324,8 @@ def append_today_samples(date_str: str, scores_dir: str, data_dir: str) -> int:
 
         new_samples.append({
             'date': row['date'],
-            'crypto_id': row.get('crypto_id', row.get('variety_id', '0')),
-            'crypto_name': row.get('crypto_name', row.get('variety_name', '')),
+            'variety_id': row.get('variety_id', row.get('variety_id', '0')),
+            'variety_name': row.get('variety_name', row.get('variety_name', '')),
             'month': row['month'],
             **{f'dim{i}': row[f'dim{i}'] for i in range(1, 15)},
             **{f'tech{i}': row[f'tech{i}'] for i in range(1, 25)},
@@ -343,7 +333,7 @@ def append_today_samples(date_str: str, scores_dir: str, data_dir: str) -> int:
             'raw_change': '0.000000',
         })
 
-    fieldnames = ['date', 'crypto_id', 'crypto_name', 'month'] + \
+    fieldnames = ['date', 'variety_id', 'variety_name', 'month'] + \
                  [f'dim{i}' for i in range(1, 15)] + \
                  [f'tech{i}' for i in range(1, 25)] + \
                  ['y', 'raw_change']
@@ -391,8 +381,8 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
     with open(scores_csv, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            cid = int(row.get('crypto_id', row.get('variety_id', 0)))
-            name = row.get('crypto_name', row.get('variety_name', ''))
+            cid = int(row.get('variety_id', row.get('variety_id', 0)))
+            name = row.get('variety_name', row.get('variety_name', ''))
             month = int(row['month'])
 
             dims_14 = [float(row[f'dim{i}']) for i in range(1, 15)]
@@ -402,7 +392,7 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
             if any(d < 0 for d in dims_14) or model is None:
                 ca_missing += 1
                 results.append({
-                    'crypto_id': cid, 'crypto_name': name,
+                    'variety_id': cid, 'variety_name': name,
                     'ca_mean': np.mean([d for d in dims_14 if d >= 0]) if any(d >= 0 for d in dims_14) else -1,
                     'cann_score': 0.5, 'direction': '无CA数据' if any(d < 0 for d in dims_14) else '无模型',
                 })
@@ -414,7 +404,7 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
             ca_mean = float(np.mean(dims_14))
 
             results.append({
-                'crypto_id': cid, 'crypto_name': name,
+                'variety_id': cid, 'variety_name': name,
                 'ca_mean': round(ca_mean, 4),
                 'cann_score': round(cann_score, 4),
                 'direction': '',
@@ -461,10 +451,10 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
     # 显示Top5多和Top5空
     if bullish:
         top5_long = sorted(bullish, key=lambda x: x['cann_score'], reverse=True)[:5]
-        print(f'     🔵 Top5偏多: {", ".join(f"{r["crypto_name"]}({r["cann_score"]:.4f})" for r in top5_long)}')
+        print(f'     🔵 Top5偏多: {", ".join(f"{r["variety_name"]}({r["cann_score"]:.4f})" for r in top5_long)}')
     if bearish:
         top5_short = sorted(bearish, key=lambda x: x['cann_score'])[:5]
-        print(f'     🔴 Top5偏空: {", ".join(f"{r["crypto_name"]}({r["cann_score"]:.4f})" for r in top5_short)}')
+        print(f'     🔴 Top5偏空: {", ".join(f"{r["variety_name"]}({r["cann_score"]:.4f})" for r in top5_short)}')
 
     return output
 

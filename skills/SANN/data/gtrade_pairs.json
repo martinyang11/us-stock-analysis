@@ -1,0 +1,3244 @@
+{
+  "groups": [
+    {
+      "name": "crypto",
+      "minLeverage": "1100",
+      "maxLeverage": "200000"
+    },
+    {
+      "name": "forex",
+      "minLeverage": "10000",
+      "maxLeverage": "1000000"
+    },
+    {
+      "name": "stocks-1",
+      "minLeverage": "1100",
+      "maxLeverage": "50000"
+    },
+    {
+      "name": "stocks-2",
+      "minLeverage": "1100",
+      "maxLeverage": "50000"
+    },
+    {
+      "name": "stocks-3",
+      "minLeverage": "1100",
+      "maxLeverage": "50000"
+    },
+    {
+      "name": "indices",
+      "minLeverage": "1100",
+      "maxLeverage": "100000"
+    },
+    {
+      "name": "commodities-1",
+      "minLeverage": "2000",
+      "maxLeverage": "250000"
+    },
+    {
+      "name": "commodities-2",
+      "minLeverage": "2000",
+      "maxLeverage": "150000"
+    },
+    {
+      "name": "forex-minor",
+      "minLeverage": "10000",
+      "maxLeverage": "750000"
+    },
+    {
+      "name": "forex-exotic",
+      "minLeverage": "10000",
+      "maxLeverage": "500000"
+    },
+    {
+      "name": "altcoins",
+      "minLeverage": "1100",
+      "maxLeverage": "150000"
+    },
+    {
+      "name": "crypto-degen",
+      "minLeverage": "500000",
+      "maxLeverage": "500001"
+    }
+  ],
+  "pairs": [
+    {
+      "from": "BTC",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "0",
+      "feeIndex": "13"
+    },
+    {
+      "from": "ETH",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "0",
+      "feeIndex": "13"
+    },
+    {
+      "from": "LINK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "DOGE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "MATIC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ADA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "SUSHI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AAVE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ALGO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "BAT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "COMP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DOT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "EOS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "LTC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "MANA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "OMG",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SNX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "UNI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "XLM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "XRP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ZEC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "EUR",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "1"
+    },
+    {
+      "from": "USD",
+      "to": "JPY",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "1"
+    },
+    {
+      "from": "GBP",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "1"
+    },
+    {
+      "from": "USD",
+      "to": "CHF",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "1"
+    },
+    {
+      "from": "AUD",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "1"
+    },
+    {
+      "from": "USD",
+      "to": "CAD",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "1"
+    },
+    {
+      "from": "NZD",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "1"
+    },
+    {
+      "from": "EUR",
+      "to": "CHF",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "8"
+    },
+    {
+      "from": "EUR",
+      "to": "JPY",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "8"
+    },
+    {
+      "from": "EUR",
+      "to": "GBP",
+      "spreadP": "100000000",
+      "groupIndex": "1",
+      "feeIndex": "8"
+    },
+    {
+      "from": "LUNA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "YFI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SOL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "XTZ",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BCH",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "BNT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CRV",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DASH",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ETC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ICP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "MKR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "NEO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "THETA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TRX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ZRX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SAND",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BNB",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "AXS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GRT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "HBAR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "XMR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ENJ",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FTM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FTT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "APE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CHZ",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SHIB",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "AAPL",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "FB",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "GOOGL",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "AMZN",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "MSFT",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "TSLA",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "SNAP",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "NVDA",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "V",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "MA",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "PFE",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "KO",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "DIS",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "GME",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "NKE",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "AMD",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "PYPL",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "ABNB",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "BA",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "SBUX",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "WMT",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "INTC",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "MCD",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "META",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "GOOGL_1",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "2",
+      "feeIndex": "2"
+    },
+    {
+      "from": "GME_1",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "AMZN_1",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "3",
+      "feeIndex": "3"
+    },
+    {
+      "from": "TSLA_1",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "SPY",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "QQQ",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "IWM",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "DIA",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "XAU",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "6",
+      "feeIndex": "13"
+    },
+    {
+      "from": "XAG",
+      "to": "USD",
+      "spreadP": "500000000",
+      "groupIndex": "6",
+      "feeIndex": "6"
+    },
+    {
+      "from": "USD",
+      "to": "CNH",
+      "spreadP": "150000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "USD",
+      "to": "SGD",
+      "spreadP": "100000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "EUR",
+      "to": "SEK",
+      "spreadP": "150000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "USD",
+      "to": "KRW",
+      "spreadP": "200000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "EUR",
+      "to": "NOK",
+      "spreadP": "200000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "USD",
+      "to": "INR",
+      "spreadP": "150000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "USD",
+      "to": "MXN",
+      "spreadP": "200000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "USD",
+      "to": "TWD",
+      "spreadP": "150000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "USD",
+      "to": "ZAR",
+      "spreadP": "500000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "USD",
+      "to": "BRL",
+      "spreadP": "150000000",
+      "groupIndex": "9",
+      "feeIndex": "9"
+    },
+    {
+      "from": "AVAX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ATOM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "NEAR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "QNT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "IOTA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TON",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "RPL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ARB",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "EUR",
+      "to": "AUD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "EUR",
+      "to": "NZD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "EUR",
+      "to": "CAD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "GBP",
+      "to": "AUD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "GBP",
+      "to": "NZD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "GBP",
+      "to": "CAD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "GBP",
+      "to": "CHF",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "GBP",
+      "to": "JPY",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "AUD",
+      "to": "NZD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "AUD",
+      "to": "CAD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "AUD",
+      "to": "CHF",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "AUD",
+      "to": "JPY",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "NZD",
+      "to": "CAD",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "NZD",
+      "to": "CHF",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "NZD",
+      "to": "JPY",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "CAD",
+      "to": "CHF",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "CAD",
+      "to": "JPY",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "CHF",
+      "to": "JPY",
+      "spreadP": "100000000",
+      "groupIndex": "8",
+      "feeIndex": "8"
+    },
+    {
+      "from": "LDO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "INJ",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "RUNE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CAKE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FXS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TWT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PEPE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "DYDX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GMX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FIL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "APT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "IMX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "VET",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "OP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "RNDR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "EGLD",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TIA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "STX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "FLOW",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "KAVA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GALA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MINA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ORDI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ILV",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "KLAY",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SUI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "BLUR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FET",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "CFX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BEAM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SEI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "BTT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ROSE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "WOO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AGIX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ZIL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GMT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ASTR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "1INCH",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FLOKI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "QTUM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "OCEAN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "WLD",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "MASK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CELO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LRC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ENS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MEME",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ANKR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "IOTX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ICX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "KSM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "RVN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ANT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "WAVES",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SKL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SUPER",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BAL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "WTI",
+      "to": "USD",
+      "spreadP": "500000000",
+      "groupIndex": "7",
+      "feeIndex": "12"
+    },
+    {
+      "from": "XPT",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "7",
+      "feeIndex": "7"
+    },
+    {
+      "from": "XPD",
+      "to": "USD",
+      "spreadP": "800000000",
+      "groupIndex": "7",
+      "feeIndex": "7"
+    },
+    {
+      "from": "HG",
+      "to": "USD",
+      "spreadP": "400000000",
+      "groupIndex": "6",
+      "feeIndex": "7"
+    },
+    {
+      "from": "JUP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "MANTA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BONK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "PENDLE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "OSMO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ALT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "UMA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MAGIC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "API3",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "STRK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DYM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NTRN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PYTH",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "WIF",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "PIXEL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "JTO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MAVIA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MYRO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "STG",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BOME",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ETHFI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "METIS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AEVO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ONDO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "MNT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "KAS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "RONIN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ENA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "W",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ZEUS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TNSR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TAO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "OMNI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PRCL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MERL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SAFE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SAGA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MSN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "REZ",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NOT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "IO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BRETT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ATH",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ZRO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ZK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LISTA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BLAST",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "RATS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BNX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PEOPLE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TURBO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SATS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "POPCAT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MOG",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "OM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CORE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "JASMY",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DAR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MEW",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DEGEN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SLERF",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "UXLINK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AVAIL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BANANA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "RARE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SYS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NMR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "RSR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SYN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AUCTION",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ALICE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SUN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TRB",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DOGS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SSV",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PONKE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "POL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "RDNT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FLUX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NEIRO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SUNDOG",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CAT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BABYDOGE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "REEF",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CKB",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CATI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LOOM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ZETA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HMSTR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "EIGEN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "POLYX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MOODENG",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MOTHER",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AERO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CVC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NEIROCTO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ARK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NPC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ORBS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "APU",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BSV",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HIPPO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GOAT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DOG",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HOT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "STORJ",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "RAY",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "BTCDEGEN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "11",
+      "feeIndex": "10"
+    },
+    {
+      "from": "PNUT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ACT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GRASS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ZEN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LUMIA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ALPH",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "VIRTUAL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "SPX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ACX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CHILLGUY",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CHEX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BITCOIN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ETHDEGEN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "11",
+      "feeIndex": "10"
+    },
+    {
+      "from": "SOLDEGEN",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "11",
+      "feeIndex": "10"
+    },
+    {
+      "from": "MOVE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ME",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "COW",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AVA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "USUAL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PENGU",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "FARTCOIN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ZEREBRO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AI16Z",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "AIXBT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BIO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "XRPDEGEN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "11",
+      "feeIndex": "10"
+    },
+    {
+      "from": "BNBDEGEN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "11",
+      "feeIndex": "10"
+    },
+    {
+      "from": "TRUMP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "MELANIA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MODE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HYPE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "S",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ARC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ARKM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GRIFFAIN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SWARMS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ANIME",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PLUME",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "VVV",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "VINE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TOSHI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BERA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LAYER",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CHEEMS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SOLV",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TST",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "IP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "KAITO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ELX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SHELL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BMT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BROCCOLI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TUT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GPS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "RED",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MUBARAK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FORM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "WAL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NIL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PARTI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SIREN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BANANAS31",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HYPER",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PROMPT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "RFC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "WCT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BIGTIME",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BABY",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "COOKIE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "KMNO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "INIT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SYRUP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SIGN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ZORA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "COIN",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "HOOD",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "MSTR",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "NFLX",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "LAUNCHCOIN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NXPC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SOPH",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LPT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BVIV",
+      "to": "USD",
+      "spreadP": "500000000",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "EVIV",
+      "to": "USD",
+      "spreadP": "500000000",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CRCL",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "RESOLV",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SQD",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TAIKO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HOME",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "B",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HUMA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SBET",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "PLTR",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "BIDU",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "ROKU",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "LMT",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "RIOT",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "MARA",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "LOKA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "STO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FUN",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "KNC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "H",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ICNT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NEWT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "PUMP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "SAROS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SPK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ERA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "BGSC",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TAG",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "WLFI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "ASTER",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "OKB",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CRO",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SKY",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "XPL",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "AVNT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "APEX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "ORDER",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DRIFT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MYX",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "NOM",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FLUID",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LQTY",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "L3",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "CAMP",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SOMI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "HEMI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "FF",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "USELESS",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MON",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "MET",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "TURTLE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SPX500",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "NAS100",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "USA30",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "NFLX_1",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "STABLE",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "VOOI",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "LIT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "11"
+    },
+    {
+      "from": "DUSK",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "SCRT",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "DCR",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    },
+    {
+      "from": "GDX",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "5"
+    },
+    {
+      "from": "URA",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "5",
+      "feeIndex": "7"
+    },
+    {
+      "from": "WPM",
+      "to": "USD",
+      "spreadP": "600000000",
+      "groupIndex": "4",
+      "feeIndex": "4"
+    },
+    {
+      "from": "NATGAS",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "7",
+      "feeIndex": "7"
+    },
+    {
+      "from": "BRENT",
+      "to": "USD",
+      "spreadP": "200000000",
+      "groupIndex": "7",
+      "feeIndex": "7"
+    },
+    {
+      "from": "URNM",
+      "to": "USD",
+      "spreadP": "500000000",
+      "groupIndex": "5",
+      "feeIndex": "7"
+    },
+    {
+      "from": "HYPEDEGEN",
+      "to": "USD",
+      "spreadP": "100000000",
+      "groupIndex": "11",
+      "feeIndex": "10"
+    },
+    {
+      "from": "MEGA",
+      "to": "USD",
+      "spreadP": "0",
+      "groupIndex": "10",
+      "feeIndex": "0"
+    }
+  ]
+}

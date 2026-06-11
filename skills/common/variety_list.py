@@ -1,52 +1,73 @@
 #!/usr/bin/env python3
 """
-统一TradFi品种列表 — 唯一权威数据源
+统一 TradFi 品种列表 — gTrade 版
 供 SANN、CatTrader 和其他模块导入
-Binance USDT-M TradFi永续合约（美股个股+ETF+商品）
+
+品种来源: gTrade /trading-variables/all → 过滤 stocks/indices/commodities/crypto
 """
 
-SYMBOLS = [
-    # Mag 7 科技巨头 (0-6)
-    "NVDAUSDT", "AAPLUSDT", "MSFTUSDT", "AMZNUSDT", "GOOGLUSDT",
-    "METAUSDT", "TSLAUSDT",
-    # 半导体 (7-10)
-    "INTCUSDT", "AMDUSDT", "AVGOUSDT", "QCOMUSDT",
-    # 加密相关 (11-15)
-    "MSTRUSDT", "COINUSDT", "CRCLUSDT", "HOODUSDT", "PLTRUSDT",
-    # 企业科技 (16-19)
-    "ORCLUSDT", "CSCOUSDT", "UBERUSDT", "SOFIUSDT",
-    # 消费/零售 (20-22)
-    "DISUSDT", "HDUSDT", "SBUXUSDT",
-    # 医药 (23-24)
-    "LLYUSDT", "NVSUSDT",
-    # ETF (25-29)
-    "SPYUSDT", "QQQUSDT", "SOXLUSDT", "GLDUSDT", "IBITUSDT",
-    # 商品 (30-32)
-    "XAUUSDT", "XAGUSDT", "CLUSDT",
-    # Pre-IPO (33-34)
-    "SPACEXUSDT", "OPENAIUSDT",
-]
+import os
+import sys
+import json
 
-VARIETY_NAMES = {i: s.replace("USDT", "") for i, s in enumerate(SYMBOLS)}
-VARIETY_CODES = {i: s for i, s in enumerate(SYMBOLS)}
-SYMBOL_TO_ID = {s: i for i, s in enumerate(SYMBOLS)}
-NUM_VARIETIES = len(SYMBOLS)
+# 延迟加载，避免循环导入
+_variety_loaded = False
 
-CATEGORY_MAP = {
-    **{i: "科技巨头" for i in range(7)},
-    **{i: "半导体" for i in range(7, 11)},
-    **{i: "加密相关" for i in range(11, 16)},
-    **{i: "企业科技" for i in range(16, 20)},
-    **{i: "消费零售" for i in range(20, 23)},
-    **{i: "医药" for i in range(23, 25)},
-    **{i: "ETF" for i in range(25, 30)},
-    **{i: "商品" for i in range(30, 33)},
-    **{i: "Pre-IPO" for i in range(33, 35)},
-}
+# gTrade pairIndex → 品种元数据
+GTRADE_PAIR_MAP: dict = {}  # {pairIndex: {name, group, spread_pct, ...}}
+# variety_id (0..N) → gTrade pairIndex
+VID_TO_PAIR_INDEX: dict = {}  # {vid: pairIndex}
+# gTrade pairIndex → variety_id
+PAIR_INDEX_TO_VID: dict = {}  # {pairIndex: vid}
+# variety_id → 名称
+VARIETY_NAMES: dict = {}  # {vid: "NVDA"}
+# variety_id → 代码
+VARIETY_CODES: dict = {}  # {vid: "NVDA"}
+# 名称 → variety_id
+SYMBOL_TO_ID: dict = {}  # {"NVDA": vid}
+# 品种总数
+NUM_VARIETIES = 0
+# variety_id → 类别
+CATEGORY_MAP: dict = {}
+
+
+def _load():
+    """延迟加载品种列表（首次调用时从 gtrade_data 加载）"""
+    global _variety_loaded, NUM_VARIETIES
+    if _variety_loaded:
+        return
+
+    # 导入 gtrade_data
+    sa_dir = os.path.join(os.path.dirname(__file__), '..', 'StockAnalysis', 'scripts')
+    if sa_dir not in sys.path:
+        sys.path.insert(0, sa_dir)
+
+    from gtrade_data import get_variety_list as gvl
+
+    varieties = gvl()
+    if not varieties:
+        return
+
+    NUM_VARIETIES = len(varieties)
+    for info in varieties:
+        vid = info['variety_id']
+        pair_idx = info['pairIndex']
+        name = info['name']
+
+        GTRADE_PAIR_MAP[pair_idx] = info
+        VID_TO_PAIR_INDEX[vid] = pair_idx
+        PAIR_INDEX_TO_VID[pair_idx] = vid
+        VARIETY_NAMES[vid] = name
+        VARIETY_CODES[vid] = name
+        SYMBOL_TO_ID[name] = vid
+        CATEGORY_MAP[vid] = info.get('category', 'Other')
+
+    _variety_loaded = True
 
 
 def get_variety_info(vid: int):
     """返回 (名称, 代码, 类别)"""
+    _load()
     name = VARIETY_NAMES.get(vid, f"品种{vid}")
     code = VARIETY_CODES.get(vid, "")
     cat = CATEGORY_MAP.get(vid, "Other")
@@ -54,4 +75,25 @@ def get_variety_info(vid: int):
 
 
 def get_variety_category_by_id(vid: int) -> str:
+    """返回品种类别"""
+    _load()
     return CATEGORY_MAP.get(vid, "Other")
+
+
+def get_pair_index(vid: int) -> int:
+    """variety_id → gTrade pairIndex"""
+    _load()
+    return VID_TO_PAIR_INDEX.get(vid, -1)
+
+
+def get_vid_from_pair_index(pair_idx: int) -> int:
+    """gTrade pairIndex → variety_id"""
+    _load()
+    return PAIR_INDEX_TO_VID.get(pair_idx, -1)
+
+
+# 直接加载（首次导入时）
+_load()
+
+# SYMBOLS = 品种名列表（兼容旧代码）
+SYMBOLS = list(VARIETY_NAMES.values()) if _variety_loaded else []
