@@ -1,0 +1,13 @@
+[project]
+name = "onchain-trade"
+version = "1.0.0"
+description = "Gains Network onchain trading tool"
+requires-python = ">=3.12"
+dependencies = [
+    "web3>=7.0.0",
+    "eth-account>=0.13.0",
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py312']

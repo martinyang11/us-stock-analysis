@@ -135,18 +135,27 @@ def update_historical_y(data_dir: str) -> Tuple[int, int]:
 
         df = cache[vid]
         target_dt = pd.to_datetime(date_str)
-        mask = df['date_col'] >= target_dt
-        subset = df[mask].head(2)
+        # 找当日收盘
+        mask_today = df['date_col'] >= target_dt
+        subset_today = df[mask_today]
+        if len(subset_today) < 1:
+            continue
+        today_close = float(subset_today.iloc[0]['close'])
 
-        if len(subset) >= 2:
-            today_close = float(subset.iloc[0]['close'])
-            next_close = float(subset.iloc[1]['close'])
-            ret = (next_close - today_close) / today_close
-            y = 1.0 / (1.0 + np.exp(-ret * 20))  # 加密版用系数20
+        # 找下一个交易日收盘 (跳过周末/假期: 至少+1日历天后)
+        next_dt = target_dt + pd.Timedelta(days=1)
+        mask_next = df['date_col'] >= next_dt
+        subset_next = df[mask_next]
+        if len(subset_next) < 1:
+            continue
+        next_close = float(subset_next.iloc[0]['close'])
 
-            row['y'] = f'{y:.6f}'
-            row['raw_change'] = f'{ret:.6f}'
-            updated += 1
+        ret = (next_close - today_close) / today_close
+        y = 1.0 / (1.0 + np.exp(-ret * 20))
+
+        row['y'] = f'{y:.6f}'
+        row['raw_change'] = f'{ret:.6f}'
+        updated += 1
 
     with open(csv_path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
