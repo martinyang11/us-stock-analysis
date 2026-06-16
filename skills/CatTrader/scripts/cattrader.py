@@ -130,6 +130,128 @@ class TraderState:
 
 
 # ============================================================
+# 链上交易执行
+# ============================================================
+def _get_onchain_adapter():
+    """延迟加载链上交易适配器（避免影响纯分析模式）"""
+    import sys, os
+    onchain_dir = os.path.join(SCRIPT_DIR, '..', '..', '..', 'onchain_trade')
+    if onchain_dir not in sys.path:
+        sys.path.insert(0, onchain_dir)
+    from hole_board.exchange.onchain.account_config import parse_onchain_config
+    from hole_board.exchange.onchain.venues.gains.adapter import GainsVenueAdapter
+    from dt_config.onchain_config import WALLET_ADDRESS, PRIVATE_KEY, ONCHAIN_DEFAULTS
+
+    config = parse_onchain_config(
+        api_name='okx_onchain',
+        user_id=WALLET_ADDRESS,
+        password=PRIVATE_KEY,
+        onchain_venue=ONCHAIN_DEFAULTS.get('onchain_venue', 'gains'),
+        chain_id=ONCHAIN_DEFAULTS.get('chain_id', 42161),
+        rpc_url=ONCHAIN_DEFAULTS.get('rpc_url', 'https://arb1.arbitrum.io/rpc'),
+        dry_run=ONCHAIN_DEFAULTS.get('dry_run', True),
+    )
+    return GainsVenueAdapter(config), ONCHAIN_DEFAULTS.get('dry_run', True)
+
+
+def execute_onchain(decisions: List[Decision], positions: List[Position],
+                    state: TraderState, date_str: str) -> List[str]:
+    """将 CatTrader 决策执行到链上 gTrade。
+
+    只在有 OPEN/CLOSE 决策时调用。
+    返回执行日志列表。
+    """
+    onchain_logs = []
+    try:
+        adapter, is_dry = _get_onchain_adapter()
+    except Exception as e:
+        logger.warning(f'链上适配器加载失败（可能未配置钱包）: {e}')
+        return onchain_logs
+
+    tag = '[DRY-RUN]' if is_dry else '[ONCHAIN]'
+    logger.info(f'{tag} 开始执行链上交易 (dry_run={is_dry})')
+
+    # 市场状态检查 (加密7×24, 股票/商品有时段)
+    from gtrade_data import GtradeDataProvider
+    try:
+        gtp = GtradeDataProvider(use_ws=False)
+        market_status = gtp.get_market_status()
+        stocks_open = market_status.get('stocks', False)
+    except Exception:
+        stocks_open = False
+
+    for d in decisions:
+        symbol = d.symbol or VARIETY_CODES.get(d.crypto_id, '')
+        if not symbol:
+            onchain_logs.append(f'跳过 {d.crypto_name}: 无 symbol 映射')
+            continue
+
+        # 检查市场状态
+        cat = VARIETY_NAMES.get(d.crypto_id, '')
+        is_crypto = d.crypto_id in (0, 1)  # BTC, ETH
+        if not is_crypto and not stocks_open:
+            onchain_logs.append(f'跳过 {d.crypto_name}({symbol}): 市场关闭')
+            continue
+
+        try:
+            if d.action == Action.OPEN.value:
+                # 开仓: collateral 固定 5 USDC, leverage 2x (gTrade最低)
+                collateral = 5.0
+                leverage = 2.0  # gTrade 最低杠杆 2x
+
+                from hole_board.exchange.onchain.types import OnchainOpenRequest
+                req = OnchainOpenRequest(
+                    symbol=symbol, side='long' if d.direction == Direction.LONG.value else 'short',
+                    collateral=collateral, leverage=leverage, slippage=0.01,
+                )
+                result = adapter.open_trade(req)
+                msg = f'{tag} 开仓 {symbol} {d.direction} {leverage:.1f}x {collateral}USDC → tx={result.tx_hash}'
+                logger.info(msg)
+                onchain_logs.append(msg)
+
+                # 记录链上 trade_index 到状态
+                if result.order_sys_id:
+                    for p in state.positions:
+                        if p.get('crypto_id') == d.crypto_id:
+                            p['onchain_trade_index'] = result.order_sys_id
+
+            elif d.action == Action.CLOSE.value:
+                # 平仓: 找到对应的链上仓位
+                from hole_board.exchange.onchain.types import OnchainCloseRequest
+
+                # 先查链上持仓
+                onchain_positions = adapter.fetch_positions() or []
+                closed = False
+
+                # 按 symbol 匹配平仓
+                for op in onchain_positions:
+                    from hole_board.exchange.onchain.venues.gains.adapter import _PAIR_SYMBOLS
+                    op_symbol = _PAIR_SYMBOLS.get(op.get('pair_index', -1), '')
+                    if op_symbol.upper() == symbol.upper():
+                        req = OnchainCloseRequest(
+                            symbol=symbol,
+                            position_id=str(op['index']),
+                            slippage=0.01,
+                        )
+                        result = adapter.close_trade(req)
+                        msg = f'{tag} 平仓 {symbol} #{op["index"]} → tx={result.tx_hash}'
+                        logger.info(msg)
+                        onchain_logs.append(msg)
+                        closed = True
+                        break
+
+                if not closed:
+                    onchain_logs.append(f'{tag} 平仓 {symbol} 失败: 链上无匹配持仓')
+
+        except Exception as e:
+            msg = f'{tag} 执行失败 {symbol} {d.action}: {e}'
+            logger.warning(msg)
+            onchain_logs.append(msg)
+
+    return onchain_logs
+
+
+# ============================================================
 # 仓位映射表
 # ============================================================
 def get_target_leverage(score: float) -> TargetLeverage:
@@ -597,8 +719,14 @@ def run_cat_trader(date_str: str = None) -> dict:
     state.history = state.history[-100:]
     save_state(state)
 
-    return generate_report(decisions, scores, positions_after, date_str,
-                          state, ca_date, spreads)
+    # 执行链上交易（OPEN/CLOSE决策）
+    report = generate_report(decisions, scores, positions_after, date_str,
+                             state, ca_date, spreads)
+    onchain_logs = execute_onchain(decisions, positions_after, state, date_str)
+    if onchain_logs:
+        report['onchain_logs'] = onchain_logs
+
+    return report
 
 
 # ============================================================

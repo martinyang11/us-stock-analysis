@@ -586,46 +586,69 @@ class GainsVenueAdapter(OnchainVenueAdapter):
     def _get_current_price(self, pair_index: int) -> int:
         """查询 Chainlink 预言机获取当前价格，返回 Gains openPrice 格式（1e10 精度）。
 
-        若 pair 未注册 Chainlink feed 则返回 0（合约端自动用市价）。
+        若 pair 未注册 Chainlink feed，则用 yfinance 现货价格作为 fallback。
         """
         feed_address = _CHAINLINK_FEEDS.get(pair_index)
-        if feed_address is None:
-            _logger.warning(f"pairIndex={pair_index} 未注册 Chainlink feed，openPrice 设为 0")
-            return 0
-
-        w3 = self._get_web3()
-        feed = w3.eth.contract(
-            address=w3.to_checksum_address(feed_address),
-            abi=_CHAINLINK_ABI,
-        )
-
-        try:
-            _, answer, _, updated_at, _ = feed.functions.latestRoundData().call()
-        except Exception as exc:
-            _logger.warning(f"查询 Chainlink feed {feed_address} 失败: {exc}")
-            return 0
-
-        feed_decimals = feed.functions.decimals().call()
-
-        # Chainlink 返回的价格是 feed_decimals 位小数，Gains openPrice 用 1e10 精度
-        # 例如 BTC 报价 100_000 USD：Chainlink 8 位小数 → 100000_00000000
-        # Gains 10 位小数 → 100000_0000000000
-        # 转换：answer × 10^(10 - feed_decimals)
-        scale = 10 ** (10 - feed_decimals)
-        open_price = int(answer * scale)
-
-        age_seconds = int(w3.eth.get_block("latest")["timestamp"] - updated_at)
-        if age_seconds > 300:  # 超过 5 分钟未更新则告警
-            _logger.warning(
-                f"Chainlink feed 价格已 {age_seconds}s 未更新 (pairIndex={pair_index})"
+        if feed_address is not None:
+            w3 = self._get_web3()
+            feed = w3.eth.contract(
+                address=w3.to_checksum_address(feed_address),
+                abi=_CHAINLINK_ABI,
             )
+            try:
+                _, answer, _, updated_at, _ = feed.functions.latestRoundData().call()
+                feed_decimals = feed.functions.decimals().call()
+                scale = 10 ** (10 - feed_decimals)
+                open_price = int(answer * scale)
+                age_seconds = int(w3.eth.get_block("latest")["timestamp"] - updated_at)
+                if age_seconds > 300:
+                    _logger.warning(
+                        f"Chainlink feed 价格已 {age_seconds}s 未更新 (pairIndex={pair_index})"
+                    )
+                _logger.info(
+                    f"Chainlink price pairIndex={pair_index}: "
+                    f"{answer / 10**feed_decimals:.4f} USD "
+                    f"(openPrice={open_price})"
+                )
+                return open_price
+            except Exception as exc:
+                _logger.warning(f"查询 Chainlink feed {feed_address} 失败: {exc}")
 
-        _logger.info(
-            f"Chainlink price pairIndex={pair_index}: "
-            f"{answer / 10**feed_decimals:.4f} USD "
-            f"(openPrice={open_price})"
-        )
-        return open_price
+        # Fallback 1: 用 gTrade charts API 获取最近价格
+        try:
+            now_ts = int(__import__('time').time())
+            from_ts = now_ts - 86400  # 过去24小时
+            charts_url = f"https://backend-arbitrum.gains.trade/charts?pairIndex={pair_index}&from={from_ts}&to={now_ts}&resolution=5"
+            resp = __import__('requests').get(charts_url, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data and len(data) > 0:
+                    price = float(data[-1].get('close', 0))
+                    if price > 0:
+                        open_price = int(price * 10**10)
+                        _logger.info(f"gTrade charts price pairIndex={pair_index}: {price:.4f} USD (openPrice={open_price})")
+                        return open_price
+        except Exception as exc:
+            _logger.warning(f"gTrade charts 获取 pairIndex={pair_index} 价格失败: {exc}")
+
+        # Fallback 2: 用 yfinance 获取现货价格
+        symbol = _PAIR_SYMBOLS.get(pair_index)
+        if symbol:
+            try:
+                import yfinance as yf
+                ticker = yf.Ticker(symbol)
+                hist = ticker.history(period="1d")
+                if not hist.empty:
+                    price = float(hist["Close"].iloc[-1])
+                    if price > 0:
+                        open_price = int(price * 10**10)
+                        _logger.info(f"yfinance price pairIndex={pair_index} {symbol}: {price:.4f} USD (openPrice={open_price})")
+                        return open_price
+            except Exception as exc:
+                _logger.warning(f"yfinance 获取 {symbol} 价格失败: {exc}")
+
+        _logger.warning(f"pairIndex={pair_index} 无可用价格源，openPrice 设为 0（合约可能拒绝）")
+        return 0
 
     def _ensure_live_config(self):
         if self.config.dry_run:

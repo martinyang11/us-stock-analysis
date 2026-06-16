@@ -1,26 +1,14 @@
 {
   "positions": [
     {
-      "crypto_id": 14,
-      "crypto_name": "GME",
-      "symbol": "GME",
-      "direction": "多头",
-      "entry_score": 0.8772976476459811,
-      "entry_sigma": 0.37729764764598106,
-      "leverage": 0.3,
-      "entry_time": "2026-06-16T03:52:37.344495",
-      "entry_date": "20260616",
-      "entry_price": 21.739999771118164
-    },
-    {
       "crypto_id": 22,
       "crypto_name": "INTC",
       "symbol": "INTC",
       "direction": "多头",
-      "entry_score": 0.9598817275539346,
-      "entry_sigma": 0.45988172755393464,
+      "entry_score": 0.9309098959187982,
+      "entry_sigma": 0.43090989591879825,
       "leverage": 0.5,
-      "entry_time": "2026-06-16T04:10:21.640841",
+      "entry_time": "2026-06-16T07:32:33.725891+00:00",
       "entry_date": "20260616",
       "entry_price": NaN
     },
@@ -32,13 +20,13 @@
       "entry_score": 0.23669347715858627,
       "entry_sigma": 0.26330652284141376,
       "leverage": 0.5,
-      "entry_time": "2026-06-16T04:12:43.312737+00:00",
+      "entry_time": "2026-06-16T07:32:33.725891+00:00",
       "entry_date": "20260616",
-      "entry_price": 1765.300048828125
+      "entry_price": 1781.300048828125
     }
   ],
-  "last_run": "2026-06-16T04:18:18.982457+00:00",
-  "run_count": 5,
+  "last_run": "2026-06-16T07:32:33.725891+00:00",
+  "run_count": 9,
   "history": [
     {
       "time": "2026-06-16T03:52:37.344495",
@@ -84,6 +72,90 @@
     },
     {
       "time": "2026-06-16T04:12:43.312737+00:00",
+      "action": "开仓",
+      "crypto_id": 32,
+      "crypto_name": "XPT",
+      "symbol": "XPT",
+      "direction": "空头",
+      "leverage": 0.5,
+      "score": 0.23669347715858627,
+      "sigma": 0.26330652284141376,
+      "zone": "空0.5×",
+      "reason": "空0.5×区间 s=0.2367 σ=0.2633",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-16T06:52:45.936144+00:00",
+      "action": "开仓",
+      "crypto_id": 22,
+      "crypto_name": "INTC",
+      "symbol": "INTC",
+      "direction": "多头",
+      "leverage": 0.5,
+      "score": 0.9309098959187982,
+      "sigma": 0.43090989591879825,
+      "zone": "多0.5×",
+      "reason": "多0.5×区间 s=0.9309 σ=0.4309",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-16T06:52:45.936144+00:00",
+      "action": "开仓",
+      "crypto_id": 32,
+      "crypto_name": "XPT",
+      "symbol": "XPT",
+      "direction": "空头",
+      "leverage": 0.5,
+      "score": 0.23669347715858627,
+      "sigma": 0.26330652284141376,
+      "zone": "空0.5×",
+      "reason": "空0.5×区间 s=0.2367 σ=0.2633",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-16T07:31:45.421325+00:00",
+      "action": "开仓",
+      "crypto_id": 22,
+      "crypto_name": "INTC",
+      "symbol": "INTC",
+      "direction": "多头",
+      "leverage": 0.5,
+      "score": 0.9309098959187982,
+      "sigma": 0.43090989591879825,
+      "zone": "多0.5×",
+      "reason": "多0.5×区间 s=0.9309 σ=0.4309",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-16T07:31:45.421325+00:00",
+      "action": "开仓",
+      "crypto_id": 32,
+      "crypto_name": "XPT",
+      "symbol": "XPT",
+      "direction": "空头",
+      "leverage": 0.5,
+      "score": 0.23669347715858627,
+      "sigma": 0.26330652284141376,
+      "zone": "空0.5×",
+      "reason": "空0.5×区间 s=0.2367 σ=0.2633",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-16T07:32:33.725891+00:00",
+      "action": "开仓",
+      "crypto_id": 22,
+      "crypto_name": "INTC",
+      "symbol": "INTC",
+      "direction": "多头",
+      "leverage": 0.5,
+      "score": 0.9309098959187982,
+      "sigma": 0.43090989591879825,
+      "zone": "多0.5×",
+      "reason": "多0.5×区间 s=0.9309 σ=0.4309",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-16T07:32:33.725891+00:00",
       "action": "开仓",
       "crypto_id": 32,
       "crypto_name": "XPT",
