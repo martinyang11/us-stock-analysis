@@ -29,7 +29,7 @@ import subprocess
 import json
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict, field
 from enum import Enum
@@ -322,7 +322,7 @@ def get_sann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[i
         (scores_dict, ca_date, spreads_dict)
     """
     if date_str is None:
-        date_str = datetime.utcnow().strftime('%Y%m%d')
+        date_str = datetime.now(timezone.utc).strftime('%Y%m%d')
 
     sann_data_dir = os.path.join(PROJECT_ROOT, 'skills', 'SANN', 'data')
     scores_dir = os.path.join(sann_data_dir, 'daily_scores')
@@ -471,7 +471,7 @@ def _resolve_position(current: Optional[Position], target: TargetLeverage,
 
 def run_cat_trader(date_str: str = None) -> dict:
     """执行CatTrader决策循环"""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if date_str is None:
         date_str = now.strftime('%Y%m%d')
 
@@ -527,6 +527,10 @@ def run_cat_trader(date_str: str = None) -> dict:
             adjusted = any(d.action == Action.ADJUST.value for d in pos_decisions)
             if adjusted:
                 pos.leverage = target.leverage
+            # 每次运行时用最新市价更新入场价，SL/TP随之浮动
+            cur_px = current_prices.get(pos.crypto_id, 0)
+            if cur_px > 0:
+                pos.entry_price = cur_px
             positions_after.append(pos)
         elif reversed_open:
             ep = current_prices.get(pos.crypto_id, pos.entry_price)
@@ -603,7 +607,7 @@ def run_cat_trader(date_str: str = None) -> dict:
 def generate_report(decisions: List[Decision], scores: Dict[int, float],
                     positions: List[Position], date_str: str, state: TraderState,
                     ca_date: str = '', spreads: Dict[int, float] = None) -> dict:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     fr = spreads or {}
     score_values = list(scores.values()) if scores else [0.5]
     score_arr = np.array(score_values)

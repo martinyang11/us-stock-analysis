@@ -21,7 +21,7 @@ import time
 import warnings
 import logging
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple
 
 warnings.filterwarnings('ignore')
@@ -477,7 +477,7 @@ def run_daily_pipeline(data_dir: str = './SANN/data', date_str: str = None,
     start_time = time.time()
 
     if date_str is None:
-        date_str = datetime.utcnow().strftime('%Y%m%d')
+        date_str = datetime.now(timezone.utc).strftime('%Y%m%d')
 
     global _kline_cache
     _kline_cache = None
@@ -487,7 +487,7 @@ def run_daily_pipeline(data_dir: str = './SANN/data', date_str: str = None,
 
     print('=' * 60)
     print(f'SANN每日管线 (Crypto) - {date_str}')
-    print(f'执行时间: {datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")}')
+    print(f'执行时间: {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")}')
     print('=' * 60)
 
     # Step 1: 回填昨日y值

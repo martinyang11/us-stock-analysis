@@ -50,3 +50,10 @@ skills/CatTrader/data/reports/
 # But keep template structure
 !**/reports/.gitkeep
 .venv/
+
+# Allow SA daily scores (important data)
+!skills/SANN/data/daily_scores/
+
+# Logs
+*.log
+skills/CatTrader/data/logs/
