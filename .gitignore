@@ -57,3 +57,6 @@ skills/CatTrader/data/reports/
 # Logs
 *.log
 skills/CatTrader/data/logs/
+
+# Wallet secrets
+onchain_trade/dt_config/onchain_config.py
