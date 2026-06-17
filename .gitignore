@@ -53,6 +53,8 @@ skills/CatTrader/data/reports/
 
 # Allow SA daily scores (important data)
 !skills/SANN/data/daily_scores/
+!skills/SANN/data/daily_scores/*.csv
+!skills/SANN/data/daily_scores/*.json
 
 # Logs
 *.log
