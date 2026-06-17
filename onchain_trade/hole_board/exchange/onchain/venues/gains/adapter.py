@@ -480,6 +480,15 @@ class GainsVenueAdapter(OnchainVenueAdapter):
         self._contract: Any = None
         self._usdc_collateral_index: int | None = None
         self._usdc_contract_address: str | None = None
+        self._price_provider: Any = None  # GtradeDataProvider（WebSocket 价格源）
+
+    def set_price_provider(self, provider: Any):
+        """注入 gTrade WebSocket 价格源（GtradeDataProvider 实例）。
+
+        注入后，_get_current_price 优先使用 WebSocket 实时 mark 价格，
+        Chainlink / REST / yfinance 作为降级路径。
+        """
+        self._price_provider = provider
 
     def _get_web3(self) -> "Web3":
         if self._web3 is not None:
@@ -584,10 +593,29 @@ class GainsVenueAdapter(OnchainVenueAdapter):
         }
 
     def _get_current_price(self, pair_index: int) -> int:
-        """查询 Chainlink 预言机获取当前价格，返回 Gains openPrice 格式（1e10 精度）。
+        """获取当前价格，返回 Gains openPrice 格式（1e10 精度）。
 
-        若 pair 未注册 Chainlink feed，则用 yfinance 现货价格作为 fallback。
+        价格源优先级（从快到准）：
+        1. gTrade WebSocket v4 实时 mark 价格（覆盖全部品种）
+        2. Chainlink 预言机（链上权威，仅部分品种有 feed）
+        3. gTrade charts REST API
+        4. yfinance 现货
         """
+        # ──  Tier 1: gTrade WebSocket mark 价格 ──
+        if self._price_provider is not None:
+            try:
+                ws_price = self._price_provider.get_price(pair_index)
+                if ws_price is not None and ws_price > 0:
+                    open_price = int(ws_price * 10**10)
+                    _logger.debug(
+                        f"gTrade WS price pairIndex={pair_index}: {ws_price:.4f} USD "
+                        f"(openPrice={open_price})"
+                    )
+                    return open_price
+            except Exception as exc:
+                _logger.warning(f"gTrade WebSocket 价格查询失败: {exc}")
+
+        # ──  Tier 2: Chainlink 预言机 ──
         feed_address = _CHAINLINK_FEEDS.get(pair_index)
         if feed_address is not None:
             w3 = self._get_web3()
@@ -614,10 +642,10 @@ class GainsVenueAdapter(OnchainVenueAdapter):
             except Exception as exc:
                 _logger.warning(f"查询 Chainlink feed {feed_address} 失败: {exc}")
 
-        # Fallback 1: 用 gTrade charts API 获取最近价格
+        # ──  Tier 3: gTrade charts REST API ──
         try:
             now_ts = int(__import__('time').time())
-            from_ts = now_ts - 86400  # 过去24小时
+            from_ts = now_ts - 86400
             charts_url = f"https://backend-arbitrum.gains.trade/charts?pairIndex={pair_index}&from={from_ts}&to={now_ts}&resolution=5"
             resp = __import__('requests').get(charts_url, timeout=10)
             if resp.status_code == 200:
@@ -631,7 +659,7 @@ class GainsVenueAdapter(OnchainVenueAdapter):
         except Exception as exc:
             _logger.warning(f"gTrade charts 获取 pairIndex={pair_index} 价格失败: {exc}")
 
-        # Fallback 2: 用 yfinance 获取现货价格
+        # ──  Tier 4: yfinance 现货 ──
         symbol = _PAIR_SYMBOLS.get(pair_index)
         if symbol:
             try:

@@ -171,14 +171,21 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
     tag = '[DRY-RUN]' if is_dry else '[ONCHAIN]'
     logger.info(f'{tag} 开始执行链上交易 (dry_run={is_dry})')
 
-    # 市场状态检查 (加密7×24, 股票/商品有时段)
+    # 市场状态检查 + 价格源 (gTrade WebSocket)
     from gtrade_data import GtradeDataProvider
     try:
-        gtp = GtradeDataProvider(use_ws=False)
+        gtp = GtradeDataProvider(use_ws=True)  # 启用 WebSocket 获取实时价格
         market_status = gtp.get_market_status()
         stocks_open = market_status.get('stocks', False)
     except Exception:
+        gtp = None
         stocks_open = False
+
+    # 将 WebSocket 价格源注入链上适配器（优先于 Chainlink / yfinance）
+    try:
+        adapter.set_price_provider(gtp)
+    except Exception:
+        pass
 
     for d in decisions:
         symbol = d.symbol or VARIETY_CODES.get(d.crypto_id, '')
