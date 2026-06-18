@@ -221,15 +221,20 @@ D4_INDUSTRY = {
 # 6. 公司特定评分 (D5-D8, D10, D13-D14)
 # 基于搜索研究 + 前次评分调整
 # ============================================================
-# 阅读前次评分作为基线
+# 阅读前次评分作为基线（自动找最近的上一个评分文件）
 prev_scores = {}
-prev_file = Path('skills/SANN/data/daily_scores/scores_20260616.csv')
-if prev_file.exists():
+scores_glob = sorted(Path('skills/SANN/data/daily_scores').glob('scores_*.csv'))
+# 排除今天的文件，取最新的一个
+prev_files = [f for f in scores_glob if f.stem != f'scores_{_RUN_DATE_COMPACT}']
+if prev_files:
+    prev_file = prev_files[-1]  # 按文件名排序，最后一个是最新的
     with open(prev_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             prev_scores[row['variety_name']] = row
-    log.info(f"加载前次评分: {len(prev_scores)} 个品种")
+    log.info(f"加载前次评分: {len(prev_scores)} 个品种 (来源: {prev_file.name})")
+else:
+    log.info(f"无前次评分文件可加载（首次运行？）")
 
 def get_prev(name, dim, default=0.50):
     """获取前次评分, 带默认值"""
