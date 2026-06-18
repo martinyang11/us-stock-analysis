@@ -6,11 +6,18 @@
 # 工作日: 周一至周五 (1-5)
 # ============================================================
 
-# --- CatTrader (每30分钟, 周一至周五, UTC 14:00-20:30) ---
-*/30 14-20 * * 1-5 HTTPS_PROXY=http://127.0.0.1:7897 /Users/martin/Projects/合约分析/.venv/bin/python /Users/martin/Projects/合约分析/skills/CatTrader/scripts/cattrader.py >> /Users/martin/Projects/合约分析/skills/CatTrader/data/logs/cattrader.log 2>&1
+# --- CatTrader (每天4次, 周一至周五) ---
+# 早盘: UTC 14:00 — 美股开盘确认 (北京时间 22:00)
+0 14 * * 1-5 HTTPS_PROXY=http://127.0.0.1:7897 /Users/martin/Projects/合约分析/.venv/bin/python /Users/martin/Projects/合约分析/skills/CatTrader/scripts/cattrader.py >> /Users/martin/Projects/合约分析/skills/CatTrader/data/logs/cattrader.log 2>&1
 
-# --- SL/TP Checker (每分钟, 避开00/30分, 周一至周五) ---
-1-29,31-59 * * * 1-5 HTTPS_PROXY=http://127.0.0.1:7897 /Users/martin/Projects/合约分析/.venv/bin/python /Users/martin/Projects/合约分析/skills/CatTrader/scripts/cattrader.py --sl-tp-only >> /Users/martin/Projects/合约分析/skills/CatTrader/data/logs/sl_tp_checker.log 2>&1
+# 午前: UTC 16:30 — 盘中调整 (北京时间 00:30)
+30 16 * * 1-5 HTTPS_PROXY=http://127.0.0.1:7897 /Users/martin/Projects/合约分析/.venv/bin/python /Users/martin/Projects/合约分析/skills/CatTrader/scripts/cattrader.py >> /Users/martin/Projects/合约分析/skills/CatTrader/data/logs/cattrader.log 2>&1
+
+# 午后: UTC 18:30 — 尾盘前检查 (北京时间 02:30)
+30 18 * * 1-5 HTTPS_PROXY=http://127.0.0.1:7897 /Users/martin/Projects/合约分析/.venv/bin/python /Users/martin/Projects/合约分析/skills/CatTrader/scripts/cattrader.py >> /Users/martin/Projects/合约分析/skills/CatTrader/data/logs/cattrader.log 2>&1
+
+# 收盘: UTC 20:30 — 收盘决策 (北京时间 04:30)
+30 20 * * 1-5 HTTPS_PROXY=http://127.0.0.1:7897 /Users/martin/Projects/合约分析/.venv/bin/python /Users/martin/Projects/合约分析/skills/CatTrader/scripts/cattrader.py >> /Users/martin/Projects/合约分析/skills/CatTrader/data/logs/cattrader.log 2>&1
 
 # --- SANN 每日管线 (每天1次, 周一至周五) ---
 # UTC 21:00 — 美股收盘后1h: 回填y值→微调→推理 (北京时间 05:00)
