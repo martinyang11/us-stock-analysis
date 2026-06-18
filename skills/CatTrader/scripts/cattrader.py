@@ -736,57 +736,6 @@ def run_cat_trader(date_str: str = None) -> dict:
     return report
 
 
-def run_sl_tp_checker(date_str: str = None) -> dict:
-    """只检查已有持仓的止盈止损，触发时生成平仓决策并更新状态。"""
-    now = datetime.now(timezone.utc)
-    if date_str is None:
-        date_str = now.strftime('%Y%m%d')
-
-    state = load_state()
-    positions = [Position(**p) for p in state.positions]
-    decisions = []
-
-    held_vids = [p.crypto_id for p in positions]
-    current_prices = _fetch_current_prices(held_vids) if held_vids else {}
-    positions_after = []
-
-    for pos in positions:
-        current_price = current_prices.get(pos.crypto_id, 0)
-        sl_tp = check_sl_tp(pos, current_price)
-        if sl_tp:
-            name = VARIETY_NAMES.get(pos.crypto_id, pos.crypto_name or '?')
-            emoji = '🛑' if sl_tp == 'stop_loss' else '🎯'
-            pct = SL_PCT if sl_tp == 'stop_loss' else TP_PCT
-            reason = f'{emoji} {sl_tp}: {pos.direction}入场@{pos.entry_price:.2f} → 现价@{current_price:.2f} (触发{int(pct*100)}%)'
-            decisions.append(Decision(
-                action=Action.CLOSE.value, crypto_id=pos.crypto_id, crypto_name=name,
-                symbol=pos.symbol, direction=pos.direction, leverage=pos.leverage,
-                score=0.5, sigma=0.0, zone=sl_tp, reason=reason,
-            ))
-        else:
-            positions_after.append(pos)
-
-    state.positions = [asdict(p) for p in positions_after]
-    state.last_run = now.isoformat()
-    state.run_count += 1
-
-    for d in decisions:
-        state.history.append({'time': now.isoformat(), **asdict(d)})
-    state.history = state.history[-100:]
-    save_state(state)
-
-    report = generate_report(decisions, {}, positions_after, date_str, state)
-    report['mode'] = 'sl_tp_only'
-    report['checked_positions'] = len(positions)
-    report['triggered'] = len(decisions)
-
-    onchain_logs = execute_onchain(decisions, positions_after, state, date_str) if decisions else []
-    if onchain_logs:
-        report['onchain_logs'] = onchain_logs
-
-    return report
-
-
 # ============================================================
 # 报告生成
 # ============================================================
@@ -927,11 +876,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='CatTrader (Crypto)')
     parser.add_argument('--date', default=None, help='日期 YYYYMMDD')
     parser.add_argument('--json', action='store_true')
-    parser.add_argument('--sl-tp-only', action='store_true',
-                        help='只检查已有持仓止盈止损，触发时执行平仓，不跑选股/调仓')
     args = parser.parse_args()
 
-    report = run_sl_tp_checker(args.date) if args.sl_tp_only else run_cat_trader(args.date)
+    report = run_cat_trader(args.date)
 
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
