@@ -10,6 +10,12 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 log = logging.getLogger("SA")
 
+# 运行时日期（每次脚本执行时确定）
+_RUN_DATE = datetime.now(timezone.utc)
+_RUN_DATE_STR = _RUN_DATE.strftime('%Y-%m-%d')
+_RUN_DATE_COMPACT = _RUN_DATE.strftime('%Y%m%d')
+_RUN_MONTH = _RUN_DATE.month
+
 # Add project root
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -26,9 +32,10 @@ from skills.StockAnalysis.scripts.gtrade_data import (
 # ============================================================
 pairs = get_tradfi_pairs()
 VARIETIES = []
-for p in pairs:
+for i, p in enumerate(pairs):
     VARIETIES.append({
-        'variety_id': p['pairIndex'],
+        'variety_id': i,  # 顺序内部ID (0-55), 非gTrade pairIndex
+        'pair_index': p['pairIndex'],  # gTrade 原始 pairIndex
         'variety_name': p['name'],
         'category': p.get('group', 'stocks'),
         'group': p.get('group', ''),
@@ -381,8 +388,8 @@ def compute_d9(name: str) -> float:
 def generate_scores():
     """为所有品种生成完整评分"""
     rows = []
-    today = '2026-06-17'
-    month = 6
+    today = _RUN_DATE_STR
+    month = _RUN_MONTH
 
     for v in VARIETIES:
         name = v['variety_name']
@@ -436,7 +443,8 @@ header = ['date', 'variety_id', 'variety_name', 'month',
 
 output_dir = Path('skills/SANN/data/daily_scores')
 output_dir.mkdir(parents=True, exist_ok=True)
-output_file = output_dir / 'scores_20260617.csv'
+date_str = _RUN_DATE_COMPACT
+output_file = output_dir / f'scores_{date_str}.csv'
 
 with open(output_file, 'w', newline='') as f:
     writer = csv.writer(f)
@@ -449,7 +457,7 @@ log.info(f"维度列数: {len(header)}")
 
 # 打印摘要
 print("\n" + "=" * 70)
-print("SA 评分摘要 (2026-06-17)")
+print(f"SA 评分摘要 ({_RUN_DATE_STR})")
 print("=" * 70)
 print(f"{'品种':<8} {'D1':>6} {'D2':>6} {'D3':>6} {'D4':>6} {'D5':>6} {'D6':>6} {'D7':>6} {'D8':>6} {'D9':>6} {'D10':>6} {'D11':>6} {'D12':>6} {'D13':>6} {'D14':>6} {'avg':>6}")
 print("-" * 110)

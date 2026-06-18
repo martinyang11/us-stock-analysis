@@ -598,11 +598,62 @@ def _resolve_position(current: Optional[Position], target: TargetLeverage,
     return decisions
 
 
+def ensure_daily_data(date_str: str):
+    """确保今日 SA 评分 + SANN 推理结果存在，不存在则自动生成。
+
+    在 CatTrader 决策前调用，实现 SA → SANN → CatTrader 全自动管线。
+    """
+    import subprocess
+
+    scores_dir = os.path.join(PROJECT_ROOT, 'skills', 'SANN', 'data', 'daily_scores')
+    scores_csv = os.path.join(scores_dir, f'scores_{date_str}.csv')
+    cann_json = os.path.join(scores_dir, f'cann_results_{date_str}.json')
+
+    # 1. SA 评分
+    sa_script = os.path.join(PROJECT_ROOT, 'scripts', 'run_sa_scoring.py')
+    if not os.path.exists(scores_csv):
+        logger.info(f'[AUTO] SA 评分不存在，自动生成: {scores_csv}')
+        try:
+            subprocess.run(
+                [sys.executable, sa_script],
+                cwd=PROJECT_ROOT, check=True, timeout=600,
+                capture_output=True, text=True,
+                env={**os.environ, 'HTTPS_PROXY': os.environ.get('HTTPS_PROXY', 'http://127.0.0.1:7897')},
+            )
+            logger.info('[AUTO] SA 评分生成完成')
+        except subprocess.TimeoutExpired:
+            logger.error('[AUTO] SA 评分超时（10分钟），跳过')
+        except Exception as e:
+            logger.error(f'[AUTO] SA 评分失败: {e}')
+
+    # 2. SANN 推理（仅推理，不训练）
+    if os.path.exists(scores_csv) and not os.path.exists(cann_json):
+        logger.info(f'[AUTO] SANN 推理结果不存在，自动生成: {cann_json}')
+        try:
+            sann_script = os.path.join(PROJECT_ROOT, 'skills', 'SANN', 'scripts', 'daily_pipeline.py')
+            subprocess.run(
+                [sys.executable, sann_script, '--date', date_str,
+                 '--data-dir', os.path.join(PROJECT_ROOT, 'skills', 'SANN', 'data'),
+                 '--inference-only'],
+                cwd=PROJECT_ROOT, check=True, timeout=300,
+                capture_output=True, text=True,
+                env={**os.environ, 'HTTPS_PROXY': os.environ.get('HTTPS_PROXY', 'http://127.0.0.1:7897')},
+            )
+            logger.info('[AUTO] SANN 推理生成完成')
+        except subprocess.TimeoutExpired:
+            logger.error('[AUTO] SANN 推理超时（5分钟），跳过')
+        except Exception as e:
+            logger.error(f'[AUTO] SANN 推理失败: {e}')
+
+
 def run_cat_trader(date_str: str = None) -> dict:
     """执行CatTrader决策循环"""
     now = datetime.now(timezone.utc)
     if date_str is None:
         date_str = now.strftime('%Y%m%d')
+
+    # Step 0: 自动准备 SA + SANN 数据
+    ensure_daily_data(date_str)
 
     state = load_state()
     positions = [Position(**p) for p in state.positions]

@@ -382,15 +382,30 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
         sys.path.insert(0, scripts_dir)
 
     try:
-        from pretrain_numpy import predict_single
+        from pretrain_numpy import predict_single, NUM_VARIETIES as NN_VARIETIES
     except ImportError:
         print('  ⚠️ 无法导入 pretrain_numpy，全部输出0.5')
         model = None
+        NN_VARIETIES = 56
+
+    # 安全映射: gTrade pairIndex → 内部顺序ID
+    from skills.common.variety_list import PAIR_INDEX_TO_VID
+
+    def _safe_vid(raw_cid: int) -> int:
+        """将 gTrade pairIndex 映射到模型内部的 0-55"""
+        if 0 <= raw_cid < NN_VARIETIES:
+            return raw_cid
+        mapped = PAIR_INDEX_TO_VID.get(raw_cid)
+        if mapped is not None:
+            return mapped
+        # 最终兜底: 取模
+        return raw_cid % NN_VARIETIES
 
     with open(scores_csv, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            cid = int(row.get('variety_id', row.get('variety_id', 0)))
+            cid_raw = int(row.get('variety_id', row.get('variety_id', 0)))
+            cid = _safe_vid(cid_raw)
             name = row.get('variety_name', row.get('variety_name', ''))
             month = int(row['month'])
 
@@ -553,9 +568,32 @@ if __name__ == '__main__':
     parser.add_argument('--date', default=None)
     parser.add_argument('--data-dir', default='./SANN/data')
     parser.add_argument('--skip-finetune', action='store_true')
+    parser.add_argument('--inference-only', action='store_true',
+                        help='仅推理（跳过回填/微调/追加样本），CatTrader自动调用')
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO,
                        format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 
-    run_daily_pipeline(args.data_dir, args.date, args.skip_finetune)
+    if args.inference_only:
+        # 轻量模式：仅加载模型+推理，供 CatTrader 自动调用
+        from pretrain_numpy import load_pretrained_model
+        date_str = args.date or datetime.now(timezone.utc).strftime('%Y%m%d')
+        scores_dir = os.path.join(args.data_dir, 'daily_scores')
+        print(f'[Inference-Only] date={date_str}')
+        model, _ = load_pretrained_model(args.data_dir)
+        if model:
+            result = run_inference(model, date_str, scores_dir, args.data_dir)
+            if result:
+                # 输出结果到 cann_results JSON
+                json_path = os.path.join(scores_dir, f'cann_results_{date_str}.json')
+                import json as _json
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    _json.dump(result, f, ensure_ascii=False, indent=2)
+                print(f'[Inference-Only] OK {result["total"]}品种, '
+                      f'偏多:{result["bullish"]} 中性:{result["neutral"]} 偏空:{result["bearish"]} '
+                      f'-> {json_path}')
+        else:
+            print('[Inference-Only] ⚠️ 模型加载失败，跳过')
+    else:
+        run_daily_pipeline(args.data_dir, args.date, args.skip_finetune)
