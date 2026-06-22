@@ -468,9 +468,21 @@ def get_sann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[i
 
     # 导入推理函数
     try:
-        from pretrain_numpy import predict_single
+        from pretrain_numpy import predict_single, NUM_VARIETIES as NN_VARIETIES
     except ImportError:
         return {cid: 0.5 for cid in range(NUM_VARIETIES)}, ca_date, {}
+
+    # 安全映射: 当前品种ID → 模型内部ID（模型训练时品种数可能少于当前）
+    from skills.common.variety_list import PAIR_INDEX_TO_VID
+
+    def _safe_vid(raw_cid: int) -> int:
+        """将品种ID映射到模型内部范围 [0, NN_VARIETIES)"""
+        if 0 <= raw_cid < NN_VARIETIES:
+            return raw_cid
+        mapped = PAIR_INDEX_TO_VID.get(raw_cid)
+        if mapped is not None and mapped < NN_VARIETIES:
+            return mapped
+        return raw_cid % NN_VARIETIES
 
     # 全币种推理
     result = {}
@@ -478,7 +490,8 @@ def get_sann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[i
         if cid not in ca_scores:
             result[cid] = 0.5
             continue
-        score = predict_single(model, ca_scores[cid], month, cid)
+        safe_cid = _safe_vid(cid)
+        score = predict_single(model, ca_scores[cid], month, safe_cid)
         result[cid] = score
 
     # 获取资金费率
