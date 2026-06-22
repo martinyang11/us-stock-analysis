@@ -193,17 +193,12 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
             onchain_logs.append(f'跳过 {d.crypto_name}: 无 symbol 映射')
             continue
 
-        # 检查市场状态
-        cat = VARIETY_NAMES.get(d.crypto_id, '')
-        is_crypto = d.crypto_id in (0, 1)  # BTC, ETH
-        if not is_crypto and not stocks_open:
-            onchain_logs.append(f'跳过 {d.crypto_name}({symbol}): 市场关闭')
-            continue
+        # gTrade 是 7×24 DEX，所有品种均可交易，不做市场时间限制
 
         try:
             if d.action == Action.OPEN.value:
-                # 开仓: collateral 固定 5 USDC, leverage 2x (gTrade最低)
-                collateral = 5.0
+                # 开仓: collateral = 10 USDC, leverage 2x (gTrade最低)
+                collateral = 10.0
                 leverage = 2.0  # gTrade 最低杠杆 2x
 
                 from hole_board.exchange.onchain.types import OnchainOpenRequest
