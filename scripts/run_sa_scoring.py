@@ -10,8 +10,13 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 log = logging.getLogger("SA")
 
-# 运行时日期（每次脚本执行时确定）
+# 运行时日期（每次脚本执行时确定，--date 可覆盖）
 _RUN_DATE = datetime.now(timezone.utc)
+if '--date' in sys.argv:
+    idx = sys.argv.index('--date')
+    if idx + 1 < len(sys.argv):
+        date_arg = sys.argv[idx + 1]
+        _RUN_DATE = datetime.strptime(date_arg, '%Y%m%d').replace(tzinfo=timezone.utc)
 _RUN_DATE_STR = _RUN_DATE.strftime('%Y-%m-%d')
 _RUN_DATE_COMPACT = _RUN_DATE.strftime('%Y%m%d')
 _RUN_MONTH = _RUN_DATE.month
