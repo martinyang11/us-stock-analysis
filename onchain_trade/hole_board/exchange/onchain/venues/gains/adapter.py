@@ -453,6 +453,97 @@ def _get_pair_index(symbol: str) -> int:
     )
 
 
+# ── Binance 价格映射 ──
+# Gains symbol → Binance symbol (USDT 永续合约现货价格)
+_BINANCE_SYMBOL_MAP: dict[str, str] = {
+    "BTC": "BTCUSDT", "ETH": "ETHUSDT", "LINK": "LINKUSDT",
+    "DOGE": "DOGEUSDT", "SOL": "SOLUSDT", "AVAX": "AVAXUSDT",
+    "ATOM": "ATOMUSDT", "DOT": "DOTUSDT", "UNI": "UNIUSDT",
+    "MATIC": "POLUSDT", "ARB": "ARBUSDT", "AAVE": "AAVEUSDT",
+    "LTC": "LTCUSDT", "ADA": "ADAUSDT", "XRP": "XRPUSDT",
+    "BNB": "BNBUSDT", "CRV": "CRVUSDT", "GRT": "GRTUSDT",
+    "NEAR": "NEARUSDT", "OP": "OPUSDT", "APT": "APTUSDT",
+    "SUI": "SUIUSDT", "SEI": "SEIUSDT", "TIA": "TIAUSDT",
+    "TON": "TONUSDT", "INJ": "INJUSDT", "STX": "STXUSDT",
+    "FIL": "FILUSDT", "ICP": "ICPUSDT", "RUNE": "RUNEUSDT",
+    "PEPE": "PEPEUSDT", "SHIB": "SHIBUSDT",
+    # 商品/指数 — Binance 没有的留空，会 fallback
+}
+
+# Binance API 缓存
+_binance_cache: dict[str, tuple[float, float]] = {}  # symbol → (price, timestamp)
+_BINANCE_CACHE_TTL = 30  # 秒
+
+
+def _get_yahoo_v8_price(symbol: str) -> float:
+    """通过 Yahoo Finance v8 REST API 获取股票/ETF 价格。
+    比 yfinance 库更轻量，不易触发限流。返回 0 表示失败。"""
+    # 修正一些 ticker 格式
+    yahoo_symbol = symbol.upper().replace("^", "")
+    if yahoo_symbol in ("SPX500",):
+        yahoo_symbol = "^GSPC"
+    elif yahoo_symbol in ("NAS100",):
+        yahoo_symbol = "^NDX"
+    elif yahoo_symbol in ("USA30",):
+        yahoo_symbol = "^DJI"
+    elif yahoo_symbol in ("WTI",):
+        yahoo_symbol = "CL=F"
+    elif yahoo_symbol in ("BRENT",):
+        yahoo_symbol = "BZ=F"
+    elif yahoo_symbol in ("XAU",):
+        yahoo_symbol = "GC=F"
+    elif yahoo_symbol in ("XAG",):
+        yahoo_symbol = "SI=F"
+    elif yahoo_symbol in ("NATGAS",):
+        yahoo_symbol = "NG=F"
+    elif yahoo_symbol in ("XPT",):
+        yahoo_symbol = "PL=F"
+    elif yahoo_symbol in ("XPD",):
+        yahoo_symbol = "PA=F"
+    elif yahoo_symbol in ("HG",):
+        yahoo_symbol = "HG=F"
+
+    try:
+        import requests as _req
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{yahoo_symbol}?interval=1d&range=1d"
+        headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
+        resp = _req.get(url, timeout=10, headers=headers)
+        if resp.status_code != 200:
+            return 0.0
+        data = resp.json()
+        result = data["chart"]["result"][0]
+        price = result["meta"]["regularMarketPrice"]
+        return float(price)
+    except Exception:
+        return 0.0
+
+
+def _get_binance_price(symbol: str) -> float:
+    """通过 Binance REST API 获取现货价格（国内可访问）。返回 0 表示失败。"""
+    bn_symbol = _BINANCE_SYMBOL_MAP.get(symbol.upper())
+    if bn_symbol is None:
+        return 0.0
+
+    now = __import__('time').time()
+    if bn_symbol in _binance_cache:
+        cached_price, cached_ts = _binance_cache[bn_symbol]
+        if now - cached_ts < _BINANCE_CACHE_TTL:
+            return cached_price
+
+    try:
+        import requests as _req
+        url = f"https://api.binance.com/api/v3/ticker/price?symbol={bn_symbol}"
+        resp = _req.get(url, timeout=5)
+        if resp.status_code == 200:
+            data = resp.json()
+            price = float(data["price"])
+            _binance_cache[bn_symbol] = (price, now)
+            return price
+    except Exception:
+        pass
+    return 0.0
+
+
 def _decode_trades(raw_trades: list[Any]) -> list[dict]:
     """将合约返回的 tuple[] 转为可读的 dict 列表。"""
     results = []
@@ -642,7 +733,31 @@ class GainsVenueAdapter(OnchainVenueAdapter):
             except Exception as exc:
                 _logger.warning(f"查询 Chainlink feed {feed_address} 失败: {exc}")
 
-        # ──  Tier 3: gTrade charts REST API ──
+        # ──  Tier 3: Yahoo Finance v8 REST API（轻量，不易限流）──
+        symbol = _PAIR_SYMBOLS.get(pair_index)
+        if symbol:
+            try:
+                yh_price = _get_yahoo_v8_price(symbol)
+                if yh_price > 0:
+                    open_price = int(yh_price * 10**10)
+                    _logger.info(f"Yahoo v8 price pairIndex={pair_index} {symbol}: {yh_price:.4f} USD (openPrice={open_price})")
+                    return open_price
+            except Exception as exc:
+                _logger.debug(f"Yahoo v8 获取 {symbol} 价格失败: {exc}")
+
+        # ──  Tier 4: Binance REST API（国内可访问）──
+        symbol = _PAIR_SYMBOLS.get(pair_index)
+        if symbol:
+            try:
+                bn_price = _get_binance_price(symbol)
+                if bn_price > 0:
+                    open_price = int(bn_price * 10**10)
+                    _logger.info(f"Binance price pairIndex={pair_index} {symbol}: {bn_price:.4f} USD (openPrice={open_price})")
+                    return open_price
+            except Exception as exc:
+                _logger.debug(f"Binance 获取 {symbol} 价格失败: {exc}")
+
+        # ──  Tier 4: gTrade charts REST API ──
         try:
             now_ts = int(__import__('time').time())
             from_ts = now_ts - 86400

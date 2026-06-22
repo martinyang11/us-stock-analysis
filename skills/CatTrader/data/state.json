@@ -1,20 +1,7 @@
 {
-  "positions": [
-    {
-      "crypto_id": 0,
-      "crypto_name": "BTC",
-      "symbol": "BTC",
-      "direction": "空头",
-      "entry_score": 0.1936,
-      "entry_sigma": 0.3064,
-      "leverage": 0.5,
-      "entry_time": "2026-06-22T04:49:28+00:00",
-      "entry_date": "20260622",
-      "entry_price": 64157.30078125
-    }
-  ],
-  "last_run": "2026-06-22T05:37:41.352995+00:00",
-  "run_count": 29,
+  "positions": [],
+  "last_run": "2026-06-22T14:02:09.050383+00:00",
+  "run_count": 33,
   "history": [
     {
       "time": "2026-06-16T03:52:37.344495",
@@ -573,6 +560,125 @@
       "sigma": 0.4209908244017603,
       "zone": "链上失败",
       "reason": "空0.5×区间 s=0.0790 σ=0.4210",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T06:59:09.547063+00:00",
+      "action": "空缺",
+      "crypto_id": 45,
+      "crypto_name": "RIOT",
+      "symbol": "RIOT",
+      "direction": "多头",
+      "leverage": 0.3,
+      "score": 0.597329990983185,
+      "sigma": 0.09732999098318496,
+      "zone": "链上失败",
+      "reason": "多0.3×区间 s=0.5973 σ=0.0973",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T06:59:09.547063+00:00",
+      "action": "空缺",
+      "crypto_id": 43,
+      "crypto_name": "ROKU",
+      "symbol": "ROKU",
+      "direction": "空头",
+      "leverage": 0.5,
+      "score": 0.16909814413071647,
+      "sigma": 0.33090185586928356,
+      "zone": "链上失败",
+      "reason": "空0.5×区间 s=0.1691 σ=0.3309",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T07:14:22.403334+00:00",
+      "action": "空缺",
+      "crypto_id": 45,
+      "crypto_name": "RIOT",
+      "symbol": "RIOT",
+      "direction": "多头",
+      "leverage": 0.3,
+      "score": 0.597329990983185,
+      "sigma": 0.09732999098318496,
+      "zone": "链上失败",
+      "reason": "多0.3×区间 s=0.5973 σ=0.0973",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T07:14:22.403334+00:00",
+      "action": "空缺",
+      "crypto_id": 43,
+      "crypto_name": "ROKU",
+      "symbol": "ROKU",
+      "direction": "空头",
+      "leverage": 0.5,
+      "score": 0.16909814413071647,
+      "sigma": 0.33090185586928356,
+      "zone": "链上失败",
+      "reason": "空0.5×区间 s=0.1691 σ=0.3309",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T07:22:36.271836+00:00",
+      "action": "空缺",
+      "crypto_id": 45,
+      "crypto_name": "RIOT",
+      "symbol": "RIOT",
+      "direction": "多头",
+      "leverage": 0.3,
+      "score": 0.597329990983185,
+      "sigma": 0.09732999098318496,
+      "zone": "链上失败",
+      "reason": "多0.3×区间 s=0.5973 σ=0.0973",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T07:22:36.271836+00:00",
+      "action": "空缺",
+      "crypto_id": 43,
+      "crypto_name": "ROKU",
+      "symbol": "ROKU",
+      "direction": "空头",
+      "leverage": 0.5,
+      "score": 0.16909814413071647,
+      "sigma": 0.33090185586928356,
+      "zone": "链上失败",
+      "reason": "空0.5×区间 s=0.1691 σ=0.3309",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T07:50:17.447829+00:00",
+      "action": "平仓",
+      "symbol": "XAG",
+      "direction": "空头",
+      "reason": "手动平掉XAG空头（非代码操作，来源不明）"
+    },
+    {
+      "time": "2026-06-22T14:02:09.050383+00:00",
+      "action": "空缺",
+      "crypto_id": 45,
+      "crypto_name": "RIOT",
+      "symbol": "RIOT",
+      "direction": "多头",
+      "leverage": 0.3,
+      "score": 0.597329990983185,
+      "sigma": 0.09732999098318496,
+      "zone": "链上失败",
+      "reason": "多0.3×区间 s=0.5973 σ=0.0973",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-22T14:02:09.050383+00:00",
+      "action": "空缺",
+      "crypto_id": 43,
+      "crypto_name": "ROKU",
+      "symbol": "ROKU",
+      "direction": "空头",
+      "leverage": 0.5,
+      "score": 0.16909814413071647,
+      "sigma": 0.33090185586928356,
+      "zone": "链上失败",
+      "reason": "空0.5×区间 s=0.1691 σ=0.3309",
       "spread_warning": ""
     }
   ]
