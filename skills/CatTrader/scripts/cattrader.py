@@ -66,6 +66,7 @@ logger = logging.getLogger('CatTrader')
 # ============================================================
 SL_PCT = 0.15  # 15% 止损
 TP_PCT = 0.15  # 15% 止盈
+ONCHAIN_COLLATERAL = 10.0  # 每笔开仓保证金 USDC（gTrade最低要求）
 
 
 class Direction(Enum):
@@ -155,18 +156,17 @@ def _get_onchain_adapter():
 
 
 def execute_onchain(decisions: List[Decision], positions: List[Position],
-                    state: TraderState, date_str: str) -> List[str]:
+                    state: TraderState, date_str: str) -> tuple:
     """将 CatTrader 决策执行到链上 gTrade。
-
-    只在有 OPEN/CLOSE 决策时调用。
-    返回执行日志列表。
+    返回 (日志列表, 失败的 crypto_id 集合)
     """
     onchain_logs = []
+    failed_ids = set()
     try:
         adapter, is_dry = _get_onchain_adapter()
     except Exception as e:
         logger.warning(f'链上适配器加载失败（可能未配置钱包）: {e}')
-        return onchain_logs
+        return onchain_logs, failed_ids
 
     tag = '[DRY-RUN]' if is_dry else '[ONCHAIN]'
     logger.info(f'{tag} 开始执行链上交易 (dry_run={is_dry})')
@@ -191,15 +191,29 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
         symbol = d.symbol or VARIETY_CODES.get(d.crypto_id, '')
         if not symbol:
             onchain_logs.append(f'跳过 {d.crypto_name}: 无 symbol 映射')
+            failed_ids.add(d.crypto_id)
             continue
 
         # gTrade 是 7×24 DEX，所有品种均可交易，不做市场时间限制
 
         try:
             if d.action == Action.OPEN.value:
-                # 开仓: collateral = 10 USDC, leverage 2x (gTrade最低)
-                collateral = 10.0
+                collateral = ONCHAIN_COLLATERAL
                 leverage = 2.0  # gTrade 最低杠杆 2x
+
+                # 预检: eth_call 模拟交易，避免浪费 gas
+                try:
+                    preflight = adapter.simulate_open(symbol, 'long' if d.direction == Direction.LONG.value else 'short',
+                                                      collateral, leverage)
+                    if not preflight.get('ok'):
+                        reason = preflight.get('reason', 'unknown')
+                        msg = f'{tag} 预检失败 {symbol} {d.direction}: {reason}，跳过'
+                        logger.warning(msg)
+                        onchain_logs.append(msg)
+                        failed_ids.add(d.crypto_id)
+                        continue
+                except Exception as e:
+                    logger.warning(f'{tag} 预检异常 {symbol}: {e}，继续尝试...')
 
                 from hole_board.exchange.onchain.types import OnchainOpenRequest
                 req = OnchainOpenRequest(
@@ -244,13 +258,15 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
 
                 if not closed:
                     onchain_logs.append(f'{tag} 平仓 {symbol} 失败: 链上无匹配持仓')
+                failed_ids.add(d.crypto_id)
 
         except Exception as e:
             msg = f'{tag} 执行失败 {symbol} {d.action}: {e}'
             logger.warning(msg)
             onchain_logs.append(msg)
+            failed_ids.add(d.crypto_id)
 
-    return onchain_logs
+    return onchain_logs, failed_ids
 
 
 # ============================================================
@@ -774,24 +790,32 @@ def run_cat_trader(date_str: str = None) -> dict:
             ))
         processed_ids.add(cid)
 
+    # 执行链上交易（先于状态保存）
+    onchain_logs, failed_ids = execute_onchain(decisions, positions_after, state, date_str)
+
+    # 只保留链上执行成功的仓位
+    final_positions = [p for p in positions_after if p.crypto_id not in failed_ids]
+
+    # 标记失败的开仓决策
+    for d in decisions:
+        if d.crypto_id in failed_ids and d.action == Action.OPEN.value:
+            d.action = Action.SKIP.value
+            d.zone = '链上失败'
+
     # 更新状态
-    state.positions = [asdict(p) for p in positions_after]
+    state.positions = [asdict(p) for p in final_positions]
     state.last_run = now.isoformat()
     state.run_count += 1
-
     for d in decisions:
-        if d.action in (Action.OPEN.value, Action.CLOSE.value, Action.ADJUST.value):
+        if d.action in (Action.OPEN.value, Action.CLOSE.value, Action.ADJUST.value, Action.SKIP.value):
             state.history.append({'time': now.isoformat(), **asdict(d)})
     state.history = state.history[-100:]
     save_state(state)
 
-    # 执行链上交易（OPEN/CLOSE决策）
-    report = generate_report(decisions, scores, positions_after, date_str,
+    report = generate_report(decisions, scores, final_positions, date_str,
                              state, ca_date, spreads)
-    onchain_logs = execute_onchain(decisions, positions_after, state, date_str)
     if onchain_logs:
         report['onchain_logs'] = onchain_logs
-
     return report
 
 

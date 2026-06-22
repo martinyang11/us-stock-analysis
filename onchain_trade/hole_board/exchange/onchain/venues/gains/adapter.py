@@ -686,6 +686,47 @@ class GainsVenueAdapter(OnchainVenueAdapter):
         if not self.config.private_key or self.config.private_key == "0x" + "0" * 64:
             raise ValueError("onchain 实盘需要配置 private_key")
 
+    def simulate_open(self, symbol: str, side: str, collateral: float, leverage: float) -> dict:
+        """预检开仓：用 eth_call 模拟交易，不花 gas。返回 {'ok': bool, 'reason': str}"""
+        try:
+            self._ensure_live_config()
+            w3 = self._get_web3()
+            contract = self._contract
+            sender = w3.to_checksum_address(self.config.wallet_address)
+
+            pair_index = _get_pair_index(symbol)
+            collateral_index = self._get_usdc_collateral_info()[0] + 1
+            collateral_amount = int(collateral * 10**6)
+            max_slippage_p = int(0.01 * 100_000)
+            open_price = self._get_current_price(pair_index)
+            if open_price == 0:
+                return {'ok': False, 'reason': '无价格源，openPrice=0'}
+
+            trade_tuple = (
+                sender, 0, pair_index, int(leverage * 1000),
+                side == "long", True, collateral_index, 0,
+                collateral_amount, open_price, 0, 0,
+                False, 0, 0,
+            )
+
+            contract.functions.openTrade(
+                trade_tuple, max_slippage_p, ZERO_ADDRESS
+            ).call({
+                "from": sender,
+                "gas": GAS_LIMIT_OPEN_TRADE,
+            })
+            return {'ok': True, 'reason': ''}
+        except Exception as e:
+            err = str(e)
+            # 提取有用的错误信息
+            if 'InsufficientCollateral' in err or '3a23d825' in err:
+                return {'ok': False, 'reason': '保证金不足'}
+            if '0xc5723b51' in err:
+                return {'ok': False, 'reason': '品种/函数不存在'}
+            # 截取前150字符作为reason
+            reason = err.split("'")[1] if "'" in err else err[:100]
+            return {'ok': False, 'reason': reason}
+
     def open_trade(self, req: OnchainOpenRequest) -> OnchainTradeResult:
         order_id = f"gains-open-{uuid.uuid4().hex[:12]}"
         if self.config.dry_run:
