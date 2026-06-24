@@ -25,6 +25,31 @@ from typing import Dict, List, Optional, Tuple, Any
 
 logger = logging.getLogger('GtradeData')
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    from skills.common.tradfi_universe import (
+        CATEGORY_OVERRIDES,
+        GTRADE_NAME_ALIASES,
+        GTRADE_PAIR_INDICES,
+        INDEX_SYMBOLS,
+        STOCK_SYMBOLS,
+        TRADFI_SYMBOLS,
+        TRADFI_SYMBOL_SET,
+        YF_TICKER_OVERRIDES,
+    )
+except Exception:
+    TRADFI_SYMBOLS = []
+    TRADFI_SYMBOL_SET = set()
+    STOCK_SYMBOLS = []
+    INDEX_SYMBOLS = []
+    GTRADE_PAIR_INDICES = {}
+    GTRADE_NAME_ALIASES = {}
+    YF_TICKER_OVERRIDES = {}
+    CATEGORY_OVERRIDES = {}
+
 # ============================================================
 # gTrade API 端点
 # ============================================================
@@ -81,11 +106,38 @@ def _build_tradfi_list():
     if _tradfi_pairs:
         return  # 已加载
 
-    data = _get("/trading-variables/all")
+    data = _get("/trading-variables/all", timeout=3)
     pairs = data.get('pairs', [])
     groups = data.get('groups', [])
     if not pairs:
-        logger.error("无法加载 gTrade 品种列表")
+        logger.error("无法加载 gTrade 品种列表，使用29标的静态兜底")
+        for name in TRADFI_SYMBOLS:
+            pair_index = GTRADE_PAIR_INDICES.get(name, -1)
+            group = 'stocks' if name in STOCK_SYMBOLS else 'indices'
+            info = {
+                'pairIndex': pair_index,
+                'name': name,
+                'symbol': f'{name}/USD',
+                'group': group,
+                'groupIndex': -1,
+                'spreadP': 0,
+                'spread_pct': 0.0,
+                'feeIdx': 0,
+                'maxLeverage': 0,
+            }
+            _tradfi_pairs.append(info)
+            _pair_index_map[pair_index] = info
+            _name_to_index[name] = pair_index
+
+        for i, info in enumerate(_tradfi_pairs):
+            _variety_list.append({
+                'variety_id': i,
+                'name': info['name'],
+                'symbol': info['symbol'],
+                'pairIndex': info['pairIndex'],
+                'group': info['group'],
+                'category': _get_category(info['name'], info['group']),
+            })
         return
 
     _raw_pairs = pairs
@@ -94,17 +146,23 @@ def _build_tradfi_list():
     seen_names = set()
     for idx, p in enumerate(pairs):
         gi = int(p.get('groupIndex', -1))
-        name = p.get('from', '?')
+        raw_name = p.get('from', '?')
+        name = GTRADE_NAME_ALIASES.get(raw_name, raw_name)
         to_ = p.get('to', 'USD')
 
         # 跳过 _1 重复 + FB(META alias)
-        if '_1' in name or name == 'FB':
+        if '_1' in raw_name or raw_name == 'FB':
+            continue
+
+        if TRADFI_SYMBOL_SET and name not in TRADFI_SYMBOL_SET:
             continue
 
         # 只取 stocks/indices/commodities/crypto 主流
         if gi not in GROUP_NAMES:
             continue
         group = GROUP_NAMES[gi]
+        if name in {'SPCX'}:
+            group = 'indices'
 
         # 去重
         if name in seen_names:
@@ -130,6 +188,10 @@ def _build_tradfi_list():
         _pair_index_map[idx] = info
         _name_to_index[name] = idx
 
+    if TRADFI_SYMBOLS:
+        order = {sym: i for i, sym in enumerate(TRADFI_SYMBOLS)}
+        _tradfi_pairs.sort(key=lambda x: order.get(x['name'], len(order)))
+
     # 构建 SANN 兼容品种列表
     for i, info in enumerate(_tradfi_pairs):
         _variety_list.append({
@@ -146,6 +208,8 @@ def _build_tradfi_list():
 
 def _get_category(name: str, group: str) -> str:
     """品种分类"""
+    if name in CATEGORY_OVERRIDES:
+        return CATEGORY_OVERRIDES[name]
     if group == 'crypto':
         return '加密'
     if group == 'commodities':
@@ -223,7 +287,7 @@ YF_MAP = {
     'HG': 'HG=F',    # Copper
     'XPT': 'PL=F',   # Platinum
     'XPD': 'PA=F',   # Palladium
-    'SPX500': '^GSPC', 'NAS100': '^NDX', 'USA30': '^DJI',
+    'SPX500': '^GSPC', 'SPCX': '^GSPC', 'NAS100': '^NDX', 'USA30': '^DJI',
     # Stocks: same name on Yahoo
     # Fallback: f'{name}' (most stocks work directly)
 }
@@ -231,6 +295,8 @@ YF_MAP = {
 
 def _to_yf_ticker(name: str) -> str:
     """gTrade 品种名 → Yahoo Finance ticker"""
+    if name in YF_TICKER_OVERRIDES:
+        return YF_TICKER_OVERRIDES[name]
     if name in YF_MAP:
         return YF_MAP[name]
     # 默认直接用品种名 (大多数美股直接用 ticker)

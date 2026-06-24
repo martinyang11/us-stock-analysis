@@ -1,4 +1,4 @@
-# SANN (StockAnalysis Neural Network) — 美股TradFi永续神经网络评分技能
+﻿# SANN (StockAnalysis Neural Network) — 美股TradFi永续神经网络评分技能
 
 ## 描述
 基于 SA 技能14维度基本面评分 + 24维度技术面评分，通过纯NumPy神经网络输出综合多空评分。网络通过真实SA评分与实际涨跌的对应关系进行监督学习，逐步优化评分精度。
@@ -146,7 +146,7 @@ Input: scores(14基本面+24技术面=38) + month_sin + month_cos + variety_embe
 
 ### 第一步：采集技术面（自动）
 
-通过gTrade API + yfinance获取56品种日线K线数据，计算24维技术面评分：
+通过gTrade API + yfinance获取29标的日线K线数据，计算24维技术面评分：
 
 ```python
 from skills.StockAnalysis.scripts.gtrade_data import GtradeDataProvider
@@ -175,7 +175,7 @@ write_ca_scores('YYYYMMDD', variety_id, [d1, d2, ..., d14], './SANN/data/daily_s
 # 输入校验：品种ID 0-34，CA评分14维且每维在[0,1]范围内
 ```
 
-⚠️ **CA评分必须来自SA技能真实分析**，禁止合成/生成。56品种完整分析约需30-60分钟。
+⚠️ **CA评分必须来自SA技能真实分析**，禁止合成/生成。29标的完整分析约需30-60分钟。
 
 ### 第三步：计算真实涨跌标签 y 值（次日）
 
@@ -232,7 +232,7 @@ model = train_from_csv('historical_samples.csv')
 
 ### 第五步：推理评分
 
-用训练好的网络对56品种计算综合评分：
+用训练好的网络对29标的计算综合评分：
 
 ```python
 from skills.SANN.scripts.pretrain_numpy import NumpySANNModel, predict_single
@@ -291,7 +291,7 @@ cann_score = model.predict_single(
 │   │   ├── scores_20260610.csv     # 格式：date,variety_id,variety_name,month,dim1..14,tech1..24
 │   │   └── ...
 │   ├── model_weights.npz           # 当前模型权重（含嵌入矩阵+各层参数+BN统计量）
-│   ├── tradfi_meta.json            # 56品种元数据（名称/代码/类别）
+│   ├── tradfi_meta.json            # 29标的元数据（名称/代码/类别）
 │   └── training_log.csv            # 训练日志（日期/样本数/loss/val_loss/epochs）
 ├── reports/
 │   ├── SANN报告_20260610.md
@@ -300,7 +300,7 @@ cann_score = model.predict_single(
 │   ├── pretrain_numpy.py           # 核心脚本：模型定义+前向+反向+Adam+训练+推理
 │   └── daily_pipeline.py           # 每日管线：技术面采集→CA写入→y值回填→微调→推理
 └── references/
-    └── 币种列表.md                  # 56品种ID映射+类别分组
+    └── 币种列表.md                  # 29标的ID映射+类别分组
 ```
 
 ### CSV格式示例（daily_scores/scores_YYYYMMDD.csv）
@@ -335,7 +335,7 @@ date,variety_id,variety_name,month,dim1,dim2,...,dim14,tech1,tech2,...,tech24
 
 | 键名 | 形状 | 说明 |
 |------|------|------|
-| `embedding` | (35, 8) | 品种嵌入矩阵（56品种×8维） |
+| `embedding` | (29, 8) | 品种嵌入矩阵（29标的×8维） |
 | `fc0.W` | (48, 48) | 第1层全连接权重 |
 | `fc0.b` | (48,) | 第1层全连接偏置 |
 | `fc1.W` | (48, 32) | 第2层全连接权重 |
@@ -391,3 +391,4 @@ date,variety_id,variety_name,month,dim1,dim2,...,dim14,tech1,tech2,...,tech24
 8. **数据来源铁律**：D1-D14只能来自SA真实分析，y值只能来自gTrade真实涨跌
 9. **免责声明**：所有报告必须附带免责声明，本分析仅供参考，不构成投资建议
 10. **gTrade可用性**：如遇API 451/403，需切换代理；纯requests实现无python-binance依赖
+

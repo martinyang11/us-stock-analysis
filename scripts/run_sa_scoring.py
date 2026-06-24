@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-SA 每日评分脚本 (2026-06-23)
-计算 56 个品种的 14 维度基本面评分 + 24 技术指标
+SA 每日评分脚本 (2026-06-22)
+计算 29 个 gTrade 标的的 14 维度基本面评分 + 24 技术指标
 """
 import sys, os, logging, json, csv, io
 from datetime import datetime, timezone
@@ -59,7 +59,7 @@ def compute_tech_for_variety(name: str) -> list:
         ticker_map = {
             'XAU': 'GC=F', 'XAG': 'SI=F', 'WTI': 'CL=F', 'XPT': 'PL=F',
             'XPD': 'PA=F', 'HG': 'HG=F', 'NATGAS': 'NG=F', 'BRENT': 'BZ=F',
-            'SPX500': '^GSPC', 'NAS100': '^NDX', 'USA30': '^DJI',
+            'SPCX': '^GSPC', 'SPX500': '^GSPC', 'NAS100': '^NDX', 'USA30': '^DJI',
             'URNM': 'URNM', 'URA': 'URA', 'GDX': 'GDX', 'WPM': 'WPM',
             'CRCL': 'CRCL', 'SBET': 'SBET',
         }
@@ -113,33 +113,33 @@ except Exception as e:
 # ============================================================
 # 4. 维度评分
 # ============================================================
-# 基于 2026-06-23 研究数据的宏观评分
+# 基于 2026-06-22 研究数据的宏观评分
 
-# D1: 货币政策 - FOMC后加息概率升至89%, Warsh鹰派基调确认
-# dot plot 中位数 3.8%(+40bp), 2Y收益率4.23%(16月高), 10Y 4.51%
-# Goldman: 加息是真实风险, HSBC: USD将持续走强
-# 6/25 PCE通胀数据是关键催化剂, 市场如惊弓之鸟
-# 基础分 0.25 (紧缩强化+加息概率逼近90%)
-D1_BASE = 0.25
+# D1: 货币政策 - FOMC 6/17 决议: 利率不变 3.50-3.75%, Warsh首秀鹰派
+# dot plot 中位数 3.8%(+40bp), 9/18委员预测年内加息, 83%概率12月加息
+# 声明从340词砍到130词, 删除前瞻指引, 不提充分就业
+# 核心PCE预估从2.7%上调至3.3%, 10Y收益率4.00-4.50%
+# 基础分 0.28 (强紧缩+加息预期升温)
+D1_BASE = 0.28
 
-# D2: 经济周期 - GDP 2.2%, ISM 54.0, NFP +172K, 失业率 4.3%
-# CPI 4.2% YoY, 但油价-4.8%(伊朗和平)缓解通胀压力, 消费者受益
-# 核心CPI 2.9%仍高, PPI 6.5%, 但能源供应改善→滞胀风险边际下降
-# 基础分 0.50 (扩张+能源成本下降, 但加息逆风)
-D2_BASE = 0.50
+# D2: 经济周期 - GDP 2.2%, ISM 54.0, NFP +172K(超预期), 失业率 4.3%
+# CPI 4.2% YoY(3年新高), 核心CPI 2.9%, PPI 6.5%(2022以来最高)
+# 经济韧性好但通胀顽固+加息预期压制, 能源价格同比+23.5%
+# 基础分 0.52 (扩张但滞胀风险上升)
+D2_BASE = 0.52
 
-# D3: 财政政策 - 国债 $38.5T→$41.1T上限, 赤字 ~$2T/年, 利息 >$1T/年
-# Greenspan(前Fed主席)去世, 财政改革政治僵局持续
-# SpaceX $20B债券发行引发债务市场关注
-# 基础分 0.40 (财政恶化持续, 无改革迹象)
-D3_BASE = 0.40
+# D3: 财政政策 - 国债 $38.5T→$41.1T上限, 赤字 ~$2T/年, 债务/GDP >100%
+# 利息支出 >$1T/年(超国防支出), CBO预测2056年债务/GDP达175%
+# 两党推3%赤字目标但无共识, 财政不确定性高
+# 基础分 0.42 (财政恶化+政治僵局)
+D3_BASE = 0.42
 
-# D11: 市场情绪 - VIX飙18%至20.54, 全球抛售: Nasdaq期货-2.55%, Nikkei -3.55%, KOSPI -10%
-# GOOGL -7%(AI人才流失: AlphaFold诺贝尔得主+Gemini联创双离职)
-# SpaceX SPCX -16%($20B债券), Mag7再承压, AI capex ROI质疑升温
-# F&G指数约30-33(Fear), 全球risk-off, 6/25 PCE是下一个雷
-# 基础分 0.33 (恐惧加剧, AI恐慌+加息恐惧双重打击)
-D11_BASE = 0.33
+# D11: 市场情绪 - FOMC后暴跌已部分修复, VIX从22回落至20.03(历史均值)
+# F&G指数32-33(Fear), 加密货币F&G一度触及14(极度恐惧)后反弹
+# 美伊临时和平协议+SpaceX IPO提振情绪, 三大指数6/22齐涨
+# Mag7本月蒸发$2T, 但小盘股IWM领涨→板块轮动而非全面恐慌
+# 基础分 0.42 (恐惧但恢复中, 轮动而非崩盘)
+D11_BASE = 0.42
 
 # 类别调整系数: (D1_mult, D2_mult, D3_mult, D11_mult)
 CATEGORY_ADJUST = {
@@ -188,7 +188,8 @@ VARIETY_CATEGORY = {
     'BIDU': 'china_tech',
     'PLTR': 'tech', 'CRCL': 'other', 'SBET': 'other',
     'SPY': 'index', 'QQQ': 'index', 'IWM': 'index', 'DIA': 'index',
-    'SPX500': 'index', 'NAS100': 'index', 'USA30': 'index',
+    'SPCX': 'index', 'SPX500': 'index',
+    'NAS100': 'index', 'USA30': 'index',
     'XAU': 'commodity', 'XAG': 'commodity', 'WTI': 'energy',
     'XPT': 'commodity', 'XPD': 'commodity', 'HG': 'commodity',
     'NATGAS': 'energy', 'BRENT': 'energy',
@@ -198,30 +199,30 @@ VARIETY_CATEGORY = {
 # ============================================================
 # 5. 行业评分 (D4)
 # ============================================================
-# 基于 2026-06-23 行业研究数据
+# 基于 2026-06-22 行业研究数据
 D4_INDUSTRY = {
     # 半导体 - AVGO AI指引逊预期砸$1.4T但已反弹, HBM供不应求: SOX从-5.7%反弹, AVGO财测逊预期砸$1.4T但AI需求完整, 存储芯片(HBM)供不应求
-    'semi': 0.52,  # SOX创新高, MU HBM售罄, 存储芯片最强
+    'semi': 0.50,
     # 科技巨头 - Mag7月内蒸发$2T但恢复中, SpaceX IPO提振, 板块轮动: Mag7月内蒸发$2T但恢复中, 板块轮动到价值/小盘, AI capex $650B仍强劲
-    'tech': 0.45,  # GOOGL AI人才流失, SpaceX -16%, 纳指-1.32%, AI ROI质疑
+    'tech': 0.52,
     # 加密 - BTC $64K横盘, 美伊和平利好, 但加息预期压制相关: BTC $64K, 美伊和平协议利好, 但加息预期压制, CLARITY法案停滞
     'crypto': 0.52,
     'crypto_native': 0.54,
     # 金融/支付 - V/MA接近52周低点, 但收入+15%, 稳定币平台叙事: V/MA接近52周低点但基本面强劲(收入+15%), 加息利好净息差
-    'financial': 0.54,  # 高利率利好, 但risk-off情绪蔓延
+    'financial': 0.56,
     # 消费 - NKE/SBUX转型进行中, KO/WMT/MCD防御性稳定: 防御性抗跌, Nike/SBUX复苏进行中, KO/WMT/MCD相对稳定
-    'consumer': 0.55,  # 油价-4.8%利好消费, 防御性轮动
+    'consumer': 0.52,
     # 工业/国防 - 伊朗停火利空, 但FY27国防预算$1.5T: 伊朗停火利空国防, LMT -23%(3个月), 但FY27国防预算$1.5T创纪录
-    'industrial': 0.48,  # SpaceX $20B债压垮太空板块, 拖累工业情绪
+    'industrial': 0.50,
     # 医药: 防御性, 利率敏感度低
     'pharma': 0.52,
     # 中国科技 - 五角大楼黑名单, AI收入52%首次过半, Apollo Go欧洲扩张: 五角大楼将BIDU/阿里/BYD列入军方企业清单, 恒生科技承压
-    'china_tech': 0.36,  # 全球risk-off+五角大楼黑名单, KOSPI -10%蔓延
+    'china_tech': 0.38,
     # 指数/ETF: SPY从4月低点+19%, DIA接近ATH, IWM领涨(板块轮动)
-    'index': 0.48,  # 全球抛售, Nasdaq期货-2.55%, 亚太暴跌
+    'index': 0.52,
     # 商品: 黄金受美元走强压制, 油价受伊朗影响波动($86-88), 铜需求稳健
-    'commodity': 0.48,  # 黄金-2%至$4105, 美元强势压制
-    'energy': 0.42,  # 油价-4.8%至$73.64, 伊朗和平+供给恢复
+    'commodity': 0.50,
+    'energy': 0.48,
     'mining': 0.54,
     # 其他
     'other': 0.48,
@@ -255,18 +256,21 @@ def get_prev(name, dim, default=0.50):
 # 公司特定评分 (基于 2026/6 研究)
 # 格式: {品种名: {dim5, dim6, dim7, dim8, dim10, dim13, dim14}}
 #
-# 关键研究结论 (2026-06-23):
-# - GOOGL: -7%! AlphaFold诺贝尔得主Jumper+Gemini联创Shazeer双双离职, AI人才流失严重
-# - NVDA: AI需求完整, DGX选中INTC Xeon 6, BofA正面, 但AI ROI质疑升温
-# - AMD: MI450延迟, DC收入$5.8B, YTD +118%, SOX创新高受益
-# - MU: 6/24财报, HBM售罄2026全年, 分析师极度看涨(目标$1,200-1,550)
-# - BTC: $62-64K横盘, 加息预期89%压制 vs 伊朗和平利好
-# - SpaceX SPCX: -16%! $20B首次债券发行, $400-600B市值蒸发
-# - V/MA: 52周低点, 收入+15%, 加息利好, 防御性轮动受益
-# - WTI: $73.64(-4.8%), 伊朗60天和平路线图+油轮恢复装载, 供给改善
-# - XAU: $4,105(-2%), 美元强势+加息预期压制, 但地缘不确定性支撑
-# - BIDU: 五角大楼黑名单, AI收入占52%, Apollo Go欧洲扩张, KOSPI -10%蔓延
-# - 6/25 PCE通胀数据: 下一个关键催化剂, 决定加息预期走向
+# 关键研究结论 (2026-06-22):
+# - NVDA: Vera Rubin DGX选中INTC Xeon 6, BofA会议正面, AI需求完整但记忆体削减谣言
+# - AMD: MI450延迟(主要贡献推至2027), DC收入$5.8B成主业, YTD +118%
+# - INTC: YTD +169%但仍在亏损, Xeon 6被NVDA选中, 代工每季烧$2.5B, PE 904x
+# - AVGO: Q2 AI收入$10.8B(+143% YoY), 但Q3指引逊预期触发半导体抛售$1.4T
+# - BTC: $64K横盘, 美伊和平利好 vs 加息预期利空, 减半后供给紧缩
+# - MSTR: 持有846,842 BTC, 股价从$457高点-75%, 远期PE 3.4x
+# - COIN: 从高点-60%, 远期PE 14x, $10B现金, CLARITY法案关键催化剂
+# - V/MA: 均接近52周低点(YTD -8~-14%), 但收入+15%, 稳定币平台叙事
+# - BA: 债务$47B悬顶, Zacks #3 Hold, 等待更好入场点
+# - LMT: 3个月-23%, 伊朗停火+回购禁令双重打击, FY27国防预算$1.5T长期利好
+# - BIDU: 被五角大楼列入军方企业清单(-13%), AI收入占52%首次过半, Apollo Go获瑞士许可
+# - NKE/SBUX: 均处转型期, Nike收入停滞(Direct -9%), SBUX同店+4%但EPS -19%
+# - TSLA: SpaceX IPO成功提振马斯克生态, 但汽车业务竞争加剧
+# - WTI: $86-88/bbl, 伊朗和平增加供应预期, 但 Strait of Hormuz 风险仍在
 
 COMPANY_SCORES = {
     # 加密 - BTC $64K横盘, 美伊和平利好, 但加息预期压制
@@ -278,9 +282,9 @@ COMPANY_SCORES = {
     'INTC': {'dim5': 0.32, 'dim6': 0.35, 'dim7': 0.62, 'dim8': 0.32, 'dim10': 0.38, 'dim13': 0.40, 'dim14': 0.38},
     'AAPL': {'dim5': 0.78, 'dim6': 0.68, 'dim7': 0.42, 'dim8': 0.55, 'dim10': 0.58, 'dim13': 0.68, 'dim14': 0.50},
     'MSFT': {'dim5': 0.80, 'dim6': 0.72, 'dim7': 0.40, 'dim8': 0.62, 'dim10': 0.60, 'dim13': 0.65, 'dim14': 0.52},
-    'GOOGL':{'dim5': 0.70, 'dim6': 0.58, 'dim7': 0.50, 'dim8': 0.48, 'dim10': 0.52, 'dim13': 0.50, 'dim14': 0.48},  # AI人才流失: Jumper+Shazeer双离职
-    'AMZN': {'dim5': 0.75, 'dim6': 0.60, 'dim7': 0.50, 'dim8': 0.55, 'dim10': 0.55, 'dim13': 0.55, 'dim14': 0.48},  # AI capex ROI质疑
-    'META': {'dim5': 0.70, 'dim6': 0.65, 'dim7': 0.45, 'dim8': 0.58, 'dim10': 0.52, 'dim13': 0.50, 'dim14': 0.48},  # AI spending压力
+    'GOOGL':{'dim5': 0.75, 'dim6': 0.68, 'dim7': 0.45, 'dim8': 0.58, 'dim10': 0.55, 'dim13': 0.55, 'dim14': 0.50},
+    'AMZN': {'dim5': 0.78, 'dim6': 0.65, 'dim7': 0.48, 'dim8': 0.58, 'dim10': 0.58, 'dim13': 0.58, 'dim14': 0.50},
+    'META': {'dim5': 0.72, 'dim6': 0.70, 'dim7': 0.42, 'dim8': 0.60, 'dim10': 0.55, 'dim13': 0.50, 'dim14': 0.48},
     'TSLA': {'dim5': 0.68, 'dim6': 0.52, 'dim7': 0.35, 'dim8': 0.50, 'dim10': 0.52, 'dim13': 0.45, 'dim14': 0.55},
     'NFLX': {'dim5': 0.70, 'dim6': 0.65, 'dim7': 0.45, 'dim8': 0.55, 'dim10': 0.55, 'dim13': 0.55, 'dim14': 0.48},
     # 半导体 - AVGO AI指引逊预期砸$1.4T但已反弹, HBM供不应求
@@ -321,7 +325,7 @@ COMPANY_SCORES = {
 }
 
 # 指数/ETF: 继承成分股平均
-INDEX_NAMES = {'SPY', 'QQQ', 'IWM', 'DIA', 'SPX500', 'NAS100', 'USA30'}
+INDEX_NAMES = {'SPY', 'QQQ', 'IWM', 'DIA', 'SPCX', 'GDX', 'URA', 'URNM'}
 for name in INDEX_NAMES:
     if name not in COMPANY_SCORES:
         COMPANY_SCORES[name] = {
@@ -334,12 +338,12 @@ COMMODITY_NAMES = {'XAU', 'XAG', 'WTI', 'XPT', 'XPD', 'HG', 'NATGAS', 'BRENT'}
 for name in COMMODITY_NAMES:
     if name not in COMPANY_SCORES:
         COMPANY_SCORES[name] = {
-            'dim5': 0.55, 'dim6': 0.48, 'dim7': 0.50, 'dim8': 0.50,
-            'dim10': 0.45, 'dim13': 0.50, 'dim14': 0.50
+            'dim5': 0.60, 'dim6': 0.50, 'dim7': 0.50, 'dim8': 0.50,
+            'dim10': 0.55, 'dim13': 0.50, 'dim14': 0.52
         }
 
 # 矿业/铀 ETF
-ETF_NAMES = {'GDX', 'URA', 'WPM', 'URNM'}
+ETF_NAMES = {'WPM'}
 for name in ETF_NAMES:
     if name not in COMPANY_SCORES:
         COMPANY_SCORES[name] = {

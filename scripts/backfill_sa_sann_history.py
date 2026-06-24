@@ -15,8 +15,10 @@ from __future__ import annotations
 import argparse
 import ast
 import csv
+import io
 import json
 import logging
+import random
 import sys
 import time
 from datetime import datetime, timedelta
@@ -25,6 +27,7 @@ from typing import Dict, Iterable, List, Optional
 
 import numpy as np
 import pandas as pd
+import requests
 import yfinance as yf
 
 
@@ -33,6 +36,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from skills.StockAnalysis.scripts.gtrade_data import compute_technical_scores
+from skills.common.tradfi_universe import TRADFI_SYMBOLS
 
 
 LOG = logging.getLogger("backfill")
@@ -55,6 +59,7 @@ TICKER_MAP = {
     "HG": "HG=F",
     "NATGAS": "NG=F",
     "BRENT": "BZ=F",
+    "SPCX": "^GSPC",
     "SPX500": "^GSPC",
     "NAS100": "^NDX",
     "USA30": "^DJI",
@@ -75,6 +80,10 @@ def display_date(day: pd.Timestamp) -> str:
 
 def to_yf_ticker(name: str) -> str:
     return TICKER_MAP.get(name.upper(), name.upper())
+
+
+def cache_name(ticker: str) -> str:
+    return ticker.replace("^", "_IDX_").replace("=", "_F_").replace("/", "_")
 
 
 def normalize_yf_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -105,7 +114,210 @@ def normalize_yf_df(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def normalize_ohlcv_df(df: pd.DataFrame, date_col: str = "date") -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    df = df.copy()
+    df.columns = [str(c).lower() for c in df.columns]
+    required = ["open", "high", "low", "close"]
+    if date_col not in df.columns or any(c not in df.columns for c in required):
+        return pd.DataFrame()
+    if "volume" not in df.columns:
+        df["volume"] = 1.0
+    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
+    df = df.dropna(subset=[date_col, "close"])
+    if df.empty:
+        return pd.DataFrame()
+    df = df.set_index(date_col)
+    df.index = pd.to_datetime(df.index).tz_localize(None).normalize()
+    df = df[["open", "high", "low", "close", "volume"]].apply(pd.to_numeric, errors="coerce")
+    return df.dropna(subset=["close"]).sort_index()
+
+
+def stooq_candidates(name: str) -> List[str]:
+    symbol = name.upper()
+    if symbol in {"SPCX", "SPX500"}:
+        return ["^spx", "spy.us"]
+    return [f"{symbol.lower()}.us"]
+
+
+def download_stooq_history(
+    name: str,
+    start: pd.Timestamp,
+    end: pd.Timestamp,
+    retries: int = 3,
+) -> pd.DataFrame:
+    """Download daily OHLCV from Stooq CSV endpoint, independent of Yahoo."""
+    for stooq_symbol in stooq_candidates(name):
+        for base_url in ("https://stooq.com/q/d/l/", "http://stooq.com/q/d/l/"):
+            for attempt in range(1, retries + 1):
+                try:
+                    resp = requests.get(
+                        base_url,
+                        params={
+                            "s": stooq_symbol,
+                            "i": "d",
+                            "d1": start.strftime("%Y%m%d"),
+                            "d2": end.strftime("%Y%m%d"),
+                        },
+                        headers={"User-Agent": "Mozilla/5.0"},
+                        timeout=30,
+                    )
+                    resp.raise_for_status()
+                    text = resp.text.strip()
+                    if not text or text.lower().startswith("no data"):
+                        break
+                    hist = normalize_ohlcv_df(pd.read_csv(io.StringIO(text)))
+                    if not hist.empty:
+                        LOG.info("  stooq hit %s via %s rows=%d", name, stooq_symbol, len(hist))
+                        return hist
+                    LOG.warning(
+                        "  %s: stooq %s returned unparsed text: %s",
+                        name,
+                        stooq_symbol,
+                        text[:160].replace("\n", " | "),
+                    )
+                    break
+                except Exception as exc:
+                    LOG.warning(
+                        "  %s: stooq %s attempt %d/%d failed: %s",
+                        name,
+                        stooq_symbol,
+                        attempt,
+                        retries,
+                        exc,
+                    )
+                    time.sleep(min(2 * attempt, 8))
+    return pd.DataFrame()
+
+
+def load_cached_history(cache_dir: Path, ticker: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    path = cache_dir / f"{cache_name(ticker)}.csv"
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_csv(path, parse_dates=["date"])
+        if df.empty:
+            return pd.DataFrame()
+        df = df.set_index("date").sort_index()
+        df.index = pd.to_datetime(df.index).tz_localize(None).normalize()
+        df = df[["open", "high", "low", "close", "volume"]].dropna(subset=["close"])
+        if df.empty:
+            return pd.DataFrame()
+        if df.index.min() <= start and df.index.max() >= end:
+            return df
+    except Exception as exc:
+        LOG.warning("  cache read failed %s: %s", ticker, exc)
+    return pd.DataFrame()
+
+
+def save_cached_history(cache_dir: Path, ticker: str, df: pd.DataFrame) -> None:
+    if df.empty:
+        return
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    out = df.copy()
+    out.index.name = "date"
+    out.reset_index().to_csv(cache_dir / f"{cache_name(ticker)}.csv", index=False)
+
+
+def download_yahoo_chart(ticker: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    """Lightweight Yahoo chart fallback. Returns normalized OHLCV."""
+    period1 = int(pd.Timestamp(start).timestamp())
+    period2 = int((pd.Timestamp(end) + pd.Timedelta(days=1)).timestamp())
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    try:
+        resp = requests.get(
+            url,
+            params={"period1": period1, "period2": period2, "interval": "1d", "events": "history"},
+            headers=headers,
+            timeout=20,
+        )
+        if resp.status_code == 429:
+            raise RuntimeError("Yahoo chart 429 rate limited")
+        resp.raise_for_status()
+        result = (resp.json().get("chart", {}).get("result") or [None])[0]
+        if not result:
+            return pd.DataFrame()
+        ts = result.get("timestamp") or []
+        quote = ((result.get("indicators") or {}).get("quote") or [{}])[0]
+        if not ts or not quote:
+            return pd.DataFrame()
+        df = pd.DataFrame({
+            "open": quote.get("open", []),
+            "high": quote.get("high", []),
+            "low": quote.get("low", []),
+            "close": quote.get("close", []),
+            "volume": quote.get("volume", []),
+        }, index=pd.to_datetime(ts, unit="s").normalize())
+        return normalize_yf_df(df)
+    except Exception as exc:
+        LOG.warning("  %s: yahoo chart fallback failed: %s", ticker, exc)
+        return pd.DataFrame()
+
+
+def extract_batch_ticker(df: pd.DataFrame, ticker: str) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    if not isinstance(df.columns, pd.MultiIndex):
+        return normalize_yf_df(df)
+
+    levels = df.columns.names
+    # yfinance can return either (ticker, field) or (field, ticker).
+    for level in (0, 1):
+        values = [str(v) for v in df.columns.get_level_values(level)]
+        if ticker in values:
+            try:
+                part = df.xs(ticker, axis=1, level=level)
+                return normalize_yf_df(part)
+            except Exception:
+                return pd.DataFrame()
+    return pd.DataFrame()
+
+
+def batch_download_history(
+    missing: List[tuple[int, str, str]],
+    start: pd.Timestamp,
+    end: pd.Timestamp,
+    cache_dir: Path,
+) -> Dict[int, pd.DataFrame]:
+    if not missing:
+        return {}
+    tickers = sorted({ticker for _, _, ticker in missing})
+    LOG.info("batch download %d tickers via yfinance", len(tickers))
+    try:
+        df = yf.download(
+            " ".join(tickers),
+            start=start.strftime("%Y-%m-%d"),
+            end=(end + pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
+            interval="1d",
+            progress=False,
+            auto_adjust=True,
+            threads=False,
+            group_by="ticker",
+        )
+    except Exception as exc:
+        LOG.warning("batch download failed: %s", exc)
+        return {}
+
+    by_ticker = {ticker: extract_batch_ticker(df, ticker) for ticker in tickers}
+    result = {}
+    for vid, name, ticker in missing:
+        hist = by_ticker.get(ticker, pd.DataFrame())
+        if not hist.empty:
+            save_cached_history(cache_dir, ticker, hist)
+            result[vid] = hist
+            LOG.info("  cached %s (%s) rows=%d", name, ticker, len(hist))
+    return result
+
+
 def load_varieties(data_dir: Path) -> List[dict]:
+    if TRADFI_SYMBOLS:
+        return [
+            {"variety_id": i, "name": name}
+            for i, name in enumerate(TRADFI_SYMBOLS)
+        ]
+
     meta_path = data_dir / "tradfi_meta.json"
     if meta_path.exists():
         with meta_path.open("r", encoding="utf-8") as f:
@@ -143,10 +355,17 @@ def load_fundamental_template(scores_dir: Path) -> Dict[int, dict]:
 
     LOG.info("Using SA fundamental baseline: %s", latest.name)
     template: Dict[int, dict] = {}
+    current_id_by_name = {name: i for i, name in enumerate(TRADFI_SYMBOLS)}
     with latest.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            vid = int(row["variety_id"])
+            name = row.get("variety_name", row.get("crypto_name", "")).upper()
+            if current_id_by_name:
+                if name not in current_id_by_name:
+                    continue
+                vid = current_id_by_name[name]
+            else:
+                vid = int(row["variety_id"])
             template[vid] = row
     return template
 
@@ -201,31 +420,91 @@ def load_static_sa_config() -> dict:
     }
 
 
-def download_history(varieties: Iterable[dict], start: pd.Timestamp, end: pd.Timestamp) -> Dict[int, pd.DataFrame]:
+def download_history(
+    varieties: Iterable[dict],
+    start: pd.Timestamp,
+    end: pd.Timestamp,
+    cache_dir: Path,
+    refresh_cache: bool = False,
+    retries: int = 3,
+    sleep_seconds: float = 8.0,
+    sources: Optional[List[str]] = None,
+    stooq_sleep: float = 1.0,
+    stooq_retries: int = 3,
+) -> Dict[int, pd.DataFrame]:
     end_exclusive = end + pd.Timedelta(days=1)
+    sources = [s.strip().lower() for s in (sources or ["stooq", "yahoo"]) if s.strip()]
     history: Dict[int, pd.DataFrame] = {}
-    for i, v in enumerate(varieties, 1):
+    missing: List[tuple[int, str, str]] = []
+
+    for v in varieties:
         vid = int(v["variety_id"])
         name = v["name"]
         ticker = to_yf_ticker(name)
-        LOG.info("[%02d] download %s (%s)", i, name, ticker)
-        try:
-            df = yf.download(
-                ticker,
-                start=start.strftime("%Y-%m-%d"),
-                end=end_exclusive.strftime("%Y-%m-%d"),
-                interval="1d",
-                progress=False,
-                auto_adjust=True,
-                threads=False,
-            )
-            history[vid] = normalize_yf_df(df)
-            if history[vid].empty:
-                LOG.warning("  %s: no usable yfinance rows", name)
-        except Exception as exc:
-            LOG.warning("  %s: download failed: %s", name, exc)
+        cached = pd.DataFrame() if refresh_cache else load_cached_history(cache_dir, ticker, start, end)
+        if not cached.empty:
+            history[vid] = cached
+            LOG.info("cache hit %s (%s) rows=%d", name, ticker, len(cached))
+        else:
+            missing.append((vid, name, ticker))
+
+    if "stooq" in sources:
+        stooq_missing: List[tuple[int, str, str]] = []
+        for i, (vid, name, ticker) in enumerate(missing, 1):
+            hist = download_stooq_history(name, start, end, retries=stooq_retries)
+            if not hist.empty:
+                save_cached_history(cache_dir, ticker, hist)
+                history[vid] = hist
+            else:
+                stooq_missing.append((vid, name, ticker))
+            if stooq_sleep > 0 and i < len(missing):
+                time.sleep(stooq_sleep)
+        missing = stooq_missing
+
+    if "yahoo" in sources:
+        history.update(batch_download_history(missing, start, end, cache_dir))
+
+    for i, (vid, name, ticker) in enumerate(missing, 1):
+        if vid in history and not history[vid].empty:
+            continue
+        if "yahoo" not in sources:
+            LOG.warning("  %s: no history from selected sources; using fallbacks/placeholders", name)
             history[vid] = pd.DataFrame()
-        time.sleep(0.1)
+            continue
+        LOG.info("[%02d/%02d] download missing %s (%s)", i, len(missing), name, ticker)
+        hist = pd.DataFrame()
+        for attempt in range(1, retries + 1):
+            try:
+                df = yf.download(
+                    ticker,
+                    start=start.strftime("%Y-%m-%d"),
+                    end=end_exclusive.strftime("%Y-%m-%d"),
+                    interval="1d",
+                    progress=False,
+                    auto_adjust=True,
+                    threads=False,
+                )
+                hist = normalize_yf_df(df)
+                if hist.empty:
+                    hist = download_yahoo_chart(ticker, start, end)
+                if not hist.empty:
+                    break
+                LOG.warning("  %s: no usable rows on attempt %d/%d", name, attempt, retries)
+            except Exception as exc:
+                LOG.warning("  %s: download failed attempt %d/%d: %s", name, attempt, retries, exc)
+            delay = sleep_seconds * attempt + random.uniform(0.0, 2.0)
+            LOG.info("  sleep %.1fs before retry", delay)
+            time.sleep(delay)
+
+        if not hist.empty:
+            save_cached_history(cache_dir, ticker, hist)
+        else:
+            LOG.warning("  %s: giving neutral technical/y placeholders", name)
+        history[vid] = hist
+
+        delay = sleep_seconds + random.uniform(0.0, 2.0)
+        LOG.info("  throttle sleep %.1fs", delay)
+        time.sleep(delay)
     return history
 
 
@@ -244,11 +523,14 @@ def get_us_market_days(history: Dict[int, pd.DataFrame], start: pd.Timestamp, en
                 spy_days = days
                 break
     if spy_days is None:
-        raise RuntimeError("Could not infer US market days from downloaded data.")
+        LOG.warning("Could not infer US market days from downloaded data; falling back to business days.")
+        spy_days = pd.bdate_range(start=start, end=end)
     return [pd.Timestamp(d).normalize() for d in spy_days]
 
 
 def slice_one_year(df: pd.DataFrame, day: pd.Timestamp) -> pd.DataFrame:
+    if df.empty or not isinstance(df.index, pd.DatetimeIndex):
+        return pd.DataFrame()
     window_start = day - pd.Timedelta(days=365)
     return df.loc[(df.index >= window_start) & (df.index <= day)].copy()
 
@@ -326,12 +608,32 @@ def static_fundamental_dims(variety: dict, tech: List[float], window: pd.DataFra
     return {k: f"{v:.4f}" for k, v in dims.items()}
 
 
+def fallback_tech_from_sample(row: Optional[dict]) -> Optional[List[float]]:
+    if not row:
+        return None
+    try:
+        tech = [float(row[f"tech{i}"]) for i in range(1, 25)]
+    except Exception:
+        return None
+    return tech if len(tech) == 24 else None
+
+
+def fallback_target_from_sample(row: Optional[dict]) -> Optional[tuple[float, float]]:
+    if not row:
+        return None
+    try:
+        return float(row.get("y", "0.5")), float(row.get("raw_change", "0.0"))
+    except Exception:
+        return None
+
+
 def build_score_row(
     day: pd.Timestamp,
     variety: dict,
     base: dict,
     df: pd.DataFrame,
     static_config: dict,
+    existing_sample: Optional[dict] = None,
 ) -> dict:
     vid = int(variety["variety_id"])
     name = variety["name"]
@@ -339,7 +641,7 @@ def build_score_row(
     if len(window) >= 20:
         tech = compute_technical_scores(window)
     else:
-        tech = [0.5] * 24
+        tech = fallback_tech_from_sample(existing_sample) or [0.5] * 24
 
     row = {
         "date": display_date(day),
@@ -396,12 +698,51 @@ def write_samples(path: Path, rows: List[dict]) -> None:
         writer.writerows(rows)
 
 
+def cleanup_stale_score_files(scores_dir: Path, start: pd.Timestamp, end: pd.Timestamp, keep_days: List[pd.Timestamp]) -> None:
+    keep = {compact_date(d) for d in keep_days}
+    for day in pd.bdate_range(start=start, end=end):
+        stamp = compact_date(pd.Timestamp(day))
+        if stamp in keep:
+            continue
+        path = scores_dir / f"scores_{stamp}.csv"
+        if path.exists():
+            path.unlink()
+            LOG.info("removed stale non-market score file %s", path.name)
+
+
+def load_existing_sample_lookup(samples_path: Path) -> Dict[tuple[str, str], dict]:
+    if not samples_path.exists():
+        return {}
+    lookup: Dict[tuple[str, str], dict] = {}
+    try:
+        with samples_path.open("r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                date = row.get("date")
+                name = row.get("variety_name")
+                if date and name:
+                    lookup[(date, name.upper())] = row
+    except Exception as exc:
+        LOG.warning("Could not read existing historical_samples.csv as fallback: %s", exc)
+    return lookup
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Backfill SA score CSVs and SANN historical samples.")
     parser.add_argument("--start", default="2026-05-22", help="First score date, YYYY-MM-DD.")
     parser.add_argument("--end", default="2026-06-22", help="Last score date, YYYY-MM-DD.")
-    parser.add_argument("--history-start", default="2025-02-22", help="Download start date, YYYY-MM-DD.")
+    parser.add_argument("--history-start", default="", help="Download start date, YYYY-MM-DD. Default: START minus --history-years.")
+    parser.add_argument("--history-years", type=float, default=2.0, help="Years of K-line history to download before START when --history-start is omitted.")
     parser.add_argument("--data-dir", default=str(PROJECT_ROOT / "skills" / "SANN" / "data"))
+    parser.add_argument("--cache-dir", default="", help="K-line cache dir. Default: DATA_DIR/kline_cache.")
+    parser.add_argument("--sources", default="stooq,yahoo", help="Comma-separated history sources: stooq,yahoo. Use stooq to avoid Yahoo.")
+    parser.add_argument("--refresh-cache", action="store_true", help="Ignore existing kline cache and download again.")
+    parser.add_argument("--stooq-sleep", type=float, default=1.0, help="Seconds to sleep between Stooq CSV requests.")
+    parser.add_argument("--stooq-retries", type=int, default=3, help="Retries for each Stooq symbol/base URL.")
+    parser.add_argument("--download-sleep", type=float, default=8.0, help="Seconds to sleep between fallback single-ticker downloads.")
+    parser.add_argument("--retries", type=int, default=3, help="Retries for each missing ticker.")
+    parser.add_argument("--use-score-template", action="store_true", help="Reuse latest scores_*.csv fundamentals by symbol name. Default rebuilds from static SA config.")
+    parser.add_argument("--ignore-score-template", action="store_true", help="Deprecated no-op; static SA config is now the default.")
     parser.add_argument("--overwrite", action="store_true", help="Overwrite existing scores_YYYYMMDD.csv files.")
     parser.add_argument("--keep-existing-samples", action="store_true", help="Merge with existing historical_samples.csv.")
     args = parser.parse_args()
@@ -410,18 +751,46 @@ def main() -> int:
 
     data_dir = Path(args.data_dir).resolve()
     scores_dir = data_dir / "daily_scores"
+    cache_dir = Path(args.cache_dir).resolve() if args.cache_dir else data_dir / "kline_cache"
     start = parse_date(args.start)
     end = parse_date(args.end)
-    history_start = parse_date(args.history_start)
+    if args.history_start:
+        history_start = parse_date(args.history_start)
+    else:
+        history_start = start - pd.Timedelta(days=int(args.history_years * 365))
+        LOG.info(
+            "history-start omitted; downloading %.2f years of K-lines from %s",
+            args.history_years,
+            display_date(history_start),
+        )
 
     varieties = load_varieties(data_dir)
-    template = load_fundamental_template(scores_dir)
     static_config = load_static_sa_config()
+    template = load_fundamental_template(scores_dir) if args.use_score_template else {}
+    if args.use_score_template:
+        LOG.info("Using latest score baseline for fundamental dimensions.")
+    else:
+        LOG.info("Using static SA scoring config for fundamental dimensions; not reusing latest score template.")
 
-    history = download_history(varieties, history_start, end + pd.Timedelta(days=7))
+    history = download_history(
+        varieties,
+        history_start,
+        end + pd.Timedelta(days=7),
+        cache_dir=cache_dir,
+        refresh_cache=args.refresh_cache,
+        retries=args.retries,
+        sleep_seconds=args.download_sleep,
+        sources=args.sources.split(","),
+        stooq_sleep=args.stooq_sleep,
+        stooq_retries=args.stooq_retries,
+    )
     market_days = get_us_market_days(history, start, end)
     LOG.info("US market days: %s", ", ".join(compact_date(d) for d in market_days))
+    if args.overwrite:
+        cleanup_stale_score_files(scores_dir, start, end, market_days)
 
+    samples_path = data_dir / "historical_samples.csv"
+    existing_sample_lookup = load_existing_sample_lookup(samples_path)
     all_sample_rows: List[dict] = []
     for idx, day in enumerate(market_days):
         next_day = market_days[idx + 1] if idx + 1 < len(market_days) else None
@@ -430,10 +799,15 @@ def main() -> int:
         for variety in varieties:
             vid = int(variety["variety_id"])
             base = template.get(vid, {})
-            row = build_score_row(day, variety, base, history.get(vid, pd.DataFrame()), static_config)
+            existing_sample = existing_sample_lookup.get((display_date(day), variety["name"].upper()))
+            hist = history.get(vid, pd.DataFrame())
+            row = build_score_row(day, variety, base, hist, static_config, existing_sample)
             score_rows.append(row)
 
-            y, raw_change = next_close_change(history.get(vid, pd.DataFrame()), day, next_day)
+            y, raw_change = next_close_change(hist, day, next_day)
+            fallback_target = fallback_target_from_sample(existing_sample)
+            if abs(raw_change) <= 1e-12 and fallback_target is not None:
+                y, raw_change = fallback_target
             sample = dict(row)
             sample["y"] = f"{y:.6f}"
             sample["raw_change"] = f"{raw_change:.6f}"
@@ -446,7 +820,6 @@ def main() -> int:
             write_scores(score_path, score_rows)
             LOG.info("wrote %s (%d rows)", score_path.name, len(score_rows))
 
-    samples_path = data_dir / "historical_samples.csv"
     if args.keep_existing_samples and samples_path.exists():
         existing: List[dict] = []
         with samples_path.open("r", encoding="utf-8") as f:

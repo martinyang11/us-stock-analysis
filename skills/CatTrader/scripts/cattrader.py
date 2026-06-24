@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 CatTrader — 基于SANN评分的TradFi趋势跟踪交易系统 v3.4
 
 核心逻辑：
   每4小时执行一次决策循环：
   1. 读取最新SA评分（14基本面+24技术面，由SANN管线统一计算）
-  2. 加载SANN模型推理，生成56品种综合评分s
+  2. 加载SANN模型推理，生成29标的综合评分s
   3. 查表得到每个品种的目标杠杆（方向+倍数）
   4. 选取目标杠杆最强的1多1空作为操作品种
   5. 与当前持仓对比，派生开仓/调仓/平仓/持有动作
@@ -54,7 +54,7 @@ for p in [PROJECT_ROOT, SA_SCRIPTS, SANN_SCRIPTS, COMMON_DIR, SCRIPT_DIR]:
         sys.path.insert(0, p)
 
 from skills.common.variety_list import (
-    VARIETY_NAMES, VARIETY_CODES, SYMBOLS, NUM_VARIETIES
+    VARIETY_NAMES, VARIETY_CODES, SYMBOLS, SYMBOL_TO_ID, NUM_VARIETIES
 )
 from gtrade_data import GtradeDataProvider
 
@@ -392,7 +392,7 @@ def _find_latest_ca_scores(scores_dir: str, date_str: str) -> Tuple[Dict[int, Li
     from datetime import timedelta
 
     base_date = datetime.strptime(date_str, '%Y%m%d')
-    for offset in range(31):
+    for offset in range(max(NUM_VARIETIES, 1)):
         check_date = (base_date - timedelta(days=offset)).strftime('%Y%m%d')
         csv_path = os.path.join(scores_dir, f'scores_{check_date}.csv')
         if not os.path.exists(csv_path):
@@ -404,8 +404,8 @@ def _find_latest_ca_scores(scores_dir: str, date_str: str) -> Tuple[Dict[int, Li
             reader = csv_mod.DictReader(f)
             fieldnames = reader.fieldnames or []
             for row in reader:
-                # 兼容 crypto_id 和 variety_id
-                cid = int(row.get('crypto_id', row.get('variety_id', -1)))
+                name = row.get('variety_name', row.get('crypto_name', '')).upper()
+                cid = SYMBOL_TO_ID.get(name, int(row.get('crypto_id', row.get('variety_id', -1))))
                 if cid < 0:
                     continue
                 dim1 = float(row.get('dim1', '-1'))
@@ -456,7 +456,7 @@ def _load_model_cached(data_dir: str):
 
 
 def get_sann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[int, float]]:
-    """获取50币种SANN评分 + 资金费率
+    """获取29标的SANN评分 + spread
 
     Returns:
         (scores_dict, ca_date, spreads_dict)
@@ -493,7 +493,7 @@ def get_sann_scores(date_str: str = None) -> Tuple[Dict[int, float], str, Dict[i
         mapped = PAIR_INDEX_TO_VID.get(raw_cid)
         if mapped is not None and mapped < NN_VARIETIES:
             return mapped
-        return raw_cid % NN_VARIETIES
+        return -1
 
     # 全币种推理
     result = {}
@@ -635,7 +635,21 @@ def ensure_daily_data(date_str: str):
 
     # 1. SA 评分
     sa_script = os.path.join(PROJECT_ROOT, 'scripts', 'run_sa_scoring.py')
-    if not os.path.exists(scores_csv):
+    needs_scores = not os.path.exists(scores_csv)
+    if not needs_scores:
+        try:
+            import csv as csv_mod
+            with open(scores_csv, 'r', encoding='utf-8') as f:
+                rows = list(csv_mod.DictReader(f))
+            expected_names = [VARIETY_NAMES.get(cid, '') for cid in range(NUM_VARIETIES)]
+            actual_names = [r.get('variety_name', '').upper() for r in rows]
+            needs_scores = len(rows) != NUM_VARIETIES or actual_names != expected_names
+            if needs_scores:
+                logger.info('[AUTO] SA评分品种集不是当前29标的，将重建')
+        except Exception:
+            needs_scores = True
+
+    if needs_scores:
         logger.info(f'[AUTO] SA 评分不存在，自动生成: {scores_csv}')
         try:
             subprocess.run(
@@ -889,7 +903,7 @@ def generate_report(decisions: List[Decision], scores: Dict[int, float],
 def format_report_text(report: dict) -> str:
     lines = []
     lines.append("=" * 55)
-    lines.append("CatTrader 决策报告 (Crypto)")
+    lines.append("CatTrader 决策报告 (gTrade TradFi)")
     lines.append(f"时间: {report['run_time'][:19]} UTC  第{report['run_count']}次运行")
     if report.get('ca_date'):
         lines.append(f"CA数据: {report['ca_date']}")
@@ -900,7 +914,7 @@ def format_report_text(report: dict) -> str:
     lines.append(f"  均值={ss['mean']:.4f} σ={ss['std']:.4f}  范围=[{ss['min']:.4f}, {ss['max']:.4f}]")
 
     zd = report['zone_distribution']
-    lines.append(f"\n📈 区间分布(50币种)")
+    lines.append(f"\n📈 区间分布({NUM_VARIETIES}标的)")
     lines.append(f"  空0.5×:{zd['空0.5×']}  空0.3×:{zd['空0.3×']}  平仓:{zd['平仓']}  多0.3×:{zd['多0.3×']}  多0.5×:{zd['多0.5×']}")
 
     dd = report['decisions']
@@ -956,7 +970,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                        format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 
-    parser = argparse.ArgumentParser(description='CatTrader (Crypto)')
+    parser = argparse.ArgumentParser(description='CatTrader (gTrade TradFi)')
     parser.add_argument('--date', default=None, help='日期 YYYYMMDD')
     parser.add_argument('--json', action='store_true')
     args = parser.parse_args()
@@ -967,3 +981,4 @@ if __name__ == '__main__':
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
         print(format_report_text(report))
+

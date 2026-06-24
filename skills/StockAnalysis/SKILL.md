@@ -1,9 +1,9 @@
-# StockAnalysis (SA) — 美股TradFi永续合约14维度分析技能
+﻿# StockAnalysis (SA) — 美股TradFi永续合约14维度分析技能
 
 ## 描述
 从美股分析师的视角，基于**14维度评估框架**，对 gTrade（Gains Network）去中心化永续合约上的传统金融（TradFi）品种进行系统性基本面分析，覆盖宏观、行业、公司、市场、治理催化五大板块，输出多空研判综合打分（0-1之间）。
 
-**品种范围**：gTrade Arbitrum 上架的 **56 个** TradFi 品种，包括美股个股（NVDA/AAPL/MSFT/AMZN/GOOGL/META/TSLA等36只）、ETF/指数（SPY/QQQ/IWM等10只）、商品（XAU/XAG/WTI等8个）、加密（BTC/ETH）。gTrade 是链上合成资产平台，价格通过 Chainlink DON 喂价跟踪标的现货。
+**品种范围**：gTrade Arbitrum 上架的 **29 个** TradFi 标的，包括截图指定的 22 只美股/股票类标的与 7 只指数/ETF 类标的。gTrade 是链上合成资产平台，价格通过 Chainlink DON 喂价跟踪标的现货。
 
 ## 触发场景
 - 用户要求对某个TradFi永续品种进行基本面+技术面分析
@@ -73,7 +73,7 @@ from skills.StockAnalysis.scripts.gtrade_data import GtradeDataProvider
 
 with GtradeDataProvider(use_ws=True) as provider:
     # 品种元数据
-    pairs = provider.get_tradfi_pairs()  # 全部56品种
+    pairs = provider.get_tradfi_pairs()  # 29标的
     spread = provider.get_spread("NVDA")  # gTrade spread
     
     # 实时价格 (WebSocket v4)
@@ -501,3 +501,4 @@ $$综合得分 = \sum_{i=1}^{14} (得分_i \times 权重_i)$$
 - **现货映射**：永续合约价格与美股现货高度同步，基本面分析逻辑与美股分析一致
 - 最终报告末尾必须附上免责声明：**本分析仅供参考，不构成投资建议。永续合约交易具有高风险，可能导致全部本金甚至超额损失。请根据自身风险承受能力审慎决策。**
 - **窗口期差异化**：实时数据4h / 日度数据24h / 周度数据7d / 月度数据30d
+

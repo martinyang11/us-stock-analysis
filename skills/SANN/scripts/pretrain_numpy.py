@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 SANN 纯NumPy神经网络 — TradFi gTrade版 v4.1
 
 核心适配：
-- 品种数 35→56, Embedding(56,8)
+- 品种数 29, Embedding(29,8)
 - y值 sigmoid 系数 20 (适配股票波动率)
 - 数据源 gTrade + yfinance (TradFi永续)
 - gTrade 美股+ETF+商品+加密
@@ -26,8 +26,19 @@ from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger('SANN.numpy')
 
-# ---- 品种映射 (gTrade 56个TradFi品种) ----
-NUM_VARIETIES = 56
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+# ---- 品种映射 (gTrade 29个TradFi品种) ----
+try:
+    from skills.common.tradfi_universe import NUM_TRADFI_SYMBOLS, TRADFI_SYMBOLS
+except Exception:
+    NUM_TRADFI_SYMBOLS = 29
+    TRADFI_SYMBOLS = []
+
+NUM_VARIETIES = NUM_TRADFI_SYMBOLS
+SYMBOL_TO_NEW_ID = {name: i for i, name in enumerate(TRADFI_SYMBOLS)}
 EMBEDDING_DIM = 8
 INPUT_SCORES = 38  # 14基本面 + 24技术面
 HIDDEN_DIMS = [48, 32, 16, 8]  # 4层
@@ -352,7 +363,15 @@ def load_csv_samples(csv_path: str, filter_invalid: bool = True) -> Tuple[np.nda
             if abs(raw_change) < 1e-8:
                 continue
 
-        cid = int(row.get('crypto_id', row.get('variety_id', '0')))
+        name = row.get('variety_name', row.get('crypto_name', '')).upper()
+        if SYMBOL_TO_NEW_ID:
+            if name not in SYMBOL_TO_NEW_ID:
+                continue
+            cid = SYMBOL_TO_NEW_ID[name]
+        else:
+            cid = int(row.get('crypto_id', row.get('variety_id', '0')))
+            if cid < 0 or cid >= NUM_VARIETIES:
+                continue
         month = int(row.get('month', '1'))
 
         features.append(dims)
@@ -633,3 +652,4 @@ if __name__ == '__main__':
 
     else:
         print("用法: python pretrain_numpy.py --generate-pretrain|--train|--predict BTCUSDT")
+

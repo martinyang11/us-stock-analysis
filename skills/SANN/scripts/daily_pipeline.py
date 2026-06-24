@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 SANN每日管线脚本 — TradFi gTrade版 v4.2
 每日 UTC 21:00 执行：回填昨日y值 → 微调 → 技术面采集 → 追加今日样本 → 推理
@@ -124,7 +124,10 @@ def update_historical_y(data_dir: str) -> Tuple[int, int]:
 
     for row in samples:
         date_str = row['date']
-        vid = int(row['variety_id'] if 'variety_id' in row else row.get('variety_id', 0))
+        name = row.get('variety_name', row.get('crypto_name', '')).upper()
+        vid = SYMBOL_TO_ID.get(name, int(row.get('variety_id', 0)))
+        if vid < 0 or vid >= NUM_VARIETIES:
+            continue
         raw_change = float(row.get('raw_change', '0.0'))
 
         if abs(raw_change) > 1e-8:
@@ -208,11 +211,17 @@ def generate_today_scores(date_str: str, scores_dir: str) -> int:
     if os.path.exists(csv_path):
         with open(csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
-            for row in reader:
-                if float(row.get('dim1', '-1')) >= 0:
-                    print(f'  ⚠️ CSV已存在真实CA评分，跳过覆盖')
-                    return NUM_VARIETIES
-                break
+            rows = list(reader)
+            existing_names = [r.get('variety_name', '').upper() for r in rows]
+            expected_names = [VARIETY_NAMES.get(vid, '') for vid in range(NUM_VARIETIES)]
+            if len(rows) == NUM_VARIETIES and existing_names == expected_names:
+                for row in rows:
+                    if float(row.get('dim1', '-1')) >= 0:
+                        print(f'  ⚠️ CSV已存在真实CA评分，跳过覆盖')
+                        return NUM_VARIETIES
+                    break
+            else:
+                print(f'  ⚠️ CSV品种集不匹配，将按29标的重建')
 
     cache = get_kline_cache()
 
@@ -386,27 +395,28 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
     except ImportError:
         print('  ⚠️ 无法导入 pretrain_numpy，全部输出0.5')
         model = None
-        NN_VARIETIES = 56
+        NN_VARIETIES = NUM_VARIETIES
 
     # 安全映射: gTrade pairIndex → 内部顺序ID
     from skills.common.variety_list import PAIR_INDEX_TO_VID
 
     def _safe_vid(raw_cid: int) -> int:
-        """将 gTrade pairIndex 映射到模型内部的 0-55"""
+        """将 gTrade pairIndex 映射到模型内部ID"""
         if 0 <= raw_cid < NN_VARIETIES:
             return raw_cid
         mapped = PAIR_INDEX_TO_VID.get(raw_cid)
         if mapped is not None:
             return mapped
-        # 最终兜底: 取模
-        return raw_cid % NN_VARIETIES
+        return -1
 
     with open(scores_csv, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            cid_raw = int(row.get('variety_id', row.get('variety_id', 0)))
-            cid = _safe_vid(cid_raw)
             name = row.get('variety_name', row.get('variety_name', ''))
+            cid_raw = int(row.get('variety_id', row.get('variety_id', 0)))
+            cid = SYMBOL_TO_ID.get(name.upper(), _safe_vid(cid_raw))
+            if cid < 0 or cid >= NUM_VARIETIES:
+                continue
             month = int(row['month'])
 
             dims_14 = [float(row[f'dim{i}']) for i in range(1, 15)]
@@ -501,7 +511,7 @@ def run_daily_pipeline(data_dir: str = './SANN/data', date_str: str = None,
     os.makedirs(scores_dir, exist_ok=True)
 
     print('=' * 60)
-    print(f'SANN每日管线 (Crypto) - {date_str}')
+    print(f'SANN每日管线 (gTrade TradFi 29标的) - {date_str}')
     print(f'执行时间: {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")}')
     print('=' * 60)
 
@@ -564,7 +574,7 @@ def check_ca_filled(date_str: str, scores_dir: str) -> Tuple[int, int]:
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='SANN每日管线 (Crypto)')
+    parser = argparse.ArgumentParser(description='SANN每日管线 (gTrade TradFi)')
     parser.add_argument('--date', default=None)
     parser.add_argument('--data-dir', default='./SANN/data')
     parser.add_argument('--skip-finetune', action='store_true')
@@ -597,3 +607,4 @@ if __name__ == '__main__':
             print('[Inference-Only] ⚠️ 模型加载失败，跳过')
     else:
         run_daily_pipeline(args.data_dir, args.date, args.skip_finetune)
+
