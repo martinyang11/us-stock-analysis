@@ -1,25 +1,26 @@
 # 合约分析 — gTrade TradFi 永续合约分析交易系统
 
-基于三层架构的 **Gains Network gTrade** 去中心化永续合约（美股个股/ETF/商品/加密）量化分析交易技能集。
+基于三层架构的 **Gains Network gTrade** 去中心化永续合约（美股个股/ETF）量化分析交易系统。
 
 ## 架构总览
 
 ```
-StockAnalysis (SA)          ← 14维度基本面评分（宏观3+行业2+公司3+市场4+治理催化2）
+StockAnalysis (SA)          ← 14维度基本面评分
+    │                          D1-D3 宏观 + D4-D5 行业 + D6-D8 公司
+    │                          D9-D12 市场 + D13-D14 治理催化
     │
-    ├─ 14维评分 [0,1] + 24维技术面
+    ├─ 14维评分 + 24维技术面
     │
     ▼
-SANN                        ← 神经聚合引擎（纯NumPy）
-    │                         14基本面 + 24技术面 → 48维输入
-    │                         4层残差MLP → Sigmoid输出 [0,1]
+SANN                        ← 神经聚合引擎（纯NumPy v4.0）
+    │                         48维输入 → 4层残差MLP → Sigmoid [0,1]
     │
     ├─ 综合评分 s ∈ [0,1]
     │
     ▼
 CatTrader                   ← 趋势跟踪交易系统
-                              美股时段4次/天查表 → 0.3×/0.5×杠杆
-                              做多/做空/平仓/持有 + 15%止损止盈
+                              5区间映射 → 0.3×/0.5×杠杆
+                              多/空/平/持 + 15%止损止盈
 ```
 
 ## 技能清单
@@ -27,67 +28,75 @@ CatTrader                   ← 趋势跟踪交易系统
 | 技能 | 目录 | 描述 |
 |------|------|------|
 | **StockAnalysis (SA)** | `skills/StockAnalysis/` | 14维度美股基本面分析 |
-| **SANN** | `skills/SANN/` | 纯NumPy神经网络：48维→评分 |
-| **CatTrader** | `skills/CatTrader/` | 趋势跟踪决策：5区间映射 + SL/TP |
+| **SANN** | `skills/SANN/` | 纯NumPy神经网络：48维→评分 v4.0 |
+| **CatTrader** | `skills/CatTrader/` | 趋势跟踪决策：5区间映射 + 链上执行 |
 
-## 14维度框架
-
-| # | 维度 | 类别 | 核心关注 | 数据源 |
-|---|------|------|----------|--------|
-| 1 | 货币政策 | 宏观 | FOMC/联邦基金利率/DXY/实际利率 | Web Search + FRED |
-| 2 | 经济周期 | 宏观 | GDP/NFP/CPI/ISM PMI/收益率曲线 | Web Search + FRED |
-| 3 | 财政政策 | 宏观 | 联邦预算/债务上限/税收政策 | Web Search |
-| 4 | 行业景气度 | 行业 | GICS行业/行业轮动/子行业趋势 | Web Search + Yahoo Finance |
-| 5 | 比较优势 | 行业 | 市场份额/护城河/竞争格局 | Web Search + SEC EDGAR |
-| 6 | 盈利能力 | 公司 | ROE/ROIC/利润率/FCF/营收增长 | Yahoo Finance + SEC EDGAR |
-| 7 | 估值安全边际 | 公司 | PE/PB/PS分位/PEG/EV-EBITDA | Yahoo Finance |
-| 8 | 盈利预期 | 公司 | Earnings Surprise/Guidance/Analyst | Yahoo Finance + Seeking Alpha |
-| 9 | 合约资金流 | 市场 | gTrade Spread + 24h成交量 + 市场开关 | gTrade API + yfinance |
-| 10 | 机构动向 | 市场 | ETF流量/13F/内部人/做空比例 | SEC EDGAR + Web Search |
-| 11 | 市场情绪 | 市场 | VIX/Put-Call/AAII/Fear & Greed | CBOE + AAII |
-| 12 | 技术结构 | 市场 | MA排列/布林带/ATR/RSI (yfinance K线) | yfinance → numpy计算 |
-| 13 | 公司治理 | 治理 | Board/回购+分红/高管薪酬 | SEC EDGAR + Web Search |
-| 14 | 事件驱动 | 催化 | Earnings Call/FDA/产品发布/并购 | Web Search |
-
-## 品种覆盖（56个 gTrade TradFi）
+## 品种覆盖（29个 gTrade TradFi）
 
 | 类别 | 数量 | 品种 |
 |------|------|------|
 | 科技巨头 | 7 | NVDA, AAPL, MSFT, AMZN, GOOGL, META, TSLA |
-| 半导体 | 2 | AMD, INTC |
-| 加密相关 | 6 | MSTR, COIN, CRCL, HOOD, MARA, RIOT |
-| 金融科技 | 3 | V, MA, PYPL |
-| 消费零售 | 8 | DIS, NKE, KO, MCD, WMT, SBUX, ABNB, GME |
-| 科技其他 | 7 | NFLX, SNAP, PLTR, SBET, BIDU, ROKU, WPM |
-| 医药 | 1 | PFE |
-| 工业/国防 | 2 | BA, LMT |
-| ETF/指数 | 10 | SPY, QQQ, IWM, DIA, SPX500, NAS100, USA30, GDX, URA, URNM |
-| 商品 | 8 | XAU, XAG, WTI, XPT, XPD, HG, NATGAS, BRENT |
-| 加密 | 2 | BTC, ETH |
+| 加密相关 | 5 | MSTR, COIN, HOOD, MARA, RIOT |
+| 科技其他 | 5 | NFLX, SNAP, PLTR, PYPL, CRCL |
+| 消费零售 | 1 | MCD |
+| 工业/国防 | 1 | LMT |
+| 模因 | 1 | GME |
+| ETF/指数 | 7 | SPY, QQQ, IWM, DIA, GDX, URA, URNM |
+| 矿业 | 1 | WPM |
+| 航天 | 1 | SPCX |
+
+## 14维度框架
+
+| # | 维度 | 类别 | 数据窗口 |
+|---|------|------|----------|
+| D1 | 货币政策 | 宏观 | 30天 |
+| D2 | 经济周期 | 宏观 | 30天 |
+| D3 | 财政政策 | 宏观 | 30天 |
+| D4 | 行业景气度 | 行业 | 7天 |
+| D5 | 比较优势 | 行业 | 30天 |
+| D6 | 盈利能力 | 公司 | 30天 |
+| D7 | 估值安全边际 | 公司 | 24小时 |
+| D8 | 盈利预期 | 公司 | 30天 |
+| D9 | 合约资金流 | 市场 | 4小时 |
+| D10 | 机构动向 | 市场 | 7天 |
+| D11 | 市场情绪 | 市场 | 4小时 |
+| D12 | 技术结构 | 市场 | 24小时 |
+| D13 | 公司治理 | 治理 | 30天 |
+| D14 | 事件驱动 | 催化 | 7天 |
+
+## SANN v4.0 架构
+
+- **输入**: 14 SA基本面 + 24 技术面 + 2 月份编码 + 8 品种嵌入 = **48维**
+- **网络**: 4层残差MLP (48→32→16→8→1) + BatchNorm + Dropout(0.25)
+- **输出**: Sigmoid → s ∈ [0,1]
+- **训练**: Adam优化器(手写NumPy), MSE损失, 早停patience=15
+- **冷启动**: <25有效样本不训练, 输出0.5中性
+
+## CatTrader 仓位映射
+
+```
+s:  0 ════ 0.35 ════ 0.45 ════ 0.55 ════ 0.65 ════ 1
+    │空0.5× │ 空0.3×  │  平仓   │ 多0.3×  │多0.5× │
+```
+
+## 自动化调度
+
+| 时间 (北京) | 任务 | 频率 |
+|-------------|------|------|
+| **20:57** | SA 评分（Web Research + 脚本） | 周一至周五 |
+| **21:07** | CatTrader 交易决策 | 周一至周五 |
+
+通过 Claude Code cron 自动执行，持久化于 `.claude/scheduled_tasks.json`。
 
 ## 数据源
 
 | 数据 | 来源 |
 |------|------|
-| 品种元数据/Spread/市场状态 | gTrade REST API (`backend-arbitrum.gains.trade`) |
-| 实时 Mark 价格 | gTrade WebSocket v4 (`backend-pricing.eu.gains.trade`) |
-| 历史 K线 | yfinance (gTrade 合成价格跟踪标的现货) |
-| 公司财务/估值 | Yahoo Finance + SEC EDGAR |
-| 宏观指标 | FRED + Web Search |
-| VIX/Put-Call/情绪 | CBOE + AAII |
-
-## 交易调度
-
-CatTrader 美股时段 4 次/天（周一至周五），通过 crontab 自动执行：
-
-| 轮次 | UTC | 北京时间 | 美股 |
-|------|-----|---------|------|
-| 早盘 | 14:00 | 22:00 | 开盘+30min |
-| 午前 | 16:30 | 00:30 | 盘中 |
-| 午后 | 18:30 | 02:30 | 尾盘前 |
-| 收盘 | 20:30 | 04:30 | 收盘决策 |
-
-SANN 每日管线 UTC 21:00（北京时间 05:00）：回填 y 值 → 微调模型 → 全品种推理。
+| 品种元数据/Spread | gTrade REST API (`backend-arbitrum.gains.trade`) |
+| 实时价格 | gTrade WebSocket v4 (`backend-pricing.eu.gains.trade`) |
+| 历史K线/财务 | Yahoo Finance (yfinance) |
+| 宏观/情绪 | Web Search + FRED + CBOE |
+| 链上交易 | Gains Diamond v10 (Arbitrum) |
 
 ## 保护机制
 
@@ -95,58 +104,64 @@ SANN 每日管线 UTC 21:00（北京时间 05:00）：回填 y 值 → 微调模
 |------|------|
 | 止损 | 15%（做多：entry × 0.85，做空：entry × 1.15） |
 | 止盈 | 15%（做多：entry × 1.15，做空：entry × 0.85） |
-| 市场关闭 | `isStocksOpen=false` → 不新开仓 |
-| 高 Spread | > 0.6% → 仓位降一档 |
-| 中性区 | s ∈ (0.45, 0.55) 绝不开仓 |
+| Spread保护 | > 0.6% → 仓位降一档 |
+| 中性区保护 | s ∈ (0.45, 0.55) 绝不开仓 |
+| 链上预检 | eth_call 预检 → 失败自动跳过 |
+| 状态同步 | 每次链上操作后同步 state.json |
 
 ## 快速启动
 
 ```bash
-# 1. 安装依赖
+# 1. 代理 (上海/香港需要)
+export https_proxy=http://127.0.0.1:7897
+export http_proxy=http://127.0.0.1:7897
+
+# 2. 安装依赖
 pip install numpy pandas requests yfinance websocket-client
 
-# 2. 代理 (上海需要)
-export HTTPS_PROXY=http://127.0.0.1:7897
+# 3. SA 评分
+.venv/bin/python3 scripts/run_sa_scoring.py --date 20260625
 
-# 3. 测试 gTrade 数据
-cd skills/StockAnalysis/scripts
-python gtrade_data.py
-
-# 4. SANN 管线
-cd skills/SANN/scripts
-python daily_pipeline.py --date 20260612 --data-dir ../data
-
-# 5. CatTrader 决策
-cd skills/CatTrader/scripts
-python cattrader.py
-
-# 6. 安装自动化调度
-crontab crontab.txt
+# 4. CatTrader 决策
+.venv/bin/python3 skills/CatTrader/scripts/cattrader.py --date 20260625
 ```
 
 ## 目录结构
 
 ```
-skills/
-├── StockAnalysis/              # 14维度美股基本面分析
-│   ├── SKILL.md
-│   ├── references/             # 维度手册 + 报告模板
-│   └── scripts/
-│       └── gtrade_data.py      # gTrade REST + WebSocket + yfinance
-├── SANN/                       # 神经网络评分 (原 CANN)
-│   ├── SKILL.md
-│   ├── references/
-│   ├── scripts/
-│   │   ├── pretrain_numpy.py
-│   │   └── daily_pipeline.py
-│   └── data/
-├── CatTrader/                  # 交易决策
-│   ├── SKILL.md
-│   ├── scripts/cattrader.py
-│   └── data/
-└── common/
-    └── variety_list.py         # gTrade 56品种动态映射
+.
+├── scripts/
+│   ├── run_sa_scoring.py              # SA评分主脚本
+│   └── backfill_sa_sann_history.py    # 历史数据回填
+├── skills/
+│   ├── StockAnalysis/                 # 14维度美股基本面分析
+│   │   ├── SKILL.md
+│   │   └── scripts/gtrade_data.py     # gTrade REST + WebSocket + yfinance
+│   ├── SANN/                          # 神经网络评分 v4.0
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   ├── pretrain_numpy.py      # 模型定义+训练+推理
+│   │   │   └── daily_pipeline.py      # 每日管线
+│   │   └── data/
+│   │       ├── daily_scores/          # scores_YYYYMMDD.csv
+│   │       ├── model_weights.npz      # 模型权重
+│   │       └── historical_samples.csv # 训练数据
+│   ├── CatTrader/                     # 交易决策
+│   │   ├── SKILL.md
+│   │   ├── scripts/cattrader.py
+│   │   └── data/state.json            # 持仓状态
+│   └── common/
+└── onchain_trade/                     # 链上交易适配器
+    └── hole_board/exchange/onchain/venues/gains/
+        └── adapter.py                 # Gains Diamond v10
 ```
+
+## 链上交易
+
+- **合约**: Gains v10 Diamond (Arbitrum) `0xFF162c694eAA571f685030649814282eA457f169`
+- **保证金**: USDC (10 USDC最低)
+- **杠杆**: 0.3× / 0.5×
+- **预检**: eth_call 模拟 → 失败自动跳过
 
 ## 免责声明
 
