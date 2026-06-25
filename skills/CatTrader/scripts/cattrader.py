@@ -11,11 +11,11 @@ CatTrader — 基于SANN评分的TradFi趋势跟踪交易系统 v3.4
   5. 与当前持仓对比，派生开仓/调仓/平仓/持有动作
 
 仓位映射表（s → 目标杠杆）：
-  s ≤ 0.35       → 做空 0.5×（σ≥0.15）
-  0.35 < s ≤ 0.45 → 做空 0.3×（σ∈[0.05,0.15)）
-  0.45 < s < 0.55 → 平仓（σ<0.05 中性区）
-  0.55 ≤ s < 0.65 → 做多 0.3×（σ∈[0.05,0.15)）
-  s ≥ 0.65       → 做多 0.5×（σ≥0.15）
+  s ≤ 0.40       → 做空 0.5×（强空）
+  0.40 < s < 0.47 → 做空 0.3×（弱空）
+  0.47 ≤ s ≤ 0.53 → 平仓（中性区）
+  0.53 < s < 0.60 → 做多 0.3×（弱多）
+  s ≥ 0.60       → 做多 0.5×（强多）
 
 TradFi版保护：
   - gTrade spread > 0.6% → gTrade高spread→仓位降一档
@@ -274,13 +274,13 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
 # ============================================================
 def get_target_leverage(score: float) -> TargetLeverage:
     """SANN评分 → 目标杠杆"""
-    if score <= 0.35:
+    if score <= 0.40:
         return TargetLeverage(Direction.SHORT.value, 0.5, "空0.5×")
-    elif score <= 0.45:
+    elif score < 0.47:
         return TargetLeverage(Direction.SHORT.value, 0.3, "空0.3×")
-    elif score < 0.55:
+    elif score <= 0.53:
         return TargetLeverage(Direction.NONE.value, 0.0, "平仓")
-    elif score < 0.65:
+    elif score < 0.60:
         return TargetLeverage(Direction.LONG.value, 0.3, "多0.3×")
     else:
         return TargetLeverage(Direction.LONG.value, 0.5, "多0.5×")

@@ -6,6 +6,7 @@ SA 每日评分脚本 (2026-06-22)
 import sys, os, logging, json, csv, io
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import quote
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 log = logging.getLogger("SA")
@@ -26,11 +27,175 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import numpy as np
 import pandas as pd
+import requests
 import yfinance as yf
 
 from skills.StockAnalysis.scripts.gtrade_data import (
     GtradeDataProvider, compute_technical_scores, get_tradfi_pairs
 )
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+KLINE_CACHE_DIR = PROJECT_ROOT / "skills" / "SANN" / "data" / "kline_cache"
+
+TICKER_MAP = {
+    'XAU': 'GC=F', 'XAG': 'SI=F', 'WTI': 'CL=F', 'XPT': 'PL=F',
+    'XPD': 'PA=F', 'HG': 'HG=F', 'NATGAS': 'NG=F', 'BRENT': 'BZ=F',
+    'SPCX': '^GSPC', 'SPX500': '^GSPC', 'NAS100': '^NDX', 'USA30': '^DJI',
+    'URNM': 'URNM', 'URA': 'URA', 'GDX': 'GDX', 'WPM': 'WPM',
+    'CRCL': 'CRCL', 'SBET': 'SBET',
+}
+
+
+def cache_name(ticker: str) -> str:
+    return ticker.replace("^", "_IDX_").replace("=", "_F_").replace("/", "_")
+
+
+def normalize_ohlcv_df(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    df = df.copy()
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = [str(c[0]).lower() for c in df.columns]
+    else:
+        df.columns = [str(c).lower() for c in df.columns]
+    required = ["open", "high", "low", "close"]
+    if any(c not in df.columns for c in required):
+        return pd.DataFrame()
+    if "date" in df.columns:
+        df.index = pd.to_datetime(df["date"], utc=True).dt.tz_convert(None).dt.normalize()
+    else:
+        df.index = pd.to_datetime(df.index, utc=True).tz_convert(None).normalize()
+    if "volume" not in df.columns:
+        df["volume"] = 1.0
+    df = df[["open", "high", "low", "close", "volume"]].dropna(subset=["close"])
+    return df[~df.index.duplicated(keep="last")].sort_index()
+
+
+def download_yahoo_chart(ticker: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    period1 = int(pd.Timestamp(start).timestamp())
+    period2 = int(pd.Timestamp(end).timestamp())
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(ticker, safe='')}"
+    params = {
+        "period1": period1,
+        "period2": period2,
+        "interval": "1d",
+        "events": "history",
+        "includeAdjustedClose": "true",
+    }
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        resp.raise_for_status()
+        result = resp.json().get("chart", {}).get("result") or []
+        if not result:
+            return pd.DataFrame()
+        item = result[0]
+        ts = item.get("timestamp") or []
+        quote_data = (item.get("indicators", {}).get("quote") or [{}])[0]
+        if not ts or not quote_data:
+            return pd.DataFrame()
+        return normalize_ohlcv_df(pd.DataFrame({
+            "date": pd.to_datetime(ts, unit="s"),
+            "open": quote_data.get("open", []),
+            "high": quote_data.get("high", []),
+            "low": quote_data.get("low", []),
+            "close": quote_data.get("close", []),
+            "volume": quote_data.get("volume", []),
+        }))
+    except Exception as e:
+        log.warning(f"{ticker}: yahoo chart update failed ({e})")
+        return pd.DataFrame()
+
+
+def stooq_candidates(ticker: str) -> list:
+    symbol = ticker.upper()
+    if symbol in {"^GSPC", "SPCX", "SPX500"}:
+        return ["^spx", "spy.us"]
+    if symbol.startswith("^"):
+        return [symbol.lower()]
+    return [f"{symbol.lower()}.us"]
+
+
+def download_stooq_history(ticker: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    for stooq_symbol in stooq_candidates(ticker):
+        for base_url in ("https://stooq.com/q/d/l/", "http://stooq.com/q/d/l/"):
+            try:
+                resp = requests.get(
+                    base_url,
+                    params={
+                        "s": stooq_symbol,
+                        "i": "d",
+                        "d1": start.strftime("%Y%m%d"),
+                        "d2": end.strftime("%Y%m%d"),
+                    },
+                    headers={"User-Agent": "Mozilla/5.0"},
+                    timeout=20,
+                )
+                resp.raise_for_status()
+                text = resp.text.strip()
+                if not text or text.lower().startswith("no data"):
+                    continue
+                hist = normalize_ohlcv_df(pd.read_csv(io.StringIO(text)))
+                if not hist.empty:
+                    log.info(f"{ticker}: stooq cache update via {stooq_symbol}, rows={len(hist)}")
+                    return hist
+            except Exception as e:
+                log.warning(f"{ticker}: stooq {stooq_symbol} update failed ({e})")
+    return pd.DataFrame()
+
+
+def load_cached_tech_history(ticker: str) -> pd.DataFrame:
+    path = KLINE_CACHE_DIR / f"{cache_name(ticker)}.csv"
+    target = pd.Timestamp(_RUN_DATE.date())
+    start = target - pd.Timedelta(days=370)
+    cached = pd.DataFrame()
+    try:
+        if path.exists():
+            cached = pd.read_csv(path)
+            if "date" in cached.columns:
+                cached["date"] = pd.to_datetime(cached["date"])
+                cached = normalize_ohlcv_df(cached)
+    except Exception as e:
+        log.warning(f"{ticker}: local kline cache read failed ({e})")
+        cached = pd.DataFrame()
+
+    latest = cached.index.max() if not cached.empty else None
+    if latest is None or latest < target:
+        fetch_start = start if latest is None else latest + pd.Timedelta(days=1)
+        try:
+            fetched = download_yahoo_chart(ticker, fetch_start, target + pd.Timedelta(days=1))
+            if not fetched.empty:
+                cached = pd.concat([cached, fetched]).sort_index()
+                cached = cached[~cached.index.duplicated(keep="last")]
+                KLINE_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                out = cached.copy()
+                out.index.name = "date"
+                out.reset_index().to_csv(path, index=False)
+        except Exception as e:
+            log.warning(f"{ticker}: kline cache update failed ({e})")
+
+    latest = cached.index.max() if not cached.empty else None
+    if latest is None or latest < target:
+        fetch_start = start if latest is None else latest + pd.Timedelta(days=1)
+        try:
+            fetched = download_stooq_history(ticker, fetch_start, target)
+            if not fetched.empty:
+                cached = pd.concat([cached, fetched]).sort_index()
+                cached = cached[~cached.index.duplicated(keep="last")]
+                KLINE_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                out = cached.copy()
+                out.index.name = "date"
+                out.reset_index().to_csv(path, index=False)
+        except Exception as e:
+            log.warning(f"{ticker}: stooq kline cache update failed ({e})")
+
+    if cached.empty:
+        return pd.DataFrame()
+    latest = cached.index.max()
+    if latest is None or latest < target:
+        raise RuntimeError(
+            f"{ticker}: kline cache is stale, latest={latest.date() if latest is not None else 'none'}, target={target.date()}"
+        )
+    return cached[(cached.index >= start) & (cached.index <= target)]
 
 # ============================================================
 # 1. 获取品种列表
@@ -83,12 +248,26 @@ def compute_tech_for_variety(name: str) -> list:
         return [0.5] * 24
 
 log.info("开始计算 24 维技术指标...")
+def compute_tech_for_variety_cached(name: str) -> list:
+    try:
+        ticker = TICKER_MAP.get(name, name)
+        df = load_cached_tech_history(ticker)
+        if df is None or len(df) < 20:
+            raise RuntimeError(f"{name}: no usable kline rows for {_RUN_DATE_STR}")
+        df = normalize_ohlcv_df(df)
+        if df.empty or len(df) < 20:
+            raise RuntimeError(f"{name}: normalized kline rows insufficient ({len(df)})")
+        return compute_technical_scores(df)
+    except Exception as e:
+        raise RuntimeError(f"{name}: technical score failed ({e})") from e
+
+
 tech_scores = {}
 for i, v in enumerate(VARIETIES):
     name = v['variety_name']
     if (i + 1) % 10 == 0:
         log.info(f"  进度: {i+1}/{len(VARIETIES)}")
-    tech_scores[name] = compute_tech_for_variety(name)
+    tech_scores[name] = compute_tech_for_variety_cached(name)
 log.info(f"技术指标计算完成: {len(tech_scores)} 个品种")
 
 # ============================================================

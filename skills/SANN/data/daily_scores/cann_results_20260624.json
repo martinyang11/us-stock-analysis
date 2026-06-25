@@ -1,435 +1,218 @@
 {
   "date": "2026-06-24",
-  "total": 60,
-  "bullish": 4,
-  "neutral": 41,
-  "bearish": 15,
+  "total": 29,
+  "bullish": 0,
+  "neutral": 29,
+  "bearish": 0,
   "cann_range": [
-    0.3339,
-    0.6043
+    0.4693,
+    0.5354
   ],
-  "cann_std": 0.05494978745788437,
-  "cann_mean": 0.481605,
+  "cann_std": 0.015717982763831066,
+  "cann_mean": 0.49938620689655183,
   "scores": [
     {
       "variety_id": 0,
-      "variety_name": "BTC",
-      "ca_mean": 0.4893,
-      "cann_score": 0.5302,
+      "variety_name": "NVDA",
+      "ca_mean": 0.5321,
+      "cann_score": 0.5084,
       "direction": "中性"
     },
     {
       "variety_id": 1,
-      "variety_name": "ETH",
-      "ca_mean": 0.4788,
-      "cann_score": 0.5452,
+      "variety_name": "AAPL",
+      "ca_mean": 0.5319,
+      "cann_score": 0.5027,
       "direction": "中性"
     },
     {
       "variety_id": 2,
-      "variety_name": "AAPL",
-      "ca_mean": 0.5095,
-      "cann_score": 0.4538,
+      "variety_name": "AMZN",
+      "ca_mean": 0.516,
+      "cann_score": 0.5186,
       "direction": "中性"
     },
     {
       "variety_id": 3,
-      "variety_name": "GOOGL",
-      "ca_mean": 0.4684,
-      "cann_score": 0.4812,
+      "variety_name": "COIN",
+      "ca_mean": 0.4781,
+      "cann_score": 0.487,
       "direction": "中性"
     },
     {
       "variety_id": 4,
-      "variety_name": "AMZN",
-      "ca_mean": 0.4826,
-      "cann_score": 0.512,
+      "variety_name": "CRCL",
+      "ca_mean": 0.4108,
+      "cann_score": 0.4693,
       "direction": "中性"
     },
     {
       "variety_id": 5,
-      "variety_name": "MSFT",
-      "ca_mean": 0.4916,
-      "cann_score": 0.6043,
-      "direction": "偏多"
+      "variety_name": "GME",
+      "ca_mean": 0.3742,
+      "cann_score": 0.5021,
+      "direction": "中性"
     },
     {
       "variety_id": 6,
-      "variety_name": "TSLA",
-      "ca_mean": 0.4476,
-      "cann_score": 0.5383,
+      "variety_name": "GOOGL",
+      "ca_mean": 0.5105,
+      "cann_score": 0.5008,
       "direction": "中性"
     },
     {
       "variety_id": 7,
-      "variety_name": "SNAP",
-      "ca_mean": 0.3792,
-      "cann_score": 0.5026,
+      "variety_name": "HOOD",
+      "ca_mean": 0.5025,
+      "cann_score": 0.5278,
       "direction": "中性"
     },
     {
       "variety_id": 8,
-      "variety_name": "NVDA",
-      "ca_mean": 0.5166,
-      "cann_score": 0.5454,
+      "variety_name": "LMT",
+      "ca_mean": 0.4917,
+      "cann_score": 0.4919,
       "direction": "中性"
     },
     {
       "variety_id": 9,
-      "variety_name": "V",
-      "ca_mean": 0.5285,
-      "cann_score": 0.4298,
-      "direction": "偏空"
+      "variety_name": "MARA",
+      "ca_mean": 0.4751,
+      "cann_score": 0.4995,
+      "direction": "中性"
     },
     {
       "variety_id": 10,
-      "variety_name": "MA",
-      "ca_mean": 0.5137,
-      "cann_score": 0.4678,
+      "variety_name": "MCD",
+      "ca_mean": 0.4952,
+      "cann_score": 0.4963,
       "direction": "中性"
     },
     {
       "variety_id": 11,
-      "variety_name": "PFE",
-      "ca_mean": 0.4486,
-      "cann_score": 0.4532,
+      "variety_name": "META",
+      "ca_mean": 0.4927,
+      "cann_score": 0.4942,
       "direction": "中性"
     },
     {
       "variety_id": 12,
-      "variety_name": "KO",
-      "ca_mean": 0.5182,
-      "cann_score": 0.5184,
+      "variety_name": "MSFT",
+      "ca_mean": 0.5132,
+      "cann_score": 0.5131,
       "direction": "中性"
     },
     {
       "variety_id": 13,
-      "variety_name": "DIS",
-      "ca_mean": 0.4874,
-      "cann_score": 0.3964,
-      "direction": "偏空"
+      "variety_name": "MSTR",
+      "ca_mean": 0.4548,
+      "cann_score": 0.4821,
+      "direction": "中性"
     },
     {
       "variety_id": 14,
-      "variety_name": "GME",
-      "ca_mean": 0.355,
-      "cann_score": 0.4081,
-      "direction": "偏空"
+      "variety_name": "NFLX",
+      "ca_mean": 0.4846,
+      "cann_score": 0.4764,
+      "direction": "中性"
     },
     {
       "variety_id": 15,
-      "variety_name": "NKE",
-      "ca_mean": 0.4475,
-      "cann_score": 0.5955,
-      "direction": "偏多"
+      "variety_name": "PLTR",
+      "ca_mean": 0.4675,
+      "cann_score": 0.4948,
+      "direction": "中性"
     },
     {
       "variety_id": 16,
-      "variety_name": "AMD",
-      "ca_mean": 0.5057,
-      "cann_score": 0.3918,
-      "direction": "偏空"
+      "variety_name": "PYPL",
+      "ca_mean": 0.4798,
+      "cann_score": 0.4912,
+      "direction": "中性"
     },
     {
       "variety_id": 17,
-      "variety_name": "PYPL",
-      "ca_mean": 0.4589,
-      "cann_score": 0.463,
+      "variety_name": "RIOT",
+      "ca_mean": 0.4814,
+      "cann_score": 0.5138,
       "direction": "中性"
     },
     {
       "variety_id": 18,
-      "variety_name": "ABNB",
-      "ca_mean": 0.4852,
-      "cann_score": 0.4801,
+      "variety_name": "SNAP",
+      "ca_mean": 0.4045,
+      "cann_score": 0.4696,
       "direction": "中性"
     },
     {
       "variety_id": 19,
-      "variety_name": "BA",
-      "ca_mean": 0.4627,
-      "cann_score": 0.3883,
-      "direction": "偏空"
+      "variety_name": "SPCX",
+      "ca_mean": 0.5109,
+      "cann_score": 0.4995,
+      "direction": "中性"
     },
     {
       "variety_id": 20,
-      "variety_name": "SBUX",
-      "ca_mean": 0.4902,
-      "cann_score": 0.4254,
-      "direction": "偏空"
+      "variety_name": "TSLA",
+      "ca_mean": 0.4691,
+      "cann_score": 0.4915,
+      "direction": "中性"
     },
     {
       "variety_id": 21,
-      "variety_name": "WMT",
-      "ca_mean": 0.508,
-      "cann_score": 0.4261,
-      "direction": "偏空"
+      "variety_name": "WPM",
+      "ca_mean": 0.4845,
+      "cann_score": 0.4886,
+      "direction": "中性"
     },
     {
       "variety_id": 22,
-      "variety_name": "INTC",
-      "ca_mean": 0.4374,
-      "cann_score": 0.4748,
+      "variety_name": "SPY",
+      "ca_mean": 0.5113,
+      "cann_score": 0.5019,
       "direction": "中性"
     },
     {
       "variety_id": 23,
-      "variety_name": "MCD",
-      "ca_mean": 0.474,
-      "cann_score": 0.5581,
-      "direction": "偏多"
+      "variety_name": "DIA",
+      "ca_mean": 0.5274,
+      "cann_score": 0.5354,
+      "direction": "中性"
     },
     {
       "variety_id": 24,
-      "variety_name": "META",
-      "ca_mean": 0.4635,
-      "cann_score": 0.5467,
+      "variety_name": "GDX",
+      "ca_mean": 0.4972,
+      "cann_score": 0.4922,
       "direction": "中性"
     },
     {
       "variety_id": 25,
-      "variety_name": "SPY",
-      "ca_mean": 0.4915,
-      "cann_score": 0.5288,
+      "variety_name": "IWM",
+      "ca_mean": 0.5298,
+      "cann_score": 0.521,
       "direction": "中性"
     },
     {
       "variety_id": 26,
       "variety_name": "QQQ",
-      "ca_mean": 0.4929,
-      "cann_score": 0.5133,
+      "ca_mean": 0.5126,
+      "cann_score": 0.5181,
       "direction": "中性"
     },
     {
       "variety_id": 27,
-      "variety_name": "IWM",
-      "ca_mean": 0.5086,
-      "cann_score": 0.4741,
+      "variety_name": "URA",
+      "ca_mean": 0.4954,
+      "cann_score": 0.5066,
       "direction": "中性"
     },
     {
       "variety_id": 28,
-      "variety_name": "DIA",
-      "ca_mean": 0.5049,
-      "cann_score": 0.4783,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 29,
-      "variety_name": "XAU",
-      "ca_mean": 0.4555,
-      "cann_score": 0.5352,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 30,
-      "variety_name": "XAG",
-      "ca_mean": 0.4347,
-      "cann_score": 0.419,
-      "direction": "偏空"
-    },
-    {
-      "variety_id": 31,
-      "variety_name": "WTI",
-      "ca_mean": 0.4306,
-      "cann_score": 0.4831,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 32,
-      "variety_name": "XPT",
-      "ca_mean": 0.4355,
-      "cann_score": 0.4723,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 33,
-      "variety_name": "XPD",
-      "ca_mean": 0.4331,
-      "cann_score": 0.5287,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 34,
-      "variety_name": "HG",
-      "ca_mean": 0.4486,
-      "cann_score": 0.3339,
-      "direction": "偏空"
-    },
-    {
-      "variety_id": 35,
-      "variety_name": "COIN",
-      "ca_mean": 0.4608,
-      "cann_score": 0.5216,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 36,
-      "variety_name": "HOOD",
-      "ca_mean": 0.4847,
-      "cann_score": 0.4764,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 37,
-      "variety_name": "MSTR",
-      "ca_mean": 0.4367,
-      "cann_score": 0.5166,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 38,
-      "variety_name": "NFLX",
-      "ca_mean": 0.4618,
-      "cann_score": 0.5071,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 39,
-      "variety_name": "CRCL",
-      "ca_mean": 0.3936,
-      "cann_score": 0.4654,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 40,
-      "variety_name": "SBET",
-      "ca_mean": 0.3774,
-      "cann_score": 0.515,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 41,
-      "variety_name": "PLTR",
-      "ca_mean": 0.4454,
-      "cann_score": 0.5132,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 42,
-      "variety_name": "BIDU",
-      "ca_mean": 0.391,
-      "cann_score": 0.5135,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 43,
-      "variety_name": "ROKU",
-      "ca_mean": 0.4584,
-      "cann_score": 0.4567,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 44,
-      "variety_name": "LMT",
-      "ca_mean": 0.4722,
-      "cann_score": 0.5433,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 45,
-      "variety_name": "RIOT",
-      "ca_mean": 0.4663,
-      "cann_score": 0.4424,
-      "direction": "偏空"
-    },
-    {
-      "variety_id": 46,
-      "variety_name": "MARA",
-      "ca_mean": 0.4645,
-      "cann_score": 0.389,
-      "direction": "偏空"
-    },
-    {
-      "variety_id": 47,
-      "variety_name": "SPX500",
-      "ca_mean": 0.4913,
-      "cann_score": 0.5608,
-      "direction": "偏多"
-    },
-    {
-      "variety_id": 48,
-      "variety_name": "NAS100",
-      "ca_mean": 0.4895,
-      "cann_score": 0.437,
-      "direction": "偏空"
-    },
-    {
-      "variety_id": 49,
-      "variety_name": "USA30",
-      "ca_mean": 0.5051,
-      "cann_score": 0.4738,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 50,
-      "variety_name": "GDX",
-      "ca_mean": 0.4631,
-      "cann_score": 0.5471,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 51,
-      "variety_name": "URA",
-      "ca_mean": 0.4527,
-      "cann_score": 0.4631,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 52,
-      "variety_name": "WPM",
-      "ca_mean": 0.4634,
-      "cann_score": 0.5187,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 53,
-      "variety_name": "NATGAS",
-      "ca_mean": 0.4593,
-      "cann_score": 0.4547,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 54,
-      "variety_name": "BRENT",
-      "ca_mean": 0.4277,
-      "cann_score": 0.4874,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 55,
       "variety_name": "URNM",
-      "ca_mean": 0.4525,
-      "cann_score": 0.4744,
+      "ca_mean": 0.492,
+      "cann_score": 0.4878,
       "direction": "中性"
-    },
-    {
-      "variety_id": 0,
-      "variety_name": "SPCX",
-      "ca_mean": 0.46,
-      "cann_score": 0.431,
-      "direction": "偏空"
-    },
-    {
-      "variety_id": 1,
-      "variety_name": "AVGO",
-      "ca_mean": 0.4486,
-      "cann_score": 0.4691,
-      "direction": "中性"
-    },
-    {
-      "variety_id": 2,
-      "variety_name": "SNDK",
-      "ca_mean": 0.4795,
-      "cann_score": 0.3783,
-      "direction": "偏空"
-    },
-    {
-      "variety_id": 3,
-      "variety_name": "MU",
-      "ca_mean": 0.4786,
-      "cann_score": 0.4375,
-      "direction": "偏空"
     }
   ]
 }
