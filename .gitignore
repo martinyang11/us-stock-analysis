@@ -1,4 +1,4 @@
-# OS
+﻿# OS
 .DS_Store
 Thumbs.db
 
@@ -24,8 +24,7 @@ node_modules/
 credentials.json
 binance_api.json
 
-# Model weights (too large, regenerate)
-*.npz
+# Model weights\r\n*.npz\r\n!skills/SANN/data/model_weights.npz
 
 # Training logs
 *.csv
@@ -62,3 +61,4 @@ skills/CatTrader/data/logs/
 
 # Wallet secrets
 onchain_trade/dt_config/onchain_config.py
+
