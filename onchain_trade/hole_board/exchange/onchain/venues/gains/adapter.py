@@ -838,8 +838,17 @@ class GainsVenueAdapter(OnchainVenueAdapter):
                 return {'ok': False, 'reason': '保证金不足'}
             if '0xc5723b51' in err:
                 return {'ok': False, 'reason': '品种/函数不存在'}
-            # 截取前150字符作为reason
-            reason = err.split("'")[1] if "'" in err else err[:100]
+            # 提取 revert 原因：优先合约消息，其次截取关键信息
+            if 'execution reverted' in err:
+                # "execution reverted: ERC20: transfer amount exceeds balance"
+                idx = err.find('execution reverted')
+                reason = err[idx:idx + 150]
+            elif 'insufficient funds' in err.lower():
+                reason = 'gas费不足 (ETH余额不够)'
+            elif "'" in err:
+                reason = err.split("'")[1][:150]
+            else:
+                reason = err[:150]
             return {'ok': False, 'reason': reason}
 
     def open_trade(self, req: OnchainOpenRequest) -> OnchainTradeResult:

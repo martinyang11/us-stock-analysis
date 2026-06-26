@@ -1,18 +1,6 @@
 {
   "positions": [
     {
-      "crypto_id": 4,
-      "crypto_name": "CRCL",
-      "symbol": "CRCL",
-      "direction": "空头",
-      "entry_score": 0.4692878027352969,
-      "entry_sigma": 0.03071219726470309,
-      "leverage": 0.3,
-      "entry_time": "2026-06-26T06:22:40.459204+00:00",
-      "entry_date": "20260624",
-      "entry_price": 68.80999755859375
-    },
-    {
       "crypto_id": 7,
       "crypto_name": "HOOD",
       "symbol": "HOOD",
@@ -20,13 +8,27 @@
       "entry_score": 0.5436820879917508,
       "entry_sigma": 0.04368208799175077,
       "leverage": 0.3,
-      "entry_time": "2026-06-26T06:23:04.664783+00:00",
-      "entry_date": "20260625",
-      "entry_price": 93.47000122070312
+      "entry_time": "2026-06-26T18:46:24.851024+00:00",
+      "entry_date": "20260627",
+      "entry_price": 96.6500015258789,
+      "tx_hash": "0x5977e80d5602db528afd12170c131a8ff0e90838eaf33175a6900c2d27109bde"
+    },
+    {
+      "crypto_id": 4,
+      "crypto_name": "CRCL",
+      "symbol": "CRCL",
+      "direction": "空头",
+      "entry_score": 0.4657395425438591,
+      "entry_sigma": 0.034260457456140925,
+      "leverage": 0.3,
+      "entry_time": "2026-06-26T18:46:24.851024+00:00",
+      "entry_date": "20260627",
+      "entry_price": 73.18000030517578,
+      "tx_hash": "0x38c535d17017c744668d499c87ad77a67d10e49d5a8371d35ba58935346fa837"
     }
   ],
-  "last_run": "2026-06-26T06:23:04.664783+00:00",
-  "run_count": 2,
+  "last_run": "2026-06-26T18:46:24.851024+00:00",
+  "run_count": 6,
   "history": [
     {
       "time": "2026-06-26T06:22:40.459204+00:00",
@@ -82,6 +84,62 @@
       "sigma": 0.04368208799175077,
       "zone": "多0.3×",
       "reason": "多0.3×区间 s=0.5437 σ=0.0437",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-26T18:02:51.242988+00:00",
+      "action": "空缺",
+      "crypto_id": 7,
+      "crypto_name": "HOOD",
+      "symbol": "HOOD",
+      "direction": "多头",
+      "leverage": 0.3,
+      "score": 0.5436820879917508,
+      "sigma": 0.04368208799175077,
+      "zone": "链上失败",
+      "reason": "多0.3×区间 s=0.5437 σ=0.0437",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-26T18:02:51.242988+00:00",
+      "action": "空缺",
+      "crypto_id": 4,
+      "crypto_name": "CRCL",
+      "symbol": "CRCL",
+      "direction": "空头",
+      "leverage": 0.3,
+      "score": 0.4657395425438591,
+      "sigma": 0.034260457456140925,
+      "zone": "链上失败",
+      "reason": "空0.3×区间 s=0.4657 σ=0.0343",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-26T18:46:24.851024+00:00",
+      "action": "开仓",
+      "crypto_id": 7,
+      "crypto_name": "HOOD",
+      "symbol": "HOOD",
+      "direction": "多头",
+      "leverage": 0.3,
+      "score": 0.5436820879917508,
+      "sigma": 0.04368208799175077,
+      "zone": "多0.3×",
+      "reason": "多0.3×区间 s=0.5437 σ=0.0437",
+      "spread_warning": ""
+    },
+    {
+      "time": "2026-06-26T18:46:24.851024+00:00",
+      "action": "开仓",
+      "crypto_id": 4,
+      "crypto_name": "CRCL",
+      "symbol": "CRCL",
+      "direction": "空头",
+      "leverage": 0.3,
+      "score": 0.4657395425438591,
+      "sigma": 0.034260457456140925,
+      "zone": "空0.3×",
+      "reason": "空0.3×区间 s=0.4657 σ=0.0343",
       "spread_warning": ""
     }
   ]

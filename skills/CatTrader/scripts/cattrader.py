@@ -202,16 +202,24 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
                 leverage = 2.0  # gTrade 最低杠杆 2x
 
                 # 预检: eth_call 模拟交易，避免浪费 gas
+                # 已知问题：gTrade v10 的 openTrade eth_call 会 silent revert，
+                # 但真实交易可以成功，所以预检失败不阻断
+                preflight_ok = False
                 try:
                     preflight = adapter.simulate_open(symbol, 'long' if d.direction == Direction.LONG.value else 'short',
                                                       collateral, leverage)
-                    if not preflight.get('ok'):
-                        reason = preflight.get('reason', 'unknown')
-                        msg = f'{tag} 预检失败 {symbol} {d.direction}: {reason}，跳过'
-                        logger.warning(msg)
-                        onchain_logs.append(msg)
-                        failed_ids.add(d.crypto_id)
-                        continue
+                    if preflight.get('ok'):
+                        preflight_ok = True
+                    else:
+                        reason = preflight.get('reason', '')
+                        if reason and '保证金不足' in reason:
+                            msg = f'{tag} 预检失败 {symbol} {d.direction}: {reason}，跳过'
+                            logger.warning(msg)
+                            onchain_logs.append(msg)
+                            failed_ids.add(d.crypto_id)
+                            continue
+                        else:
+                            logger.info(f'{tag} 预检未通过 {symbol} (reason={reason or "silent"})，跳过预检直接发交易...')
                 except Exception as e:
                     logger.warning(f'{tag} 预检异常 {symbol}: {e}，继续尝试...')
 
