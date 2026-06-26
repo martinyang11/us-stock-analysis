@@ -433,7 +433,7 @@ def download_history(
     stooq_retries: int = 3,
 ) -> Dict[int, pd.DataFrame]:
     end_exclusive = end + pd.Timedelta(days=1)
-    sources = [s.strip().lower() for s in (sources or ["stooq", "yahoo"]) if s.strip()]
+    sources = [s.strip().lower() for s in (sources or ["yahoo"]) if s.strip()]
     history: Dict[int, pd.DataFrame] = {}
     missing: List[tuple[int, str, str]] = []
 
@@ -448,21 +448,31 @@ def download_history(
         else:
             missing.append((vid, name, ticker))
 
-    if "stooq" in sources:
-        stooq_missing: List[tuple[int, str, str]] = []
-        for i, (vid, name, ticker) in enumerate(missing, 1):
-            hist = download_stooq_history(name, start, end, retries=stooq_retries)
-            if not hist.empty:
-                save_cached_history(cache_dir, ticker, hist)
-                history[vid] = hist
-            else:
-                stooq_missing.append((vid, name, ticker))
-            if stooq_sleep > 0 and i < len(missing):
-                time.sleep(stooq_sleep)
-        missing = stooq_missing
-
-    if "yahoo" in sources:
-        history.update(batch_download_history(missing, start, end, cache_dir))
+    for source in sources:
+        if not missing:
+            break
+        if source == "yahoo":
+            before = list(missing)
+            history.update(batch_download_history(missing, start, end, cache_dir))
+            missing = [
+                (vid, name, ticker)
+                for vid, name, ticker in before
+                if vid not in history or history[vid].empty
+            ]
+        elif source == "stooq":
+            stooq_missing: List[tuple[int, str, str]] = []
+            for i, (vid, name, ticker) in enumerate(missing, 1):
+                hist = download_stooq_history(name, start, end, retries=stooq_retries)
+                if not hist.empty:
+                    save_cached_history(cache_dir, ticker, hist)
+                    history[vid] = hist
+                else:
+                    stooq_missing.append((vid, name, ticker))
+                if stooq_sleep > 0 and i < len(missing):
+                    time.sleep(stooq_sleep)
+            missing = stooq_missing
+        else:
+            LOG.warning("unknown history source ignored: %s", source)
 
     for i, (vid, name, ticker) in enumerate(missing, 1):
         if vid in history and not history[vid].empty:
@@ -735,7 +745,7 @@ def main() -> int:
     parser.add_argument("--history-years", type=float, default=2.0, help="Years of K-line history to download before START when --history-start is omitted.")
     parser.add_argument("--data-dir", default=str(PROJECT_ROOT / "skills" / "SANN" / "data"))
     parser.add_argument("--cache-dir", default="", help="K-line cache dir. Default: DATA_DIR/kline_cache.")
-    parser.add_argument("--sources", default="stooq,yahoo", help="Comma-separated history sources: stooq,yahoo. Use stooq to avoid Yahoo.")
+    parser.add_argument("--sources", default="yahoo", help="Comma-separated history sources in order: yahoo,stooq. Default: yahoo.")
     parser.add_argument("--refresh-cache", action="store_true", help="Ignore existing kline cache and download again.")
     parser.add_argument("--stooq-sleep", type=float, default=1.0, help="Seconds to sleep between Stooq CSV requests.")
     parser.add_argument("--stooq-retries", type=int, default=3, help="Retries for each Stooq symbol/base URL.")

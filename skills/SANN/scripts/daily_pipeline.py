@@ -444,29 +444,43 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
                 'direction': '',
             })
 
-    # 方向判定
-    BULL_THRESHOLD = 0.55
-    BEAR_THRESHOLD = 0.45
+    # 方向判定：与 CatTrader get_target_leverage 保持一致
+    STRONG_BEAR_THRESHOLD = 0.40
+    WEAK_BEAR_THRESHOLD = 0.47
+    WEAK_BULL_THRESHOLD = 0.53
+    STRONG_BULL_THRESHOLD = 0.60
 
     for r in results:
         if r['ca_mean'] < 0:
             r['direction'] = '无CA数据'
-        elif r['cann_score'] >= BULL_THRESHOLD:
-            r['direction'] = '偏多'
-        elif r['cann_score'] < BEAR_THRESHOLD:
-            r['direction'] = '偏空'
-        else:
+        elif r['cann_score'] <= STRONG_BEAR_THRESHOLD:
+            r['direction'] = '空0.5×'
+        elif r['cann_score'] < WEAK_BEAR_THRESHOLD:
+            r['direction'] = '空0.3×'
+        elif r['cann_score'] <= WEAK_BULL_THRESHOLD:
             r['direction'] = '中性'
+        elif r['cann_score'] < STRONG_BULL_THRESHOLD:
+            r['direction'] = '多0.3×'
+        else:
+            r['direction'] = '多0.5×'
 
     cann_scores = [r['cann_score'] for r in results]
-    bullish = [r for r in results if r['direction'] == '偏多']
-    bearish = [r for r in results if r['direction'] == '偏空']
+    bullish = [r for r in results if r['direction'] in ('多0.3×', '多0.5×')]
+    bearish = [r for r in results if r['direction'] in ('空0.3×', '空0.5×')]
     neutral = [r for r in results if r['direction'] == '中性']
+    zone_counts = {
+        '空0.5×': len([r for r in results if r['direction'] == '空0.5×']),
+        '空0.3×': len([r for r in results if r['direction'] == '空0.3×']),
+        '中性': len(neutral),
+        '多0.3×': len([r for r in results if r['direction'] == '多0.3×']),
+        '多0.5×': len([r for r in results if r['direction'] == '多0.5×']),
+    }
 
     output = {
         'date': f'{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}',
         'total': len(results),
         'bullish': len(bullish), 'neutral': len(neutral), 'bearish': len(bearish),
+        'zone_distribution': zone_counts,
         'cann_range': [float(min(cann_scores)), float(max(cann_scores))],
         'cann_std': float(np.std(cann_scores)),
         'cann_mean': float(np.mean(cann_scores)),
@@ -480,7 +494,10 @@ def run_inference(model, date_str: str, scores_dir: str, data_dir: str) -> dict:
     print(f'  ✅ 推理完成: {len(results)}币种')
     print(f'     SANN范围: [{min(cann_scores):.4f}, {max(cann_scores):.4f}]')
     print(f'     μ={np.mean(cann_scores):.4f} σ={np.std(cann_scores):.4f}')
-    print(f'     偏多:{len(bullish)} 中性:{len(neutral)} 偏空:{len(bearish)}')
+    print(
+        f"     空0.5×:{zone_counts['空0.5×']} 空0.3×:{zone_counts['空0.3×']} "
+        f"中性:{zone_counts['中性']} 多0.3×:{zone_counts['多0.3×']} 多0.5×:{zone_counts['多0.5×']}"
+    )
 
     # 显示Top5多和Top5空
     if bullish:
