@@ -1,0 +1,225 @@
+{
+  "date": "2026-06-29",
+  "total": 29,
+  "bullish": 0,
+  "neutral": 0,
+  "bearish": 0,
+  "zone_distribution": {
+    "空0.5×": 0,
+    "空0.3×": 0,
+    "中性": 0,
+    "多0.3×": 0,
+    "多0.5×": 0
+  },
+  "cann_range": [
+    0.5,
+    0.5
+  ],
+  "cann_std": 0.0,
+  "cann_mean": 0.5,
+  "scores": [
+    {
+      "variety_id": 0,
+      "variety_name": "NVDA",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 1,
+      "variety_name": "AAPL",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 2,
+      "variety_name": "AMZN",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 3,
+      "variety_name": "COIN",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 4,
+      "variety_name": "CRCL",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 5,
+      "variety_name": "GME",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 6,
+      "variety_name": "GOOGL",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 7,
+      "variety_name": "HOOD",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 8,
+      "variety_name": "LMT",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 9,
+      "variety_name": "MARA",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 10,
+      "variety_name": "MCD",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 11,
+      "variety_name": "META",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 12,
+      "variety_name": "MSFT",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 13,
+      "variety_name": "MSTR",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 14,
+      "variety_name": "NFLX",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 15,
+      "variety_name": "PLTR",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 16,
+      "variety_name": "PYPL",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 17,
+      "variety_name": "RIOT",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 18,
+      "variety_name": "SNAP",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 19,
+      "variety_name": "SPCX",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 20,
+      "variety_name": "TSLA",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 21,
+      "variety_name": "WPM",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 22,
+      "variety_name": "SPY",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 23,
+      "variety_name": "DIA",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 24,
+      "variety_name": "GDX",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 25,
+      "variety_name": "IWM",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 26,
+      "variety_name": "QQQ",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 27,
+      "variety_name": "URA",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    },
+    {
+      "variety_id": 28,
+      "variety_name": "URNM",
+      "ca_mean": -1,
+      "cann_score": 0.5,
+      "direction": "无CA数据"
+    }
+  ]
+}

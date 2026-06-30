@@ -105,6 +105,7 @@ class Position:
     entry_time: str
     entry_date: str
     entry_price: float = 0.0  # 入场价格 (用于SL/TP计算)
+    tx_hash: str = ""  # 链上交易哈希
 
 
 @dataclass
@@ -162,11 +163,12 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
     """
     onchain_logs = []
     failed_ids = set()
+    tx_hashes = {}  # crypto_id → tx_hash（开仓）
     try:
         adapter, is_dry = _get_onchain_adapter()
     except Exception as e:
         logger.warning(f'链上适配器加载失败（可能未配置钱包）: {e}')
-        return onchain_logs, failed_ids
+        return onchain_logs, failed_ids, tx_hashes
 
     tag = '[DRY-RUN]' if is_dry else '[ONCHAIN]'
     logger.info(f'{tag} 开始执行链上交易 (dry_run={is_dry})')
@@ -232,6 +234,8 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
                 msg = f'{tag} 开仓 {symbol} {d.direction} {leverage:.1f}x {collateral}USDC → tx={result.tx_hash}'
                 logger.info(msg)
                 onchain_logs.append(msg)
+                if result.tx_hash:
+                    tx_hashes[d.crypto_id] = result.tx_hash
 
                 # 记录链上 trade_index 到状态
                 if result.order_sys_id:
@@ -274,7 +278,7 @@ def execute_onchain(decisions: List[Decision], positions: List[Position],
             onchain_logs.append(msg)
             failed_ids.add(d.crypto_id)
 
-    return onchain_logs, failed_ids
+    return onchain_logs, failed_ids, tx_hashes
 
 
 # ============================================================
@@ -813,7 +817,12 @@ def run_cat_trader(date_str: str = None) -> dict:
         processed_ids.add(cid)
 
     # 执行链上交易（先于状态保存）
-    onchain_logs, failed_ids = execute_onchain(decisions, positions_after, state, date_str)
+    onchain_logs, failed_ids, tx_hashes = execute_onchain(decisions, positions_after, state, date_str)
+
+    # 回写链上 tx_hash 到仓位
+    for p in positions_after:
+        if p.crypto_id in tx_hashes:
+            p.tx_hash = tx_hashes[p.crypto_id]
 
     # 只保留链上执行成功的仓位
     final_positions = [p for p in positions_after if p.crypto_id not in failed_ids]
